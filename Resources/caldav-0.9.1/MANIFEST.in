@@ -1,0 +1,4 @@
+include COPYING.*
+include changelog.0.8.md
+include README.md
+recursive-include tests *
