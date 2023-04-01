@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.1" method="upgrade">
+	<name>xbjournals</name>
+	<creationDate>1st April 2023</creationDate>
+	<version>0.0.0.1</version>
+	<author>Roger C-O</author>
+	<authorEmail>roger@crosborne.uk</authorEmail>
+	<authorUrl>www.crosborne.uk</authorUrl>
+	<copyright>(c) Roger Creagh-Osborne, 2023. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
+	<description>XBJOURNALS_XML_DESCRIPTION</description>
+
+	<scriptfile>script.xbjournals.php</scriptfile>
+
+<!-- 
+	<files folder="site">
+	    <filename>index.html</filename>
+	    <filename>xbfilms.php</filename>
+	    <filename>controller.php</filename>
+	    <filename>router.php</filename>
+	    <folder>helpers</folder>
+	    <folder>controllers</folder>
+	    <folder>models</folder>
+	    <folder>views</folder>
+	    <folder>layouts</folder>
+	</files>
+
+	<languages folder="site/language">
+		<language tag="en-GB">en-GB/en-GB.com_xbfilms.ini</language>
+	</languages>
+
+	<media destination="com_xbfilms" folder="media">
+		<filename>index.html</filename>
+		<folder>images</folder>
+		<folder>samples</folder>
+	</media>
+ -->
+
+	<install>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+<!-- uninstall handled by script.xbjournals.php to allow option to retain data
+	<uninstall>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+ -->
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+
+	<administration>
+		<files folder="admin">
+			<filename>index.html</filename>
+			<filename>xbjournals.php</filename>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>uploads</folder>
+			<folder>views</folder>
+		</files>
+
+		<languages folder="admin/language">
+			<language tag="en-GB">en-GB/en-GB.com_xbjournals.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_xbjournals.sys.ini</language>
+		</languages>
+
+		<menu img="class:xbjournals" link="option=com_xbjournals">xbJournals</menu>
+		<submenu>
+			<menu link="option=com_xbjournals"
+				img="class:xbjournals-dashboard"
+				>
+					xbjournals_iconmenu_dashboard
+			</menu>
+			<menu link="option=com_config&amp;view=component&amp;component=com_xbjournals"
+					>xbjournals_iconmenu_options				
+			</menu>
+		</submenu>
+	</administration>
+
+	<updateservers>
+		<server type="extension" priority="1" name="xbJournals Updates">
+			http://www.crosborne.co.uk/jupdates/update_xbjournals.xml
+		</server>
+	 </updateservers>
+</extension>

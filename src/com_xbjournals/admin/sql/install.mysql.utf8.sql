@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournalentries` (
 
 # CREATE UNIQUE INDEX `entryaliasindex` ON `#__xbjournalentries` (`alias`);
 
-CREATE TABLE IF NOT EXISTS `#__xbentryitems` (
+CREATE TABLE IF NOT EXISTS `#__xbjournalentryitems` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT '0',
   
