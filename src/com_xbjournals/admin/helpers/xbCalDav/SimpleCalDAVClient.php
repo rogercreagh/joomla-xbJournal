@@ -319,6 +319,73 @@ class SimpleCalDAVClient {
 	
 		return $report;
 	}
+
+	/**
+	 * function getJournals()
+	 * @desc gets the VJOURNAL entries which have a start time set (ie it excludes notes which have no start or end time)
+	 * 
+	 * @param unknown $start
+	 * @param unknown $end
+	 * @throws Exception
+	 * @throws CalDAVException
+	 * @return CalDAVObject[]
+	 */
+	function getJournals ( $start = null, $end = null )
+	{
+	    // Connection and calendar set?
+	    if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+	    if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+	    
+	    // Are $start and $end in the correct format?
+	    if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
+	        or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
+	    { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
+	    
+	    // Get it!
+	    $results = $this->client->GetJournals( $start, $end );
+	    
+	    // GET-request successfull?
+	    if ( $this->client->GetHttpResultCode() != '207' )
+	    {
+	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+	    }
+	    
+	    // Reformat
+	    $report = array();
+	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+	    
+	    return $report;
+	}
+	
+	/**
+	 * @name getNotes()
+	 * @desc gets VJOURNAL entries without a DTSTART or DTEND - these are Notes
+	 * @throws Exception
+	 * @throws CalDAVException
+	 * @return CalDAVObject[]
+	 */
+	function getNotes ()
+	{
+	    // Connection and calendar set?
+	    if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+	    if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+	    	    
+	    // Get it!
+	    $results = $this->client->GetNotes();
+	    
+	    // GET-request successfull?
+	    if ( $this->client->GetHttpResultCode() != '207' )
+	    {
+	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+	    }
+	    
+	    // Reformat
+	    $report = array();
+	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+	    
+	    return $report;
+	}
+	
 	
 	/**
 	 * function getTODOs()

@@ -9,3 +9,11 @@
  ******/
 // No direct access to this file
 defined('_JEXEC') or die;
+
+?>
+
+<?php 
+echo '<pre>'.print_r($this->journalitems,true).'</pre>';
+
+echo '<pre>'.print_r($this->notes,true).'</pre>';
+?>

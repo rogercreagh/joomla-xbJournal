@@ -94,6 +94,31 @@ VALUES
 	"note":"note"}}',
 'XbjournalsHelperRoute::getCategoryRoute','');
 
+CREATE TABLE IF NOT EXISTS `#__xbjournalservers` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `title` varchar(190) NOT NULL DEFAULT '',
+  `alias` varchar(190) NOT NULL DEFAULT '',
+  `url` varchar(190) NOT NULL DEFAULT '',
+  `username` varchar(190) NOT NULL DEFAULT '',
+  `password` varchar(190) NOT NULL DEFAULT '',
+  `access` int(10) NOT NULL  DEFAULT '0',
+  `state` tinyint(3) NOT NULL DEFAULT '0',
+  `created` datetime,
+  `created_by` int(10) NOT NULL DEFAULT '0',
+  `created_by_alias` varchar(255) NOT NULL DEFAULT '',
+  `version` int(10) NOT NULL DEFAULT '0',
+  `modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `modified_by` int(10) NOT NULL  DEFAULT '0',
+  `checked_out` int(10) NOT NULL DEFAULT '0',
+  `checked_out_time` datetime,
+  `metadata` mediumtext NOT NULL DEFAULT '',
+  `ordering` int(10) NOT NULL DEFAULT '0',
+  `params` mediumtext NOT NULL DEFAULT '',
+  `note` text,
+  PRIMARY KEY (`id`)
+)  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
+
+
 CREATE TABLE IF NOT EXISTS `#__xbjournals` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT '0',
@@ -129,16 +154,16 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals` (
 CREATE TABLE IF NOT EXISTS `#__xbjournalentries` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `asset_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `dtstamp`
-  `uid`
-  `sequence`
-  `created`
-  `last_modified`
-  `summary`
-  `styled-description`
-  `class`
-  `status`
-  `etag`
+  `dtstamp`  varchar(190) NOT NULL DEFAULT '',
+  `uid` varchar(190) NOT NULL DEFAULT '',
+  `sequence` varchar(190) NOT NULL DEFAULT '',
+  `calcreated`  varchar(190) NOT NULL DEFAULT '',
+  `last_modified` varchar(190) NOT NULL DEFAULT '',
+  `summary` varchar(190) NOT NULL DEFAULT '',
+  `styled-description` varchar(190) NOT NULL DEFAULT '',
+  `class` varchar(190) NOT NULL DEFAULT '',
+  `status` varchar(190) NOT NULL DEFAULT '',
+  `etag` varchar(190) NOT NULL DEFAULT '',
   `title` varchar(190) NOT NULL DEFAULT '',
   `alias` varchar(190) NOT NULL DEFAULT '',
   `catid` int(10) NOT NULL DEFAULT '0',

@@ -971,7 +971,60 @@ EOFILTER;
       return $this->DoCalendarQuery($filter, $relative_url);
   }
 
+  /**
+   * @name GetJournals();
+   * @param unknown $start
+   * @param unknown $finish
+   * @param unknown $relative_url
+   * @return array|array[]
+   */
+  function GetJournals( $start = null, $finish = null, $relative_url = null ) {
+      $this->SetDepth('1');
+      $filter = "";
+      if ( isset($start) && isset($finish) )
+          $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
+          elseif ( isset($start) && ! isset($finish) )
+          $range = "<C:time-range start=\"$start\"/>";
+          elseif ( ! isset($start) && isset($finish) )
+          $range = "<C:time-range end=\"$finish\"/>";
+          else
+              $range = '';
+              
+              $filter = <<<EOFILTER
+<C:filter>
+<C:comp-filter name="VCALENDAR">
+<C:comp-filter name="VJOURNAL">
+$range
+</C:comp-filter>
+</C:comp-filter>
+</C:filter>
+EOFILTER;
 
+return $this->DoCalendarQuery($filter, $relative_url);
+  }
+  
+  
+ /**
+  * @name GetNotes()
+  * @param unknown $relative_url
+  * @return array|array[]
+  */ 
+  function GetNotes( $relative_url = null ) {
+      $this->SetDepth('1');
+      $filter = <<<EOFILTER
+<C:filter>
+<C:comp-filter name="VCALENDAR">
+<C:comp-filter name="VJOURNAL">
+<C:prop-filter name="dtstart"><C:is-not-defined/></C:prop-filter>
+</C:comp-filter>
+</C:comp-filter>
+</C:filter>
+EOFILTER;
+
+    return $this->DoCalendarQuery($filter, $relative_url);
+  }
+  
+  
   /**
    * Get the todo's in a range from $start to $finish.  The dates should be in the
    * format yyyymmddThhmmssZ and should be in GMT.  The events are returned as an
