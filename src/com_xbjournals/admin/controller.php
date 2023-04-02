@@ -9,3 +9,16 @@
  ******/
 // No direct access to this file
 defined('_JEXEC') or die;
+
+class XbjournalsController extends JControllerLegacy {
+    protected $default_view = 'dashboard';
+    
+    public function display ($cachable = false, $urlparms = false){
+        
+        require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/SimpleCalDAVClient.php';
+        //require_once JPATH_COMPONENT.'/helpers/xbfilmsgeneral.php';
+        
+        return parent::display();
+    }
+}
+

@@ -99,11 +99,11 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals` (
   `asset_id` int(10) unsigned NOT NULL DEFAULT '0',
   `displayname` varchar(190) NOT NULL DEFAULT '',
   `url` varchar(190) NOT NULL DEFAULT '',
-  `ctag`
-  `calandar_id`
-  `rgba_color`
-  `rgb_color`
-  `order`
+  `ctag` varchar(190) NOT NULL DEFAULT '',
+  `calandar_id`  varchar(190) NOT NULL DEFAULT '',
+  `rgba_color`  varchar(10) NOT NULL DEFAULT '',
+  `rgb_color` varchar(8) NOT NULL DEFAULT '',
+  `order` int(10)  NOT NULL  DEFAULT '0',
   `title` varchar(190) NOT NULL DEFAULT '',
   `alias` varchar(190) NOT NULL DEFAULT '',
   `catid` int(10) NOT NULL  DEFAULT '0',
