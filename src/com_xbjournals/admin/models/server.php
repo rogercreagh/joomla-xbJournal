@@ -178,6 +178,8 @@ class XbjournalsModelServer extends JModelAdmin {
         if (parent::save($data)) {
             //other stuff if req - eg saving subform data
             
+            //$newcnt = XbjournalsHelper::getServerCalendars($serverid);
+            
             return true;
         }
         

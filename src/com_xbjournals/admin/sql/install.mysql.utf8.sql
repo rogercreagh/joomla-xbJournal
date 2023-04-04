@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals 12th December 2022
+# sql installation file for component xbJournals v0.0.0.5 4th April 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `cal_displayname` varchar(190) NOT NULL DEFAULT '',
   `cal_url` varchar(190) NOT NULL DEFAULT '',
   `cal_ctag` varchar(190) NOT NULL DEFAULT '',
-  `cal_calandar_id`  varchar(190) NOT NULL DEFAULT '',
+  `cal_calendar_id`  varchar(190) NOT NULL DEFAULT '',
   `cal_rgb_color` varchar(8) NOT NULL DEFAULT '',
   `cal_order` int(10)  NOT NULL  DEFAULT '0',
   `last_checked` datetime,

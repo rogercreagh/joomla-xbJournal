@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.0.3 3rd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -61,18 +61,18 @@ class XbjournalsHelper extends ContentHelper
 	}
     
 	/**
-	 * @name checkTitleExists()
+	 * @name checkDataExists()
 	 * @desc checks (case insensitive) if a given title exists in a given db table
-	 * @param string $title - the title to search for
+	 * @param string $value - the title to search for
 	 * @param string $table - the table name to search
 	 * @param string $col - the column in the table (default 'title')
 	 * @return int - the id if found otherwise false
 	 */
-	public static function checkTitleExists($title, $table, $col = 'title') {
+	public static function checkDBvalueExists($value, $table, $col = 'title') {
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
 	    $query->select('id')->from($db->quoteName($table))
-	    ->where('LOWER('.$db->quoteName($col).')='.$db->quote(strtolower($title)));
+	    ->where('LOWER('.$db->quoteName($col).')='.$db->quote(strtolower($value)));
 	    $db->setQuery($query);
 	    $res = $db->loadResult();
 	    if ($res > 0) {
@@ -123,8 +123,8 @@ class XbjournalsHelper extends ContentHelper
 	            $existingcals[] = $res;
 	        } else { //we need to add it
 	            $query->clear();
-	            $query->insert($db->quoteName('#__xbjournals_calenders'));
-	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calandar_id,cal_rgb_color,cal_order,title,alias,access,state');
+	            $query->insert($db->quoteName('#__xbjournals_calendars'));
+	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,cal_rgb_color,cal_order,title,alias,access,state');
 	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
 	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calname).','.$db->q(strtolower($calname)).','.$db->q('1').','.$db->q('1'));
 	            //try
@@ -150,28 +150,45 @@ class XbjournalsHelper extends ContentHelper
 	
 	public static function checkValidServer(string $url, string $user, string $pword) {
 	    
+	    $message = '';
 	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
 	    
 	    $client = new CalDAVClient($url, $user, $pword);
 	    // Valid CalDAV-Server? Or is it just a WebDAV-Server?
-	    if( ! $client->isValidCalDAVServer() )
-	    {
-	        
-	        if( $client->GetHttpResultCode() == '401' ) // unauthorisized
-	        {
-	            throw new CalDAVException('Login failed', $client);
+	    if( ! $client->isValidCalDAVServer() ) {	
+	        $res = $client->GetHttpResultCode();
+	        switch ($res) {
+	            case '401':
+	                $message = 'Login failed';
+	                break;
+	            case '':
+	                $message = 'Can\'t reach server';
+	                break;
+	            default:
+	                $message = 'Could\'nt find a CalDAV-collection under the url ('.$res.')';
+	                break;
 	        }
-	        
-	        elseif( $client->GetHttpResultCode() == '' ) // can't reach server
-	        {
-	            throw new CalDAVException('Can\'t reach server', $client);
-	        }
-	        
-	        else throw new CalDAVException('Could\'nt find a CalDAV-collection under the url', $client);
+	        Factory::getApplication()->enqueueMessage($message,'Error');
+	        return false;
 	    }
-	    
-	    
-	    
+	    // Check for errors
+	    $res = $client->GetHttpResultCode();
+	    if( $res != '200' ) {
+    	    switch ($res) {
+    	        case '401':
+    	            $message .= 'Login failed';
+    	            break;
+    	        case '':
+    	            $message .= 'Can\'t reach server';
+    	            break;    	            
+    	        default:
+    	            $message .= 'Recieved unknown HTTP status while checking the connection after establishing it ('.$res.')';
+    	            break;
+    	    }
+    	    Factory::getApplication()->enqueueMessage($message,'Error');
+    	    return false;
+	    }	    
 	    return true;
 	}
+
 }

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/tables/server.php
- * @version 0.0.0.2 3rd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -29,6 +29,10 @@ class XbjournalsTableServer extends Table
     public function check() {
         
         //first check that connection is valid
+        if (!XbjournalsHelper::checkValidServer($this->url,$this->username, $this->password)) {
+            $this->setError(Text::_('Invalid server connection'));
+            return false;
+        }
         
         $params = ComponentHelper::getParams('com_xbjournals');
         
@@ -39,7 +43,7 @@ class XbjournalsTableServer extends Table
             return false;
         }
         
-        if (($this->id == 0) && (XbjournalsHelper::checkTitleExists($title,'#__xbjournals_servers'))) {
+        if (($this->id == 0) && (XbjournalsHelper::checkDBvalueExists($title,'#__xbjournals_servers'))) {
             $this->setError(Text::sprintf('XBJOURNALS_TITLE_EXISTS',$title));
             return false;
         }
@@ -50,6 +54,16 @@ class XbjournalsTableServer extends Table
             $this->alias = $title;
         }
         $this->alias = OutputFilter::stringURLSafe(strtolower($this->alias));
+        //check alias and if exists add cycle num
+        if (($this->id == 0) && (XbjournalsHelper::checkDBvalueExists($this->alias,'#__xbjournals_servers','alias'))) {
+            $num=1;
+            $test = $this->alias.'-'.$num;
+            while (XbjournalsHelper::checkDBvalueExists($test,'#__xbjournals_servers','alias')) {
+                $num ++;
+                $test = $this->alias.'-'.$num;
+            }
+            $this->alias = $test;
+        }
         
         //set metadata to defaults
         $metadata = json_decode($this->metadata,true);

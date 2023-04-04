@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/server.xml v0.0.0.2 3rd April 2023 -->
+<!-- xbJournals admin/models/forms/server.xml v0.0.0.5 4th April 2023 -->
 <form>
 
 	<fieldset>
@@ -24,13 +24,15 @@
 		
 		<field name="url" type="url"
 			label="CalDAV Server url" description="Full url to the server. Typically 'https://cloud.domain.uk/remote.php/dav/calendars/userid'"
-			hint="https://"
+			hint="https://" required="true"
 		/>
 		<field name="username" type="text"
 			label="Username" description="Username to login to CalDAV server"
+			 required="true"
 		/>
 		<field name="password" type="text"
 			label="Password" description="Password for the above user"
+			 required="true"
 		/>
 
 		<field name="description" type="editor"
