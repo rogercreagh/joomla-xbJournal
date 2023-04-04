@@ -2,40 +2,69 @@
 
 require_once('../SimpleCalDAVClient.php');
 
-$firstNewEvent = 'BEGIN:VCALENDAR
-PRODID:-//SomeExampleStuff//EN
-VERSION:2.0
-BEGIN:VTIMEZONE
-TZID:Europe/Berlin
-X-LIC-LOCATION:Europe/Berlin
-BEGIN:DAYLIGHT
-TZOFFSETFROM:+0100
-TZOFFSETTO:+0200
-TZNAME:CEST
-DTSTART:19700329T020000
-RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
-END:DAYLIGHT
-BEGIN:STANDARD
-TZOFFSETFROM:+0200
-TZOFFSETTO:+0100
-TZNAME:CET
-DTSTART:19701025T030000
-RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
-END:STANDARD
-END:VTIMEZONE
-BEGIN:VEVENT
-CREATED:20140403T091024Z
-LAST-MODIFIED:20140403T091044Z
-DTSTAMP:20140416T091044Z
-UID:ExampleUID1
-SUMMARY:ExampleEvent1
-DTSTART;TZID=Europe/Berlin:20140418T120000
-DTEND;TZID=Europe/Berlin:20140418T130000
-LOCATION:ExamplePlace1
-DESCRIPTION:ExampleDescription1
-END:VEVENT
+$firstNewEvent = '
+BEGIN:VCALENDAR
+    PRODID:-//SomeExampleStuff//EN
+    VERSION:2.0
+    BEGIN:VTIMEZONE
+        TZID:Europe/Berlin
+        X-LIC-LOCATION:Europe/Berlin
+        BEGIN:DAYLIGHT
+            TZOFFSETFROM:+0100
+            TZOFFSETTO:+0200
+            TZNAME:CEST
+            DTSTART:19700329T020000
+            RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3
+        END:DAYLIGHT
+        BEGIN:STANDARD
+            TZOFFSETFROM:+0200
+            TZOFFSETTO:+0100
+            TZNAME:CET
+            DTSTART:19701025T030000
+            RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10
+        END:STANDARD
+    END:VTIMEZONE
+
+    BEGIN:VEVENT
+        CREATED:20140403T091024Z
+        LAST-MODIFIED:20140403T091044Z
+        DTSTAMP:20140416T091044Z
+        UID:ExampleUID1
+        SUMMARY:ExampleEvent1
+        DTSTART;TZID=Europe/Berlin:20140418T120000
+        DTEND;TZID=Europe/Berlin:20140418T130000
+        LOCATION:ExamplePlace1
+        DESCRIPTION:ExampleDescription1
+    END:VEVENT
 END:VCALENDAR';
 
+/*
+BEGIN:VCALENDAR
+    VERSION:2.0
+    PRODID:DAVx5/4.2.5-ose ical4j/3.2.5
+    BEGIN:VJOURNAL
+        DTSTAMP:20221212T073622Z
+        UID:6708d5a7-4707-4323-822e-a41e705cbd88
+        SEQUENCE:59
+        CREATED:20221212T072535Z
+        LAST-MODIFIED:20221212T073601Z
+        SUMMARY:A Wintery Drive Home
+        DESCRIPTION:A final hotel breakfast - this morning some yogurt and fruit\, 
+ a croissant\, a waffles with fruit honey & cinnamon. Clear morning with go
+ od views across the bay. Still some ice on the ground.\n\nLeft before 11\,
+  stopped in Truro to charge. The Lidl one was occupied so on to the pub on
+ e which was more expensive\, difficult to get started\, and errored when I
+  tried to stop. Still got the 10% needed.\n\nCold rain in Truro\, sunshine
+  to Victoria\, rain then sleet over the moor. Used about 45%.\n\nHome to a
+  very col house\, 2 year old chicken soup from freezer for lunch was nice.
+  Pottered for afternoon and cooked a lentil & veg stoo for supper.
+        STATUS:FINAL
+        CATEGORIES:trips,cooking
+        DTSTART;VALUE=DATE:20221211
+    END:VJOURNAL
+END:VCALENDAR
+
+ */
 $secondNewEvent = 'BEGIN:VCALENDAR
 PRODID:-//SomeExampleStuff//EN
 VERSION:2.0

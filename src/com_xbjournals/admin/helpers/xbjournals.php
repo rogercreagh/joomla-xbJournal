@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.0.1 2nd April 2023
+ * @version 0.0.0.3 3rd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -38,10 +38,114 @@ class XbjournalsHelper extends ContentHelper
 	}
 	
 	public static function addSubmenu($vName = 'dashboard') {
-			JHtmlSidebar::addEntry(
-	            Text::_('XBCULTURE_ICONMENU_DASHBOARD'),
-	            'index.php?option=com_xbfilms&view=dashboard',
-	            $vName == 'dashboard'
-		        );
+		JHtmlSidebar::addEntry(
+            Text::_('XBCULTURE_ICONMENU_DASHBOARD'),
+            'index.php?option=com_xbfilms&view=dashboard',
+            $vName == 'dashboard'
+	        );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBCULTURE_ICONMENU_SERVERS'),
+		    'index.php?option=com_xbjournals&view=servers',
+		    $vName == 'servers'
+		    );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBCULTURE_ICONMENU_NEWSERVER'),
+		    'index.php?option=com_xbjournals&view=server&layout=edit',
+		    $vName == 'server'
+		    );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBCULTURE_ICONMENU_JOURNALS'),
+		    'index.php?option=com_xbjournals&view=journals',
+		    $vName == 'journals'
+		    );
 	}
     
+	/**
+	 * @name checkTitleExists()
+	 * @desc checks (case insensitive) if a given title exists in a given db table
+	 * @param string $title - the title to search for
+	 * @param string $table - the table name to search
+	 * @param string $col - the column in the table (default 'title')
+	 * @return int - the id if found otherwise false
+	 */
+	public static function checkTitleExists($title, $table, $col = 'title') {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('id')->from($db->quoteName($table))
+	    ->where('LOWER('.$db->quoteName($col).')='.$db->quote(strtolower($title)));
+	    $db->setQuery($query);
+	    $res = $db->loadResult();
+	    if ($res > 0) {
+	        return $res;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * @name getServerCalendars()
+	 * @desc Checks given server for a list of available calendars
+	 * if not in database #__xbjournals_calendars then adds
+	 * if already in database then if disabled then publish it
+	 * if in database but no longer on server then disable it
+	 * @param unknown $serverid
+	 */
+	public static function getServerCalendars($serverid) {
+	    
+	    $conn = self::getServerConnectionDetails($serverid);
+	    
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    
+	    $client = new SimpleCalDAVClient();
+	    
+	    $client->connect($conn['url'],$conn['username'],$conn['password']);
+	    
+	    $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
+	    
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $existingcals = array();
+	    $newcnt = 0;
+	    foreach ($arrayOfCalendars as $cal) {
+	        $calurl = $cal->getURL();
+	        $calid = $cal->getCalendarID();
+	        $calname = $cal->getDisplayName();
+	        $calctag = $cal->getCTag();
+	        $calorder = $cal->getOrder();
+	        $calrgb = $cal->getRBGcolor();
+	        
+	        $query->clear();
+	        $query->select('id')->from('#__xbjournals_calendars');
+	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calandar_id = '.$db->q('calid'));
+	        $db->setQuery($query);
+	        $res = $db->loadResult();
+	        //iff we've already got it add to exist list
+	        if ($res>0) {
+	            $existingcals[] = $res;
+	        } else { //we need to add it
+	            $query->clear();
+	            $query->insert($db->quoteName('#__xbjournals_calenders'));
+	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calandar_id,cal_rgb_color,cal_order,title,alias,access,state');
+	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
+	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calname).','.$db->q(strtolower($calname)).','.$db->q('1').','.$db->q('1'));
+	            //try
+	            $db->setQuery($query);
+	            $db->execute();
+	            $existingcals[] = $db->insertid();
+	            $newcnt ++;
+	        }
+	        //TODO check if calendars have disappeared from server and unpublish them
+	        
+	    } //end foreach calendar
+	    return $newcnt;
+	}
+	
+	public static function getServerConnectionDetails($serverid) {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('url, username, password')->from('#__xbjournals_servers')->where('id = '.$db->quote($serverid));
+	    $db->setQuery($query);
+	    $ans = $db->loadAssoc();
+	    return $ans;
+	}
+	
+}

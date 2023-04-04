@@ -1,8 +1,8 @@
 <?php
 /*******
- * @package xbJournals
+ * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.0.1 1st April 2023
+ * @version 0.0.0.2 2nd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -16,7 +16,7 @@ use Joomla\CMS\Filesystem\Path;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\Component\ComponentHelper;
 
-class com_xbfilmsInstallerScript 
+class com_xbjournalsInstallerScript 
 {	
     protected $jminver = '3.10';
     protected $jmaxver = '4.0';
@@ -45,11 +45,190 @@ class com_xbfilmsInstallerScript
     }
     
     function uninstall($parent) {
+        $app = Factory::getApplication();
+        
+        $componentXML = Installer::parseXMLInstallFile(Path::clean(JPATH_ADMINISTRATOR . '/components/com_xbjournals/xbjournals.xml'));
+        $message = 'Uninstalling xbJournals component v.'.$componentXML['version'].' '.$componentXML['creationDate'];
+        //are we also clearing data?
+        $savedata = ComponentHelper::getParams('com_xbjournals')->get('savedata',0);
+        if ($savedata == 0) {
+            if ($this->uninstalldata()) {
+                $message .= ' ... xbJournals data tables deleted';
+            }
+        } else {
+            $message .= ' xbJournals data tables and images folder have <b>NOT</b> been deleted. CATEGORIES may be recovered on re-install, but TAG links will be lost although tags have not been deleted.';
+            
+            // allow categories to be recovered with same id
+            $db = Factory::getDbo();
+            $db->setQuery(
+                $db->getQuery(true)
+                ->update('#__categories')
+                ->set('extension='.$db->q('!com_xbjournals!'))
+                ->where('extension='.$db->q('com_xbjournals'))
+                )
+                ->execute();
+            $cnt = $db->getAffectedRows();
+                
+            if ($cnt>0) {
+                $message .= '<br />'.$cnt.' xbJournals categories [extension] renamed as "<b>!</b>com_xbjournals<b>!</b>". They will be recovered on reinstall with original ids to link with saved xbJournals data.';
+            }
+        }
+        $app->enqueueMessage($message,'Info');
     }
     
-    function update($parent) {
+    function update($parent) {        
+        $message = '<br />Visit the <a href="index.php?option=com_xbjournals&view=dashboard" class="btn btn-small btn-info">';
+        $message .= 'xbJournals Dashboard</a> page for overview of status.</p>';
+        $message .= '<br />For ChangeLog see <a href="http://crosborne.co.uk/xbjournals/changelog" target="_blank">
+            www.crosborne.co.uk/xbjournals/changelog</a></p>';
+        Factory::getApplication()->enqueueMessage($message,'Message');
     }
     
     function postflight($type, $parent) {
+        if ($type=='install') {
+            $app = Factory::getApplication();
+            $componentXML = Installer::parseXMLInstallFile(Path::clean(JPATH_ADMINISTRATOR . '/components/com_xbjournals/xbjournals.xml'));
+            $message = '<b>xbJournals '.$componentXML['version'].' '.$componentXML['creationDate'].'</b><br />';
+                        
+            // Recover categories if they exist assigned to extension !com_xbfilms!
+            $db = Factory::getDbo();
+            $qry = $db->getQuery(true);
+            $qry->update('#__categories')
+            ->set('extension='.$db->q('com_xbjournals'))
+            ->where('extension='.$db->q('!com_xbjournals!'));
+            $db->setQuery($qry);
+            try {
+                $db->execute();
+                $cnt = $db->getAffectedRows();
+            } catch (Exception $e) {
+                $app->enqueueMessage($e->getMessage(),'Error');
+            }
+            $message .= $cnt.' existing xbJournals categories restored. ';
+            // create default categories using category table
+            $cats = array(
+                array("title"=>"Uncategorised","desc"=>"default fallback category for all xbJournal items"),
+                array("title"=>"Remote","desc"=>"category for remote xbJournal entries"),
+                array("title"=>"Local","desc"=>"category for locally created xbJournal entries"));
+            $message .= $this->createCategory($cats);
+            
+            $app->enqueueMessage($message,'Info');
+            
+            //set up indicies for books and bookreviews tables - can't be done in install.sql as they may already exists
+            //mysql doesn't support create index if not exists.
+            $message = 'Checking indicies... ';
+            
+            $prefix = $app->get('dbprefix');
+            $querystr = 'ALTER TABLE '.$prefix.'xbjournals_calendars ADD INDEX calendaraliasindex (alias)';
+            $err=false;
+            try {
+                $db->setQuery($querystr);
+                $db->execute();
+            } catch (Exception $e) {
+                if($e->getCode() == 1061) {
+                    $message .= '- calendar alias index already exists. ';
+                } else {
+                    $message .= '[ERROR creating calendaraliasindex: '.$e->getCode().' '.$e->getMessage().']';
+                    $app->enqueueMessage($message, 'Error');
+                    $message = 'Checking indicies... ';
+                    $err = true;
+                }
+            }
+            if (!$err) {
+                $message .= '- calendar alias index created. ';
+            }
+            $querystr = 'ALTER TABLE '.$prefix.'xbjournals_vjournal_entries ADD INDEX entryaliasindex (alias)';
+            $err=false;
+            try {
+                $db->setQuery($querystr);
+                $db->execute();
+            } catch (Exception $e) {
+                if($e->getCode() == 1061) {
+                    $message .= '- entry alias index already exists';
+                } else {
+                    $message .= '<br />[ERROR creating entryaliasindex: '.$e->getCode().' '.$e->getMessage().']<br />';
+                    $app->enqueueMessage($message, 'Error');
+                    $message = '';
+                    $err = true;
+                }
+            }
+            if (!$err) {
+                $message .= '- entry alias index created.';
+            }
+            
+            $app->enqueueMessage($message,'Info');
+                        
+            echo '<div style="padding: 7px; margin: 0 0 8px; list-style: none; -webkit-border-radius: 4px; -moz-border-radius: 4px;
+		border-radius: 4px; background-image: linear-gradient(#ffffff,#efefef); border: solid 1px #ccc;">';
+            echo '<h3>xbJournals Component installed</h3>';
+            echo '<p>version '.$parent->get('manifest')->version.' '.$parent->get('manifest')->creationDate.'<br />';
+            echo '<p>For help and information see <a href="https://crosborne.co.uk/xbjournals/doc" target="_blank">
+	            www.crosborne.co.uk/xbjournals/doc</a> or use Help button in xbJournals Dashboard</p>';
+            echo '<h4>Next steps</h4>';
+           echo '<p><b>Important</b> Before starting review &amp; set the component options&nbsp;&nbsp;';
+            echo '<a href="index.php?option=com_config&view=component&component=com_xbjournals" class="btn btn-small btn-info">xbJournals Options</a>';
+            echo '<br /><i>After saving the options you will exit to the Dashboard for an overview</i>';
+            echo '</p>';
+            echo '<p><b>Dashboard</b> <i>The Dashboard view provides an overview of the component status</i>&nbsp;&nbsp;:';
+            echo '<a href="index.php?option=com_xbjournals&view=dashboard">xbJournals Dashboard</a> (<i>but save the options first!</i>)';
+            echo '</p>';
+            echo '</div>';
+        }
+    }
+ 
+ 	protected function uninstalldata() {
+ 	    $message = '';
+ 	    $db = Factory::getDBO();
+ 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_items`');
+ 	    $res = $db->execute();
+ 	    if ($res === false) {
+ 	        $message = 'Error deleting xbFilms tables, please check manually';
+ 	        Factory::getApplication()->enqueueMessage($message,'Error');
+ 	        return false;
+ 	    }
+ 	    return true;
  	}
- }
+ 	
+ 	public function createCategory($cats) {
+ 	    $message = 'Creating '.$this->extension.' categories. ';
+ 	    foreach ($cats as $cat) {
+ 	        $db = Factory::getDBO();
+ 	        $query = $db->getQuery(true);
+ 	        $query->select('id')->from($db->quoteName('#__categories'))
+ 	        ->where($db->quoteName('title')." = ".$db->quote($cat['title']))
+ 	        ->where($db->quoteName('extension')." = ".$db->quote('com_xbfilms'));
+ 	        $db->setQuery($query);
+ 	        if ($db->loadResult()>0) {
+ 	            $message .= '"'.$cat['title'].' already exists<br /> ';
+ 	        } else {
+ 	            $category = Table::getInstance('Category');
+ 	            $category->extension = $this->extension;
+ 	            $category->title = $cat['title'];
+ 	            if (array_key_exists('alias', $cat)) { $category->alias = $cat['alias']; }
+ 	            $category->description = $cat['desc'];
+ 	            $category->published = 1;
+ 	            $category->access = 1;
+ 	            $category->params = '{"category_layout":"","image":"","image_alt":""}';
+ 	            $category->metadata = '{"page_title":"","author":"","robots":""}';
+ 	            $category->language = '*';
+ 	            // Set the location in the tree
+ 	            $category->setLocation(1, 'last-child');
+ 	            // Check to make sure our data is valid
+ 	            if ($category->check()) {
+ 	                if ($category->store(true)) {
+ 	                    // Build the path for our category
+ 	                    $category->rebuildPath($category->id);
+ 	                    $message .= $cat['title'].' id:'.$category->id.' created ok. ';
+ 	                } else {
+ 	                    throw new Exception(500, $category->getError());
+ 	                    //return '';
+ 	                }
+ 	            } else {
+ 	                throw new Exception(500, $category->getError());
+ 	                //return '';
+ 	            }
+ 	        }
+ 	    }
+ 	    return $message;
+ 	}
+ 	
+}

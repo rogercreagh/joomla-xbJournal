@@ -1,6 +1,6 @@
 <?php
 /*******
- * @package xbJournals
+ * @package xbJournals Component
  * @filesource 
  * @version 0.0.0.1 1st April 2023
  * @author Roger C-O
@@ -11,12 +11,10 @@
 defined('_JEXEC') or die;
 
 class XbjournalsController extends JControllerLegacy {
+    
     protected $default_view = 'dashboard';
     
     public function display ($cachable = false, $urlparms = false){
-        
-        require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/SimpleCalDAVClient.php';
-        //require_once JPATH_COMPONENT.'/helpers/xbfilmsgeneral.php';
         
         return parent::display();
     }

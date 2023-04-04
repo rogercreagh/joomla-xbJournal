@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbJournals Component
- * @filesource admin/views/dashboard/view.html.php
- * @version 0.0.0.1 2nd April 2023
+ * @filesource admin/views/servers/view.html.php
+ * @version 0.0.0.3 3rd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -16,17 +16,17 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 
-class XbjournalsViewDashboard extends JViewLegacy {
+class XbjournalsViewServers extends JViewLegacy {
     
     public function display($tpl = null) {    
  
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
-        $this->filterForm = $this->get('FilterForm');
-        $this->activeFilters = $this->get('ActiveFilters');
+//        $this->filterForm = $this->get('FilterForm');
+//        $this->activeFilters = $this->get('ActiveFilters');
         
-        $this->searchTitle = $this->state->get('filter.search');
+//        $this->searchTitle = $this->state->get('filter.search');
         
 //         require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
         
@@ -47,7 +47,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
 //        }
         
         $this->addToolbar();
-        XbjournalsHelper::addSubmenu('dashboard');
+        XbjournalsHelper::addSubmenu('servers');
         $this->sidebar = JHtmlSidebar::render();
         
         parent::display($tpl);
@@ -59,11 +59,12 @@ class XbjournalsViewDashboard extends JViewLegacy {
     protected function addToolbar() {
         $canDo = XbjournalsHelper::getActions();
         
-        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_DASHBOARD' ), 'screen' );
+        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_SERVERS' ), 'screen' );
         
         if ($canDo->get('core.create') > 0) {
             ToolbarHelper::addNew('server.add','New Server');
         }
+        ToolbarHelper::custom('servers.getcals', 'file-plus', '', 'XBJOURNALS_GETCALS', true) ;
 //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }
@@ -92,12 +93,12 @@ class XbjournalsViewDashboard extends JViewLegacy {
         if ($canDo->get('core.admin')) {
             ToolbarHelper::preferences('com_xbjournals');
         }
-        ToolbarHelper::help( '', false,'https://crosborne.uk/xbjournals/doc?tmpl=component#admin-dashboard' );
+        ToolbarHelper::help( '', false,'https://crosborne.uk/xbjournals/doc?tmpl=component#admin-servers' );
     }
     
     protected function setDocument() {
         $document = Factory::getDocument();
-        $document->setTitle(Text::_('XBJOURNALS_ADMIN_DASHBOARD'));
+        $document->setTitle(Text::_('XBJOURNALS_ADMIN_SERVERS'));
     }
     
     

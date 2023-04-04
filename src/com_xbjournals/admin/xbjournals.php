@@ -13,6 +13,7 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\MVC\Controller\BaseController;
@@ -31,23 +32,35 @@ if ($params->get('savedata','notset')=='notset') {
 
 $document = Factory::getDocument();
 
-$usexbcss = $params->get('use_xbcss',1);
-if ($usexbcss<2) {
-    $cssFile = Uri::root(true)."/media/com_xbjournals/css/xbjournals.css";
-    $altcss = $params->get('css_file','');
-    if ($usexbcss==0) {
-        if ($altcss && file_exists(JPATH_ROOT.$altcss)) {
-            $cssFile = $altcss;
-        }
-    }
-    $document->addStyleSheet($cssFile);
-}
+// $usexbcss = $params->get('use_xbcss',1);
+// if ($usexbcss<2) {
+//     $cssFile = Uri::root(true)."/media/com_xbjournals/css/xbjournals.css";
+//     $altcss = $params->get('css_file','');
+//     if ($usexbcss==0) {
+//         if ($altcss && file_exists(JPATH_ROOT.$altcss)) {
+//             $cssFile = $altcss;
+//         }
+//     }
+//     $document->addStyleSheet($cssFile);
+// }
 
-$cssFile = '<script src="https://kit.fontawesome.com/012857417f.js" crossorigin="anonymous"></script>';
-$document->addStyleSheet($cssFile);
+//$cssFile = '<script src="https://kit.fontawesome.com/012857417f.js" crossorigin="anonymous"></script>';
+//$cssFile = "https://use.fontawesome.com/releases/v5.8.1/css/all.css\" integrity=\"sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf\" crossorigin=\"anonymous";
+//$document->addStyleSheet($cssFile);
+
+$document->addScript('https://kit.fontawesome.com/012857417f.js', array(), array('crossorigin'=>'anonymous','async'=>'async'));
 
 // Require helper files
-//JLoader::register('XbfilmsHelper', JPATH_ADMINISTRATOR . '/components/com_xbfilms/helpers/xbfilms.php');
+JLoader::register('XbjournalsHelper', JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbjournals.php');
 //JLoader::register('XbfilmsGeneral', JPATH_ADMINISTRATOR . '/components/com_xbfilms/helpers/xbfilmsgeneral.php');
 //JLoader::register('XbcultureHelper', JPATH_ADMINISTRATOR . '/components/com_xbpeople/helpers/xbculture.php');
+
+// Get an instance of the controller prefixed
+$controller = JControllerLegacy::getInstance('Xbjournals');
+
+// Perform the Request task and Execute request task
+$controller->execute(Factory::getApplication()->input->get('task'));
+
+// Redirect if set by the controller
+$controller->redirect();
 

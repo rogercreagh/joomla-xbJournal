@@ -1,8 +1,8 @@
 <?php
 /*******
- * @package xbJournals
- * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.0.1 1st April 2023
+ * @package xbJournals Compnent
+ * @filesource admin/views/servers/tmpl/default.php
+ * @version 0.0.0.3 3rd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -40,13 +40,13 @@ if ($saveOrder) {
 $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id=';
 
 ?>
-<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=dashboard'); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=servers'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
 	<div id="j-sidebar-container">
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h4><?php echo Text::_( 'XBCULTURE_SERVERS' ); ?></h4>
+		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?> <i class="far fa-eye"></i></h4>
 	<div class="pull-right span2">
 		<p style="text-align:right;">
 			<?php $fnd = $this->pagination->total;
@@ -73,7 +73,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
-		<table class="table table-striped table-hover" style="table-layout:fixed;" id="xbmapsServerList">	
+		<table class="table table-striped table-hover" id="xbjournalsServers">	
 			<thead>
 				<tr>
 					<th class="nowrap center hidden-phone" style="width:25px;">
@@ -87,13 +87,16 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 						<?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'published', $listDirn, $listOrder); ?>
 					</th>
 					<th>
-						<?php echo HTMLHelper::_('searchtools.sort','Title','title',$listDirn,$listOrder); ?>
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_TITLE','title',$listDirn,$listOrder); ?>
 					</th>					
 					<th>
 						<?php echo Text::_('Connection');?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >
-						<?php echo ucfirst(Text::_('Description'));?>
+						<?php echo (Text::_('XBJOURNALS_DESCRIPTION'));?>
+					</th>
+					<th>
+						<?php echo (Text::_('XBJOURNALS_CALENDARS')); ?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
 						<?php echo HTMLHelper::_('searchtools.sort', 'Updated', 'modified', $listDirn, $listOrder );?>
@@ -171,11 +174,28 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 				<td>
 					<?php echo $item->description; ?>
 				</td>
-				<td class="hidden-phone">
-					<?php echo $item->id; ?>
+				<td>
+					<?php if ($item->jcnt > 0) : ?>
+						<details>
+							<summary>
+								<?php echo $item->jcnt.' '.lcfirst(Text::_('XBJOURNALS_CALENDARS')).' '.Text::_('XBJOURNALS_FOUND'); ?>
+							</summary>
+							<ul>
+								<?php foreach ($item->journals as $i=>$j) : ?>
+								    <li><a href="index.php?option=com_xbjournals&view=calendars"><?php echo $j['title']; ?></a></li>
+								<?php  endforeach; ?>
+							</ul>
+						</details>
+					<?php else : ?>
+						<?php echo Text::_('XBJOURNALS_NO_CALS_FOUND'); ?>
+						<br />
+					<?php endif; ?>
 				</td>
 				<td class="hidden-phone">
-					<span class="xbnit"><?php echo HtmlHelper::date($item->modified, 'd M Y');?></span>
+					<?php echo HtmlHelper::date($item->modified, 'd M Y');?>					
+				</td>
+				<td class="hidden-phone">
+					<?php echo $item->id; ?>					
 				</td>
 			</tr>			
 			<?php endforeach; ?>
