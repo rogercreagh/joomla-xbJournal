@@ -27,6 +27,9 @@ class XbjournalsTableServer extends Table
     }
     
     public function check() {
+        
+        //first check that connection is valid
+        
         $params = ComponentHelper::getParams('com_xbjournals');
         
         $title = trim($this->title);

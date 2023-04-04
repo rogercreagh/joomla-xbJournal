@@ -26,4 +26,5 @@ class XbjournalsControllerServers extends JControllerAdmin {
 	    Factory::getApplication()->enqueueMessage($newcnt.' new calandars found');
 	    $this->setRedirect('index.php?option=com_xbjournals&view=servers');
 	}
+	
 }

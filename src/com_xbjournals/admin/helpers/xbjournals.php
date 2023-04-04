@@ -148,4 +148,30 @@ class XbjournalsHelper extends ContentHelper
 	    return $ans;
 	}
 	
+	public static function checkValidServer(string $url, string $user, string $pword) {
+	    
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    
+	    $client = new CalDAVClient($url, $user, $pword);
+	    // Valid CalDAV-Server? Or is it just a WebDAV-Server?
+	    if( ! $client->isValidCalDAVServer() )
+	    {
+	        
+	        if( $client->GetHttpResultCode() == '401' ) // unauthorisized
+	        {
+	            throw new CalDAVException('Login failed', $client);
+	        }
+	        
+	        elseif( $client->GetHttpResultCode() == '' ) // can't reach server
+	        {
+	            throw new CalDAVException('Can\'t reach server', $client);
+	        }
+	        
+	        else throw new CalDAVException('Could\'nt find a CalDAV-collection under the url', $client);
+	    }
+	    
+	    
+	    
+	    return true;
+	}
 }

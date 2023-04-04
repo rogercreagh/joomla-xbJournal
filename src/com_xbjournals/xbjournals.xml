@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.1" method="upgrade">
 	<name>xbjournals</name>
-	<creationDate>3rd April 2023</creationDate>
-	<version>0.0.0.3</version>
+	<creationDate>4th April 2023</creationDate>
+	<version>0.0.0.5</version>
 	<author>Roger C-O</author>
 	<authorEmail>roger@crosborne.uk</authorEmail>
 	<authorUrl>www.crosborne.uk</authorUrl>
@@ -28,13 +28,12 @@
 	<languages folder="site/language">
 		<language tag="en-GB">en-GB/en-GB.com_xbfilms.ini</language>
 	</languages>
-
-	<media destination="com_xbfilms" folder="media">
-		<filename>index.html</filename>
-		<folder>images</folder>
-		<folder>samples</folder>
-	</media>
  -->
+
+	<media destination="com_xbjournals" folder="media">
+		<filename>index.html</filename>
+		<folder>css</folder>
+	</media>
 
 	<install>
 		<sql>

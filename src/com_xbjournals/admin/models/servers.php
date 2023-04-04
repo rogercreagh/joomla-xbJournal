@@ -2,14 +2,14 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/servers.php
- * @version 0.0.0.3 3rd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
  ******/
 defined('_JEXEC') or die;
 
-// use Joomla\CMS\Factory;
+ use Joomla\CMS\Factory;
 // use Joomla\CMS\Component\ComponentHelper;
 // use Joomla\CMS\Toolbar\Toolbar;
 // use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -49,13 +49,13 @@ class XbjournalsModelServers extends JModelList {
     public function getItems() {
         $items  = parent::getItems();
         
-        $db = $this->getDbo();
+        $db = Factory::getDbo();
         $query = $db->getQuery(true);
         foreach ($items as $i=>$item) {
             if ($item->jcnt > 0) {
                 $query->select('j.id, j.title')->from('#__xbjournals_calendars AS j')->where('j.server_id = '.$item->id);
                 $db->setQuery($query);
-                $item->journals = $db->loadAssoc();
+                $item->calendars = $db->loadAssocList();
             }
         }
         return $items;

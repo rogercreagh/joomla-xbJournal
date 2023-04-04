@@ -66,7 +66,21 @@ class SimpleCalDAVClient {
 	 */
 	function connect ( $url, $user, $pass )
 	{
+/*
+$client = new CalDAVClient('https://cloud.crosborne.uk/remote.php/dav/calendars/roger','roger','Tbcb&1g0');
 
+try {
+//	$client->connect('http://yourServer/baikal/cal.php/calendars/yourUser/yourCalendar', 'username', 'password');
+//	$client->connect('https://cloud.crosborne.uk/remote.php/dav/calendars/roger','roger','Tbcb&1g0');
+  
+  $res = array();
+  $res = $client->DoOptionsRequest();
+  echo '<pre>'.print_r($res,true).'</pre>';
+	$res2 = array();
+  $res2 = $client->DoOptionsRequestAndGetDAVHeader();
+  echo '<pre>'.print_r($res2,true).'</pre>';
+
+ */
 		//  Connect to CalDAV-Server and log in
 		$client = new CalDAVClient($url, $user, $pass);
 
@@ -84,7 +98,7 @@ class SimpleCalDAVClient {
 					throw new CalDAVException('Can\'t reach server', $client);
 			}
 
-			else throw new CalDAVException('Could\'n find a CalDAV-collection under the url', $client);
+			else throw new CalDAVException('Could\'nt find a CalDAV-collection under the url', $client);
 		}
 
 		// Check for errors

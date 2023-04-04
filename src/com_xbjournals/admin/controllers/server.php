@@ -19,4 +19,7 @@ class XbjournalsControllerServer extends  FormController {
         //$this->registerTask('savepreview', 'save');
     }
     
+    /**
+     * Before saving need to check connection and after need to get new calendars
+     */
 }

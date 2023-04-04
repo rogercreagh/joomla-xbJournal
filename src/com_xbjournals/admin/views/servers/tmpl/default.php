@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/servers/tmpl/default.php
- * @version 0.0.0.3 3rd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -181,8 +181,10 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 								<?php echo $item->jcnt.' '.lcfirst(Text::_('XBJOURNALS_CALENDARS')).' '.Text::_('XBJOURNALS_FOUND'); ?>
 							</summary>
 							<ul>
-								<?php foreach ($item->journals as $i=>$j) : ?>
-								    <li><a href="index.php?option=com_xbjournals&view=calendars"><?php echo $j['title']; ?></a></li>
+								<?php foreach ($item->calendars as $i=>$cal) : ?>
+								    <li><a href="index.php?option=com_xbjournals&view=calendar&id=<?php echo $cal['id'];?>">
+								    	<?php echo $cal['title']; ?>
+								    </a></li>
 								<?php  endforeach; ?>
 							</ul>
 						</details>

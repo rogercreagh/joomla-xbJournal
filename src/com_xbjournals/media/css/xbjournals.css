@@ -1,0 +1,149 @@
+/*******
+ * @package xbJournals Component
+ * @filesource media/css/xbjournals.css
+ * @version 0.0.0.5 4th April 2023
+ * @author Roger C-O
+ * @copyright Copyright (c) Roger Creagh-Osborne, 2023
+ * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ ******/
+
+/* Joomla system overrides/improvements */ 
+/* set width to 100% for url controls (used in extlinks subform) */
+.controls input[type="url"] {
+	max-width: 100%;
+}
+
+/* allow width to be set on joomla text area controls */
+.controls textarea {
+	width: unset !important;
+}
+
+/*adjust default margins round labels for tags and cats */
+.label { margin:2px;}
+.tags ul.inline > li {
+	margin:0;
+}
+
+/*adjust spacing between tag labels in tag layout */
+#content .well .module-title.nav-header {
+    padding-left: 4px;
+}
+
+/*give visual hint to presence of tooltips*/
+.hasTooltip {
+  	text-decoration-line: underline; 
+	text-decoration-color: #a0a0a0;
+	text-decoration-style: dotted; 
+    text-underline-position: under;
+}
+.hasPopover {
+  	text-decoration-line: underline; 
+	text-decoration-color: #a0a0a0;
+	text-decoration-style: dashed; 
+    text-underline-position: under;
+}
+.xbhover, .xbhover:hover {text-decoration: underline dotted;} 
+.xbfocus, .xbfocus:hover {text-decoration: underline dashed;}
+.xbclick, .xbclick:hover {text-decoration: underline solid;}
+
+/* override the annoying default transparency on bootstrap tooltips */
+.tooltip.in {
+  opacity: 1 !important;
+  filter: alpha(opacity=100) !important;
+}
+/* Popover styles - these override the defaults*/
+/* border around popover */
+ .xbcultpop + .popover {
+    border: 2px solid;
+}
+/* Popover Title */
+.xbcultpop + .popover > .popover-title {
+    padding: 4px 5px 3px 5px;
+    border-bottom: 1px solid;
+    font-size: 1.0em;
+    text-align:center;
+}
+/* Popover Body */
+.xbcultpop  + .popover > .popover-content {
+    font-size: 0.95em;
+    padding: 4px 8px 4px 8px;
+}
+.xbcultpop  + .popover > .popover-content > a {
+  font-weight:bold;
+}
+/* for popover colours see XbGeneral::popstylecolours() Arrows */
+
+/* use an empty custom button as a toolbar spacer (22px is minimum width*/
+#toolbar- .btn {
+	visibility:hidden; width:22px;
+}
+ 
+/* make tab titles a bit more prominent */
+ul.nav-tabs { 
+	font-weight:bold;
+	font-size:1.1em;
+}
+	
+/*shade background of subform headings */
+.subform-repeatable thead { 
+	background-color:aliceblue;
+}
+
+/* style accordions */
+.xbaccordion .accordion-heading {
+	background-color:#eee;	
+}
+.xbaccordion .accordion-body {
+	background-color:aliceblue;
+}
+
+/* end of joomla system overrides */
+/* xb classes for simple styles */
+/* centre div */
+.xbcentre { margin-left:auto; margin-right:auto;}
+/* text alignment */
+.xbtc {text-align:center;}
+.xbtr {text-align:right;}
+/* font attributes */
+.xb15 { font-size:1.5em; }
+.xb12 { font-size:1.2em; }
+.xb11 { font-size:1.1em; }
+.xb10 { font-size:1.0em; }
+.xb095 { font-size:0.95em; }
+.xb09 { font-size:0.9em; }
+.xb085 { font-size:0.85em; }
+.xb08 { font-size:0.8em; }
+.xbnorm, .xbnit { font-weight: normal; }
+.xbbold { font-weight: bold; }
+.xbit { font-style:italic; }
+/* margins */
+.xbm0 { margin:0 !important; } /*flagged important as we want to override any template margins*/
+.xbml10 { margin-left:10px; }
+.xbml15 { margin-left:15px; }
+.xbml20 { margin-left:20px; }
+.xbmr10 { margin-right:10px; }
+.xbmr20 { margin-right:20px; }
+.xbmt2 { margin-top:2px; }
+.xbmt10 { margin-top:10px; }
+.xbmt16 { margin-top:16px; }
+.xbmb0 { margin-bottom:0; }
+.xbmb8 { margin-bottom:8px; }
+.xbmb12 { margin-bottom:12px; }
+.xbmh200 {max-height:200px; }
+.xbmh300 {max-height:300px; }
+.xbmh400 {max-height:400px; }
+/* padding */
+.xbpr5, .xbnit { padding-right:5px; }
+.xbpr10 { padding-right:10px;}
+.xbpt17 { padding-top:17px;}
+/* maxwidth eg for divs */
+.xbmw1000 { max-width:1000px; }
+.xbmw1100 { max-width:1100px; }
+.xbmw1200 { max-width:1200px; }
+.xbmw1400 { max-width:1400px; }
+/* borders */
+.xbbb1 { border-bottom:solid 1px gray;}
+
+.xbyscroll { overflow-y:scroll;}
+
+
