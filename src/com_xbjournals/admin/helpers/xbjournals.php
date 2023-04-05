@@ -115,7 +115,7 @@ class XbjournalsHelper extends ContentHelper
 	        
 	        $query->clear();
 	        $query->select('id')->from('#__xbjournals_calendars');
-	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calandar_id = '.$db->q('calid'));
+	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calendar_id = '.$db->q('calid'));
 	        $db->setQuery($query);
 	        $res = $db->loadResult();
 	        //iff we've already got it add to exist list

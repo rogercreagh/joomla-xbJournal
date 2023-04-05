@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.0.1 1st April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -23,22 +23,8 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 $user = Factory::getUser();
 $userId = $user->get('id');
 
-$listOrder     = $this->escape($this->state->get('list.ordering'));
-$listDirn      = $this->escape(strtolower($this->state->get('list.direction')));
-if (!$listOrder) {
-    $listOrder='title';
-    $listDirn = 'ascending';
-}
-
-$saveOrder      = $listOrder == 'ordering';
-$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
-if ($saveOrder) {
-    $saveOrderingUrl = 'index.php?option=com_xbjournals&task=servers.saveOrderAjax&tmpl=component';
-    HTMLHelper::_('sortablelist.sortable', 'xbjournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
-}
-
 $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id=';
-
+$calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&id=';
 ?>
 <form action="<?php echo Route::_('index.php?option=com_xbjournals&view=dashboard'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
@@ -47,14 +33,6 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 	</div>
 	<div id="j-main-container" >
 		<h4><?php echo Text::_( 'XBCULTURE_SERVERS' ); ?></h4>
-	<div class="pull-right span2">
-		<p style="text-align:right;">
-			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. JText::_(($fnd==1)?'XBJOURNALS_SERVER':'XBJOURNALS_SERVERS').' '.JText::_('XBJOURNALS_FOUND');
-            ?>
-		</p>
-	</div>
-	<div class="clearfix"></div>
 	
 	<?php
         // Search tools bar
@@ -62,17 +40,13 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
     ?>
 	<div class="clearfix"></div>
 	
-	<div class="pagination">
-		<?php  echo $this->pagination->getPagesLinks(); ?>
-		<br />
-	    <?php //echo 'sorted by '.$orderNames[$listOrder].' '.$listDirn ; ?>
-	</div>
 
-	<?php if (empty($this->items)) : ?>
+	<?php if (empty($this->servers)) : ?>
 		<div class="alert alert-no-items">
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
+		<?php echo count($servers)?>
 		<table class="table table-striped table-hover" style="table-layout:fixed;" id="xbmapsServerList">	
 			<thead>
 				<tr>
@@ -90,10 +64,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 						<?php echo HTMLHelper::_('searchtools.sort','Title','title',$listDirn,$listOrder); ?>
 					</th>					
 					<th>
-						<?php echo Text::_('Connection');?>
-					</th>
-					<th class="hidden-tablet hidden-phone" >
-						<?php echo ucfirst(Text::_('Description'));?>
+						<?php echo Text::_('Domain');?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
 						<?php echo HTMLHelper::_('searchtools.sort', 'Updated', 'modified', $listDirn, $listOrder );?>
@@ -106,7 +77,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 			</thead>
 			<tbody>
 			<?php
-			foreach ($this->items as $i => $item) :
+			foreach ($this->servers as $i => $item) :
                 $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
                 $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                         || $item->checked_out==$userId || $item->checked_out==0;

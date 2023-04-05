@@ -18,18 +18,12 @@ use Joomla\CMS\Layout\FileLayout;
 
 class XbjournalsModelDashboard extends JModelList {
     
-    public function __construct() {
-        
+    public function __construct() {       
         parent::__construct();
     }
-/**
- * @name getListQuery()
- * @desc query to get the details of servers and count of entries
- * @return Query
- */
- 
-    protected function getListQuery() {
-        $db = $this->getDbo();
+          
+    public function getServers() {
+        $db = Factory::getDbo();
         $query = $db->getQuery(true);
         
         $query->select('a.id AS id, a.title AS title, a.alias AS alias,'
@@ -41,24 +35,24 @@ class XbjournalsModelDashboard extends JModelList {
             a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
         $query->from('#__xbjournals_servers AS a');
         
-        $orderCol       = $this->state->get('list.ordering', 'title');
-        $orderDirn      = $this->state->get('list.direction', 'ASC');
-        
-        $query->order($db->escape($orderCol.' '.$orderDirn));
-        
-        return $query;
-        
+        $query->order('title ASC');
+        $db->setQuery($query);
+        $servers = $db->loadObjectList();
+        return $servers;    
     }
     
-    public function getItems() {
-        $items  = parent::getItems();
+    public function getServerCalendars($serverid) {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
         
-//        foreach ($items as $i=>$item) {
-//        }
-        return $items;
+        $query->select('a.id AS id, a.title AS title, a.alias AS alias,'
+            .'a.last_checked AS last_checked, a.catid AS catid, a.note AS note');
+        $query->from('#__xbjournals_calendars AS a');
+        
+        $query->order('title ASC');
+        $db->setQuery($query);
+        $servers = $db->loadObjectList();
+        return $servers;
     }
     
-    public function getServers() {
-        
-    }
 }

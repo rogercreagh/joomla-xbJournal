@@ -46,7 +46,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?> <i class="far fa-eye"></i></h4>
+		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
 	<div class="pull-right span2">
 		<p style="text-align:right;">
 			<?php $fnd = $this->pagination->total;

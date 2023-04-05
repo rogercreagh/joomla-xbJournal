@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/dashboard/view.html.php
- * @version 0.0.0.1 2nd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -20,13 +20,10 @@ class XbjournalsViewDashboard extends JViewLegacy {
     
     public function display($tpl = null) {    
  
-        $this->items = $this->get('Items');
-        $this->pagination = $this->get('Pagination');
-        $this->state = $this->get('State');
-        $this->filterForm = $this->get('FilterForm');
-        $this->activeFilters = $this->get('ActiveFilters');
+        $this->servers = $this->get('Servers');
+        $this->calendars = $this->get('Calendars');
         
-        $this->searchTitle = $this->state->get('filter.search');
+        $this->state = $this->get('State');
         
 //         require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
         

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.0.2 2nd April 2023
+ * @version 0.0.0.5 4th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -178,7 +178,7 @@ class com_xbjournalsInstallerScript
  	protected function uninstalldata() {
  	    $message = '';
  	    $db = Factory::getDBO();
- 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_items`');
+ 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals_calendars`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_items`');
  	    $res = $db->execute();
  	    if ($res === false) {
  	        $message = 'Error deleting xbFilms tables, please check manually';
