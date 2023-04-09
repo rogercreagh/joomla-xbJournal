@@ -40,7 +40,7 @@ class XbjournalsHelper extends ContentHelper
 	public static function addSubmenu($vName = 'dashboard') {
 		JHtmlSidebar::addEntry(
             Text::_('XBCULTURE_ICONMENU_DASHBOARD'),
-            'index.php?option=com_xbfilms&view=dashboard',
+            'index.php?option=com_xbjournals&view=dashboard',
             $vName == 'dashboard'
 	        );
 		JHtmlSidebar::addEntry(
@@ -191,4 +191,12 @@ class XbjournalsHelper extends ContentHelper
 	    return true;
 	}
 
+	public static function checkVjournalCalendar($calendarid) {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('*')->from('#__xbjournals_calendars')->where('id = '.$db->q($calendarid));
+	    $db->setQuery($query);
+	    $cal = $db->loadObject();
+	}
+	
 }

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource 
- * @version 0.0.0.1 1st April 2023
+ * @version 0.0.0.5 5th April 2023
  * @since 0.0.0.1 1st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
@@ -34,14 +34,14 @@ $document = Factory::getDocument();
 
 // $usexbcss = $params->get('use_xbcss',1);
 // if ($usexbcss<2) {
-//     $cssFile = Uri::root(true)."/media/com_xbjournals/css/xbjournals.css";
+     $cssFile = Uri::root(true)."/media/com_xbjournals/css/xbjournals.css";
 //     $altcss = $params->get('css_file','');
 //     if ($usexbcss==0) {
 //         if ($altcss && file_exists(JPATH_ROOT.$altcss)) {
 //             $cssFile = $altcss;
 //         }
 //     }
-//     $document->addStyleSheet($cssFile);
+     $document->addStyleSheet($cssFile);
 // }
 
 //$cssFile = '<script src="https://kit.fontawesome.com/012857417f.js" crossorigin="anonymous"></script>';

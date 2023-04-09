@@ -38,33 +38,24 @@ BEGIN:VCALENDAR
     END:VEVENT
 END:VCALENDAR';
 
-/*
-BEGIN:VCALENDAR
+
+$firstNewJournal = 'BEGIN:VCALENDAR
     VERSION:2.0
     PRODID:DAVx5/4.2.5-ose ical4j/3.2.5
     BEGIN:VJOURNAL
-        DTSTAMP:20221212T073622Z
-        UID:6708d5a7-4707-4323-822e-a41e705cbd88
-        SEQUENCE:59
-        CREATED:20221212T072535Z
-        LAST-MODIFIED:20221212T073601Z
-        SUMMARY:A Wintery Drive Home
+        CREATED:20230404T072535Z
+        LAST-MODIFIED:20230404T072535Z
+        DTSTAMP:20230404T072535Z
+        SUMMARY:The Wintery Drive Home
         DESCRIPTION:A final hotel breakfast - this morning some yogurt and fruit\, 
- a croissant\, a waffles with fruit honey & cinnamon. Clear morning with go
- od views across the bay. Still some ice on the ground.\n\nLeft before 11\,
-  stopped in Truro to charge. The Lidl one was occupied so on to the pub on
- e which was more expensive\, difficult to get started\, and errored when I
-  tried to stop. Still got the 10% needed.\n\nCold rain in Truro\, sunshine
-  to Victoria\, rain then sleet over the moor. Used about 45%.\n\nHome to a
-  very col house\, 2 year old chicken soup from freezer for lunch was nice.
-  Pottered for afternoon and cooked a lentil & veg stoo for supper.
+ a croissant\, a waffles with fruit honey & cinnamon. 
         STATUS:FINAL
         CATEGORIES:trips,cooking
-        DTSTART;VALUE=DATE:20221211
+        DTSTART;VALUE=DATE:20230405
     END:VJOURNAL
-END:VCALENDAR
+END:VCALENDAR';
 
- */
+
 $secondNewEvent = 'BEGIN:VCALENDAR
 PRODID:-//SomeExampleStuff//EN
 VERSION:2.0

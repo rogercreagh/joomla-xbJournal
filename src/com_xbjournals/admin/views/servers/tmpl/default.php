@@ -175,10 +175,10 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 					<?php echo $item->description; ?>
 				</td>
 				<td>
-					<?php if ($item->jcnt > 0) : ?>
+					<?php if ($item->ccnt > 0) : ?>
 						<details>
 							<summary>
-								<?php echo $item->jcnt.' '.lcfirst(Text::_('XBJOURNALS_CALENDARS')).' '.Text::_('XBJOURNALS_FOUND'); ?>
+								<?php echo $item->ccnt.' '.lcfirst(Text::_('XBJOURNALS_CALENDARS')).' '.Text::_('XBJOURNALS_FOUND'); ?>
 							</summary>
 							<ul>
 								<?php foreach ($item->calendars as $i=>$cal) : ?>

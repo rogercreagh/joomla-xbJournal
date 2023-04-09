@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `catid` int(10) NOT NULL  DEFAULT '0',
   `access` int(10) NOT NULL  DEFAULT '0',
   `state` tinyint(3) NOT NULL DEFAULT '0',
-  `created` datetime,
+  `created` datetime DEFAULT CURRENT_TIMESTAMP,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
   `version` int(10) NOT NULL DEFAULT '0',

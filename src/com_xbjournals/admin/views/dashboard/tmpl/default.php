@@ -32,7 +32,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h4><?php echo Text::_( 'XBCULTURE_SERVERS' ); ?></h4>
+		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
 	
 	<?php
         // Search tools bar
@@ -43,34 +43,27 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 
 	<?php if (empty($this->servers)) : ?>
 		<div class="alert alert-no-items">
-			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
+			<?php echo Text::_('No server records found'); ?>
 		</div>
 	<?php else : ?>
-		<?php echo count($servers)?>
-		<table class="table table-striped table-hover" style="table-layout:fixed;" id="xbmapsServerList">	
+		<?php $scnt = count($this->servers); ?>
+		<p>
+		<?php echo $scnt; ?> <?php  echo ($scnt == 1) ? Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVERS');
+		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
+		<table class="table table-striped table-hover">	
 			<thead>
 				<tr>
-					<th class="nowrap center hidden-phone" style="width:25px;">
-						<?php echo HTMLHelper::_('searchtools.sort', '', 'ordering', 
-						    $listDirn, $listOrder, null, 'asc', 'XBMAPS_HEADING_ORDERING_DESC', 'icon-menu-2'); ?>
-					</th>
-					<th class="hidden-phone center" style="width:25px;">
-						<?php echo HTMLHelper::_('grid.checkall'); ?>
-					</th>
-					<th class="nowrap center" style="width:55px">
-						<?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'published', $listDirn, $listOrder); ?>
-					</th>
 					<th>
-						<?php echo HTMLHelper::_('searchtools.sort','Title','title',$listDirn,$listOrder); ?>
+						<?php echo Text::_('Title'); ?>
 					</th>					
 					<th>
 						<?php echo Text::_('Domain');?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
-						<?php echo HTMLHelper::_('searchtools.sort', 'Updated', 'modified', $listDirn, $listOrder );?>
+						<?php echo Text::_('Updated');?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
-						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
+						<?php echo Text::_('JGRID_HEADING_ID');?>
 					<th>
 					</th>
 				</tr>
@@ -85,45 +78,10 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                 $canChange  = $user->authorise('core.edit.state', 'com_xbmaps.map.'.$item->id) && $canCheckin;
 			?>
 			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
-				<td class="order nowrap center hidden-phone">
-					<?php
-						$iconClass = '';
-						if (!$canChange) {
-							$iconClass = ' inactive';
-						} elseif (!$saveOrder) {
-							$iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::tooltipText('JORDERINGDISABLED');
-						}
-					?>
-					<span class="sortable-handler<?php echo $iconClass; ?>">
-						<span class="icon-menu" aria-hidden="true"></span>
-					</span>
-					<?php if ($canChange && $saveOrder) : ?>
-						<input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering; ?>" class="width-20 text-area-order " />
-					<?php endif; ?>
-				</td>
-				<td class="center hidden-phone">
-					<?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
-				</td>
-				<td class="center">
-					<div class="btn-group">
-						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'map.', $canChange, 'cb'); ?>
-						<?php if ($item->note!=""){ ?>
-							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.JText::_( 'XBMAPS_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
-								<i class="icon- xbinfo"></i>
-							</span>
-						<?php } else {?>
-							<span class="btn btn-micro inactive" style="visibility:hidden;" title=""><i class="icon-info"></i></span>
-						<?php } ?>
-					</div>
-				</td>
 				<td>
 					<p class="xb12 xbbold xbmb8">
-					<?php if ($item->checked_out) {
-					    $couname = Factory::getUser($item->checked_out)->username;
-					    echo HTMLHelper::_('jgrid.checkedout', $i, JText::_('XBMAPS_OPENED_BY').': '.$couname, $item->checked_out_time, 'map.', $canCheckin);
-					} ?>
 					<?php if ($canEdit || $canEditOwn) : ?>
-						<a href="<?php echo JRoute::_($servereditlink.$item->id);?>"
+						<a href="<?php echo Route::_($servereditlink.$item->id);?>"
 							title="<?php echo JText::_('edit server'); ?>" >
 							<b><?php echo $this->escape($item->title); ?></b></a> 
 					<?php else : ?>
@@ -135,12 +93,8 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 					</p>
 				</td>
 				<td>
-					<?php echo $item->url;?>
+					<?php echo parse_url($item->url, PHP_URL_HOST);?>
 					<br />Username: <?php echo $item->username; ?>
-					<br />Password: <?php echo $item->password; ?>
-				</td>
-				<td>
-					<?php echo $item->description; ?>
 				</td>
 				<td class="hidden-phone">
 					<?php echo $item->id; ?>
@@ -156,13 +110,80 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 	
 	<?php endif; ?>
 
+		<h4><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h4>
+
+	<?php if (empty($this->calendars)) : ?>
+		<div class="alert alert-no-items">
+			<?php echo Text::_('No calendar records found'); ?>
+		</div>
+	<?php else : ?>
+		<?php $ccnt = count($this->calendars); ?>
+		<p>
+		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
+		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
+		<table class="table table-striped table-hover">	
+			<thead>
+				<tr>
+					<th>
+						<?php echo Text::_('Title'); ?>
+					</th>					
+					<th>
+						<?php echo Text::_('Server');?>
+					</th>
+					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
+						<?php echo Text::_('Checked');?>
+					</th>
+					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
+						<?php echo Text::_('JGRID_HEADING_ID');?>
+					<th>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php
+			foreach ($this->calendars as $i => $item) :
+                $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
+ 				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
+                $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
+			?>
+			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
+				<td>
+					<p class="xb12 xbbold xbmb8">
+					<?php if ($canEdit || $canEditOwn) : ?>
+						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
+							title="<?php echo JText::_('edit calendar'); ?>" >
+							<b><?php echo $this->escape($item->title); ?></b></a> 
+					<?php else : ?>
+						<?php echo $this->escape($item->title); ?>
+					<?php endif; ?>
+                    <br />                        
+					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+                    	<span class="xbnit xb08"><?php echo $alias;?></span>
+					</p>
+				</td>
+				<td>
+					<?php echo $item->server; ?>
+				</td>
+				<td class="hidden-phone">
+					<span class="xbnit"><?php echo HtmlHelper::date($item->last_checked, 'd M Y');?></span>
+				</td>
+				<td class="hidden-phone">
+					<?php echo $item->id; ?>
+				</td>
+			</tr>			
+			<?php endforeach; ?>
+			
+			</tbody>
+		</table>
+	
+	<?php endif; ?>
+
         <?php 
 //        echo '<pre>'.print_r($this->journalitems,true).'</pre>';
         
 //        echo '<pre>'.print_r($this->notes,true).'</pre>';
         ?>
 	</div>
-	<?php echo $this->pagination->getListFooter(); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="boxchecked" value="0" />
 	<?php echo HTMLHelper::_('form.token'); ?>
