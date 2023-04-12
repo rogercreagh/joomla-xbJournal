@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.0.7 11th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -118,6 +118,24 @@ class com_xbjournalsInstallerScript
             $message = 'Checking indicies... ';
             
             $prefix = $app->get('dbprefix');
+            $querystr = 'ALTER TABLE '.$prefix.'xbjournals_servers ADD INDEX serveraliasindex (alias)';
+            $err=false;
+            try {
+                $db->setQuery($querystr);
+                $db->execute();
+            } catch (Exception $e) {
+                if($e->getCode() == 1061) {
+                    $message .= '- server alias index already exists. ';
+                } else {
+                    $message .= '[ERROR creating serveraliasindex: '.$e->getCode().' '.$e->getMessage().']';
+                    $app->enqueueMessage($message, 'Error');
+                    $message = 'Checking indicies... ';
+                    $err = true;
+                }
+            }
+            if (!$err) {
+                $message .= '- server alias index created. ';
+            }
             $querystr = 'ALTER TABLE '.$prefix.'xbjournals_calendars ADD INDEX calendaraliasindex (alias)';
             $err=false;
             try {
@@ -155,7 +173,7 @@ class com_xbjournalsInstallerScript
                 $message .= '- entry alias index created.';
             }
             
-            $app->enqueueMessage($message,'Info');
+            $app->enqueueMessage($message);
                         
             echo '<div style="padding: 7px; margin: 0 0 8px; list-style: none; -webkit-border-radius: 4px; -moz-border-radius: 4px;
 		border-radius: 4px; background-image: linear-gradient(#ffffff,#efefef); border: solid 1px #ccc;">';
@@ -178,7 +196,7 @@ class com_xbjournalsInstallerScript
  	protected function uninstalldata() {
  	    $message = '';
  	    $db = Factory::getDBO();
- 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals_calendars`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_items`');
+ 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals_calendars`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_entryitems`');
  	    $res = $db->execute();
  	    if ($res === false) {
  	        $message = 'Error deleting xbFilms tables, please check manually';
@@ -195,7 +213,7 @@ class com_xbjournalsInstallerScript
  	        $query = $db->getQuery(true);
  	        $query->select('id')->from($db->quoteName('#__categories'))
  	        ->where($db->quoteName('title')." = ".$db->quote($cat['title']))
- 	        ->where($db->quoteName('extension')." = ".$db->quote('com_xbfilms'));
+ 	        ->where($db->quoteName('extension')." = ".$db->quote('com_xbjournals'));
  	        $db->setQuery($query);
  	        if ($db->loadResult()>0) {
  	            $message .= '"'.$cat['title'].' already exists<br /> ';
@@ -219,12 +237,12 @@ class com_xbjournalsInstallerScript
  	                    $category->rebuildPath($category->id);
  	                    $message .= $cat['title'].' id:'.$category->id.' created ok. ';
  	                } else {
- 	                    throw new Exception(500, $category->getError());
- 	                    //return '';
+ 	                    //throw new Exception(500, $category->getError());
+ 	                    Factory::getApplication()->enqueueMessage($category->getError(),'Error');
  	                }
  	            } else {
- 	                throw new Exception(500, $category->getError());
- 	                //return '';
+ 	                //throw new Exception(500, $category->getError());
+ 	                Factory::getApplication()->enqueueMessage($category->getError(),'Error');
  	            }
  	        }
  	    }

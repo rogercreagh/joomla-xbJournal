@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/tables/server.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.0.7 11th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -64,7 +64,7 @@ class XbjournalsTableServer extends Table
             }
             $this->alias = $test;
         }
-        
+/***        
         //set metadata to defaults
         $metadata = json_decode($this->metadata,true);
         // meta.author will be created_by_alias (see above)
@@ -86,7 +86,7 @@ class XbjournalsTableServer extends Table
             $metadata['rights'] = $def_rights;
         }
         $this->metadata = json_encode($metadata);
-        
+***/        
         return true;
     }
     

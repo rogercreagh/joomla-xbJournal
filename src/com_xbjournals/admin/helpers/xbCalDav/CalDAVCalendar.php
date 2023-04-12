@@ -26,6 +26,11 @@
  * @package simpleCalDAV
  *
  */
+/**
+ * modified 11th April 2023 to add $components with getter & setter
+ * @author rogerco
+ *
+ */
 
 class CalDAVCalendar {
 	private $url;
@@ -35,18 +40,23 @@ class CalDAVCalendar {
 	private $rgba_color;
 	private $rbg_color;
 	private $order;
+	private $components;
 	
-	function __construct ( $url, $displayname = null, $ctag = null, $calendar_id = null, $rbg_color = null, $order = null ) {
+	
+	function __construct ( $url, $displayname = null, $ctag = null, $calendar_id = null, 
+	    $rbg_color = null, $order = null, $components = 'VEVENT,VJOURNAL,VTODO' ) {
 		$this->url = $url;
 		$this->displayname = $displayname;
 		$this->ctag = $ctag;
 		$this->calendar_id = $calendar_id;
 		$this->rbg_color = $rbg_color;
 		$this->order = $order;
+		$this->components = $components;
+		
 	}
 	
 	function __toString () {
-		return( '(URL: '.$this->url.'   Ctag: '.$this->ctag.'   Displayname: '.$this->displayname .')'. "\n" );
+	    return( '(URL: '.$this->url.'   Ctag: '.$this->ctag.'   Displayname: '.$this->displayname .'   Components: '.$this->components.')'. "\n" );
 	}
 	
 	// Getters
@@ -73,6 +83,9 @@ class CalDAVCalendar {
 	
 	function getOrder () {
 		return $this->order;
+	}
+	function getComponents () {
+	    return $this->components;
 	}
 	
 	
@@ -101,6 +114,10 @@ class CalDAVCalendar {
 	function setOrder ( $order ) {
 		$this->order = $order;
 	}
+	function setComponents( $comps) {
+	    $this->components = $comps;
+	}
+
 }
 
 ?>

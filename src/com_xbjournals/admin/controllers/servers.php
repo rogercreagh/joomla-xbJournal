@@ -23,7 +23,7 @@ class XbjournalsControllerServers extends JControllerAdmin {
 	    $cid =  $jip->get('cid');
 	    $serverid = $cid[0];
 	    $newcnt = XbjournalsHelper::getServerCalendars($serverid);
-	    Factory::getApplication()->enqueueMessage($newcnt.' new calendars found');
+	    Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
 	    $this->setRedirect('index.php?option=com_xbjournals&view=servers');
 	}
 	

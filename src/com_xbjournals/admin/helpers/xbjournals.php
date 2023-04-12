@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.0.8 12th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -44,19 +44,19 @@ class XbjournalsHelper extends ContentHelper
             $vName == 'dashboard'
 	        );
 		JHtmlSidebar::addEntry(
-		    Text::_('XBCULTURE_ICONMENU_SERVERS'),
+		    Text::_('XBJOURNALS_ICONMENU_SERVERS'),
 		    'index.php?option=com_xbjournals&view=servers',
 		    $vName == 'servers'
 		    );
 		JHtmlSidebar::addEntry(
-		    Text::_('XBCULTURE_ICONMENU_NEWSERVER'),
+		    Text::_('XBJOURNALS_ICONMENU_NEWSERVER'),
 		    'index.php?option=com_xbjournals&view=server&layout=edit',
 		    $vName == 'server'
 		    );
 		JHtmlSidebar::addEntry(
-		    Text::_('XBCULTURE_ICONMENU_JOURNALS'),
-		    'index.php?option=com_xbjournals&view=journals',
-		    $vName == 'journals'
+		    Text::_('XBJOURNALS_ICONMENU_CALENDARS'),
+		    'index.php?option=com_xbjournals&view=calendars',
+		    $vName == 'calendars'
 		    );
 	}
     
@@ -103,40 +103,51 @@ class XbjournalsHelper extends ContentHelper
 	    
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
-	    $existingcals = array();
-	    $newcnt = 0;
+	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0);
 	    foreach ($arrayOfCalendars as $cal) {
 	        $calurl = $cal->getURL();
 	        $calid = $cal->getCalendarID();
 	        $calname = $cal->getDisplayName();
+	        $alias = OutputFilter::stringURLSafe(strtolower($calname));
 	        $calctag = $cal->getCTag();
 	        $calorder = $cal->getOrder();
 	        $calrgb = $cal->getRBGcolor();
+	        $calcomps = $cal->getComponents();
+	        $pub = 0;
+	        if (strpos($calcomps,'VJOURNAL') !==false) {
+	            $pub = '1';
+	        }
 	        
 	        $query->clear();
-	        $query->select('id')->from('#__xbjournals_calendars');
-	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calendar_id = '.$db->q('calid'));
+	        $query->select('id, cal_ctag')->from('#__xbjournals_calendars');
+	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calendar_id = '.$db->q($calid));
 	        $db->setQuery($query);
-	        $res = $db->loadResult();
-	        //iff we've already got it add to exist list
-	        if ($res>0) {
-	            $existingcals[] = $res;
+	        $res = $db->loadAssoc();
+	        if ($res['id']>0) {
+    	        //check if it has changed, if so update
+	            if ($res['cal_ctag'] != $calctag) {
+	                //todo update here
+	                $cnts['update']++;
+	            } else {
+    	            $cnts['same'] ++;
+	            }
 	        } else { //we need to add it
 	            $query->clear();
 	            $query->insert($db->quoteName('#__xbjournals_calendars'));
-	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,cal_rgb_color,cal_order,title,alias,access,state');
+	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
+	                .'cal_rgb_color,cal_order,cal_components,title,alias,access,state,last_checked');
 	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
-	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calname).','.$db->q(strtolower($calname)).','.$db->q('1').','.$db->q('1'));
+	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
+	                .$db->q($alias).','.$db->q('1').','.$db->q($pub).','.$db->q(date('Y-m-d H:i:s')));
 	            //try
 	            $db->setQuery($query);
 	            $db->execute();
-	            $existingcals[] = $db->insertid();
-	            $newcnt ++;
+	            $cnts['new'] ++;
 	        }
 	        //TODO check if calendars have disappeared from server and unpublish them
 	        
 	    } //end foreach calendar
-	    return $newcnt;
+	    return $cnts;
 	}
 	
 	public static function getServerConnectionDetails($serverid) {
@@ -199,4 +210,9 @@ class XbjournalsHelper extends ContentHelper
 	    $cal = $db->loadObject();
 	}
 	
+	public static function getCalendarEntries($calid) {
+	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0);
+	    
+	    return $cnts;
+	}
 }

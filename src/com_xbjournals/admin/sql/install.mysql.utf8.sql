@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals v0.0.0.5 4th April 2023
+# sql installation file for component xbJournals v0.0.0.7 11th April 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_servers` (
   `url` varchar(190) NOT NULL DEFAULT '',
   `username` varchar(190) NOT NULL DEFAULT '',
   `password` varchar(190) NOT NULL DEFAULT '',
-  `description` varchar(512) NOT NULL DEFAULT '',
+  `description` varchar(4094) NOT NULL DEFAULT '',
   `access` int(10) NOT NULL  DEFAULT '0',
   `state` tinyint(3) NOT NULL DEFAULT '0',
   `created` datetime,
@@ -95,9 +95,11 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_servers` (
   PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
+# moved to install script in case data is not deleted on uninstall CREATE UNIQUE INDEX `serveraliasindex` ON `#__xbjournals_servers` (`alias`);
+
 
 CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   `server_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_servers table',
   `cal_displayname` varchar(190) NOT NULL DEFAULT '',
   `cal_url` varchar(190) NOT NULL DEFAULT '',
@@ -105,16 +107,17 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `cal_calendar_id`  varchar(190) NOT NULL DEFAULT '',
   `cal_rgb_color` varchar(8) NOT NULL DEFAULT '',
   `cal_order` int(10)  NOT NULL  DEFAULT '0',
+  `cal_components` varchar(190) NOT NULL DEFAULT 'VEVENT,VJOURNAL,VTODO',
   `last_checked` datetime,
-  `title` varchar(190) NOT NULL DEFAULT '',
-  `alias` varchar(190) NOT NULL DEFAULT '',
-  `catid` int(10) NOT NULL  DEFAULT '0',
+  `title` varchar(190) NOT NULL DEFAULT '' COMMENT 'default to cal_displayname but can be edited. Prefer unique',
+  `alias` varchar(190) NOT NULL DEFAULT '' COMMENT 'derive from title with seq number to be unique',
+  `description` varchar(4094) NOT NULL DEFAULT '',
+  `catid` int(10) NOT NULL  DEFAULT '0' COMMENT 'default to uncategorised',
   `access` int(10) NOT NULL  DEFAULT '0',
-  `state` tinyint(3) NOT NULL DEFAULT '0',
+  `state` tinyint(3) NOT NULL DEFAULT '0' COMMENT 'enforce state unpublished (0) if does not support VJOURNAL',
   `created` datetime DEFAULT CURRENT_TIMESTAMP,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
-  `version` int(10) NOT NULL DEFAULT '0',
   `modified` datetime DEFAULT CURRENT_TIMESTAMP,
   `modified_by` int(10) NOT NULL  DEFAULT '0',
   `checked_out` int(10) NOT NULL DEFAULT '0',
@@ -126,33 +129,32 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
-# CREATE UNIQUE INDEX `journalaliasindex` ON `#__xbjournals` (`alias`);
+# moved to install script in case data is not deleted on uninstall CREATE UNIQUE INDEX `calendaraliasindex` ON `#__xbjournals_calendars` (`alias`);
 
 CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
-  `journal_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals table', 
-  `entry_type` varchar(10) NOT NULL DEFAULT 'journal' COMMENT 'journal or note',
-  `cal_href` varchar(511) NOT NULL DEFAULT '',
-  `cal_data` BLOB,
-  `cal_etag` varchar(511) NOT NULL DEFAULT '',
-  `cal_dtstamp`  varchar(190) NOT NULL DEFAULT '',
-  `cal_uid` varchar(190) NOT NULL DEFAULT '',
-  `cal_categories` varchar(190) NOT NULL DEFAULT '' COMMENT 'list, used as tags',
-  `cal_class` varchar(190) NOT NULL DEFAULT '',
-  `cal_created` varchar(190) NOT NULL DEFAULT '',
-  `cal_description` varchar(190) NOT NULL DEFAULT '',
-  `cal_dtstart` varchar(190) NOT NULL DEFAULT '',
-  `cal_last_modified` varchar(190) NOT NULL DEFAULT '',
-  `cal_organizer` varchar(190) NOT NULL DEFAULT '',
-  `cal_recurid` varchar(190) NOT NULL DEFAULT '',
-  `cal_seq` varchar(190) NOT NULL DEFAULT '',
-  `cal_status` varchar(190) NOT NULL DEFAULT '',
-  `cal_summary` varchar(190) NOT NULL DEFAULT '' COMMENT 'used for title with formating stripped',
-  `cal_url` varchar(190) NOT NULL DEFAULT '',
-  `cal_rrule` varchar(190) NOT NULL DEFAULT '',
-  `title` varchar(190) NOT NULL DEFAULT '',
-  `alias` varchar(190) NOT NULL DEFAULT '',
-  `description` text NOT NULL DEFAULT '',
+  `calendar_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_calendars', 
+  `entry_type` ENUM('Journal','Note') NOT NULL DEFAULT 'Journal',  
+  `ent_href` varchar(511) NOT NULL DEFAULT '',
+  `ent_etag` varchar(511) NOT NULL DEFAULT '',
+  `ent_sequence` varchar(190) NOT NULL DEFAULT '',
+  `ent_dtstamp`  varchar(190) NOT NULL DEFAULT '',
+  `ent_uid` varchar(190) NOT NULL DEFAULT '',
+  `ent_created` varchar(190) NOT NULL DEFAULT '',
+  `ent_last_modified` varchar(190) NOT NULL DEFAULT '',
+  `ent_summary` varchar(1022) NOT NULL DEFAULT '',
+  `ent_description` text DEFAULT '',
+  `ent_location` varchar(510) NOT NULL DEFAULT '',
+  `ent_url` varchar(254) NOT NULL DEFAULT '',
+  `ent_status` varchar(190) NOT NULL DEFAULT '',
+  `ent_categories` varchar(254) NOT NULL DEFAULT '' COMMENT 'used as joomla tags',
+  `ent_class` varchar(190) NOT NULL DEFAULT '',
+  `ent_dtstart` varchar(190),
+  `ent_organizer` varchar(254) NOT NULL DEFAULT '',
+  `ent_recurid` varchar(190) NOT NULL DEFAULT '',
+  `ent_rrule` varchar(190) NOT NULL DEFAULT '', 
+  `title` varchar(254) NOT NULL DEFAULT '' COMMENT 'uses cal_summary truncated to 254 chars',
+  `alias` varchar(190) NOT NULL DEFAULT '', 
   `catid` int(10) NOT NULL DEFAULT '0',
   `access` int(10) NOT NULL DEFAULT '0',
   `state` tinyint(3) NOT NULL DEFAULT '0',
@@ -170,22 +172,25 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
    PRIMARY KEY (`id`)
   )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
-# CREATE UNIQUE INDEX `entryaliasindex` ON `#__xbjournals_vjournal_entries` (`alias`);
+# moved to install script in case data is not deleted on uninstall CREATE UNIQUE INDEX `entryaliasindex` ON `#__xbjournals_vjournal_entries` (`alias`);
 
-CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_items` (
+CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entryitems` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
-  `entry_id` int(10) NOT NULL DEFAULT '0',
-  `cal_attach` varchar(190) NOT NULL DEFAULT '',
-  `cal_attendee` varchar(190) NOT NULL DEFAULT '',
-  `cal_comment` varchar(190) NOT NULL DEFAULT '',
-  `cal_contact` varchar(190) NOT NULL DEFAULT '',
-  `cal_description` varchar(190) NOT NULL DEFAULT '',
-  `cal_exdate` varchar(190) NOT NULL DEFAULT '',
-  `cal_related` varchar(190) NOT NULL DEFAULT '',
-  `cal_rdate` varchar(190) NOT NULL DEFAULT '',
-  `cal_rstatus` varchar(190) NOT NULL DEFAULT '',
-  `cal_x-prop` varchar(190) NOT NULL DEFAULT '',
-  `cal_iana-prop` varchar(190) NOT NULL DEFAULT '',
+  `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_calendars table',
+  `entry_type` varchar(190) NOT NULL DEFAULT '' COMMENT 'required - which item type is this ',
+  `cal_attach_inline` BLOB,
+  `cal_attach_url` varchar(254),
+  `cal_attach_params` varchar(510) COMMENT 'either inline or url as per params',  
+  `cal_attendee` varchar(510),  
+  `cal_comment` varchar(1023),  
+  `cal_contact` varchar(510),
+  `cal_rrule`  varchar(510),
+  `cal_exdate` varchar(510),
+  `cal_related` varchar(510),
+  `cal_rdate` varchar(190),
+  `cal_rstatus` varchar(190),
+  `cal_x-prop` varchar(1022),
+  `cal_iana-prop` varchar(1022),
    PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 

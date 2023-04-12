@@ -2,6 +2,10 @@ simpleCalDAV
 
 Copyright 2014 Michael Palm <palm.michael@gmx.de>
 
+Modifications where flagged (c) Roger Creagh-Osb0rne 2023 to add support for VJOURNAL components
+Journal entries are VJOURNAL components with a DTSTART element but do not need a DTEND, ie attached to a specific day
+Notes entries (VNOTES is not explicitly defined) are VJOURNAL components with no DTSTART element , ie not attached to a specific day
+
 Table of content
 1. About
 2. Requirements
@@ -24,6 +28,8 @@ It contains the following functions:
   - change()
   - delete()
   - getEvents()
+  - getJournals() - added RCO
+  - getNotes() - added RCO
   - getTODOs()
   - getCustomReport()
 

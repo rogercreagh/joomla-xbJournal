@@ -9,6 +9,10 @@
  * 
  * @package simpleCalDAV
  */
+/**
+ * modified 11th April 2023 to get supported component set as additional calendar property
+ * @author rogerco
+ */
 
 require_once('CalDAVCalendar.php');
 require_once('include/XMLDocument.php');
@@ -668,25 +672,62 @@ class CalDAVClient {
               if ( $this->xmlnodes[$nodenum]['type'] == 'open' ) {
                   $props = array();
                   $status = '';
-              }
-              else {
+              } else {
                   if ( $status == 'HTTP/1.1 200 OK' ) break;
               }
-          }
-          elseif ( !isset($this->xmlnodes[$nodenum]) || !is_array($this->xmlnodes[$nodenum]) ) {
+          } elseif ( !isset($this->xmlnodes[$nodenum]) || !is_array($this->xmlnodes[$nodenum]) ) {
               break;
-          }
-          elseif ( $this->xmlnodes[$nodenum]['tag'] == 'DAV::status' ) {
+          } elseif ( $this->xmlnodes[$nodenum]['tag'] == 'DAV::status' ) {
               $status = $this->xmlnodes[$nodenum]['value'];
-          }
-          else {
+          } elseif (($this->xmlnodes[$nodenum]['tag']=='urn:ietf:params:xml:ns:caldav:supported-calendar-component-set')) {
+              if (($this->xmlnodes[$nodenum]['type']=='open')) {
+                  $props[] = $this->GetOKComps($nodenum);
+              }
+          } else {
               $props[] = $this->xmlnodes[$nodenum];
           }
-      }
+      } //end while
       return $props;
   }
 
-
+  /**
+   * @name GetOKComps
+   * @desc given a node nuber in $this->xmlnodes iterates though looking for component set values
+   * @param unknown $nodenum
+   * @return NULL|string[] array wiht 
+   */
+  function GetOKComps ($nodenum) {
+      $comps = null;
+      $ret = null;
+      $level = $this->xmlnodes[$nodenum]['level'];
+      $targettag = 'urn:ietf:params:xml:ns:caldav:supported-calendar-component-set';
+      
+      while ( $this->xmlnodes[$nodenum]['level'] >= $level ) {
+          if ( $this->xmlnodes[$nodenum]['tag'] == $targettag ) {
+              
+              if ( $this->xmlnodes[$nodenum]['type'] == 'open' ) {
+                  $comps = array();
+              } else {
+                  if ( $this->xmlnodes[$nodenum]['type'] == 'close' )  break;
+              }
+          } elseif ( !isset($this->xmlnodes[$nodenum]) || !is_array($this->xmlnodes[$nodenum]) ) {
+              break;
+          } elseif ( $this->xmlnodes[$nodenum]['tag'] == 'urn:ietf:params:xml:ns:caldav:comp' ) {
+              if ($this->xmlnodes[$nodenum]['type']=='complete') {
+                  $comps[] = $this->xmlnodes[$nodenum]['attributes']['name'];
+              }
+              
+          }
+          $nodenum ++; //NB this is moved to end of loop as we assume the first node is already the target when called from GetOKProps()
+      } //end while
+      $value = implode(',',$comps);
+      if ($value != '') {
+          $ret = array('tag'=>$targettag,'value'=>$value, 'type'=>'complete');
+      }
+      return $ret;
+  }
+  
+  
   /**
    * Attack the given URL in an attempt to find a principal URL
    *
@@ -740,8 +781,14 @@ class CalDAVClient {
       return $this->CalendarHomeSet($calendar_home);
   }
 
-  /*
+  /**
    * Find own calendars
+   */
+  /**
+   * modified 11th April 2023 to add supported-calendar-component-set
+   * @author RogerCO
+   * @param boolean $recursed
+   * @return CalDAVCalendar[]
    */
   function FindCalendars( $recursed=false ) {
       if ( !isset($this->calendar_home_set[0]) ) {
@@ -749,11 +796,12 @@ class CalDAVClient {
       }
       $properties = 
           array(
-                  'resourcetype',
-                  'displayname',
-                  'http://calendarserver.org/ns/:getctag',
-                  'http://apple.com/ns/ical/:calendar-color',
-                  'http://apple.com/ns/ical/:calendar-order',
+            'resourcetype',
+            'displayname',
+            'http://calendarserver.org/ns/:getctag',
+            'urn:ietf:params:xml:ns:caldav:supported-calendar-component-set',
+            'http://apple.com/ns/ical/:calendar-color',
+            'http://apple.com/ns/ical/:calendar-order',
                );
       $this->DoPROPFINDRequest( $this->first_url_part.$this->calendar_home_set[0], $properties, 1);
 	  
@@ -763,15 +811,22 @@ class CalDAVClient {
   /**
    * Do a PROPFIND on a calendar and retrieve its information
    */
+  /**
+   * modified 11th April 2023 to add supported-calendar-component-set
+   * @author RogerCO
+   * @param unknown $url
+   * @return CalDAVCalendar[]
+   */
   function GetCalendarDetailsByURL($url) {
       $properties = 
           array(
-                  'resourcetype',
-                  'displayname',
-                  'http://calendarserver.org/ns/:getctag',
-                  'http://apple.com/ns/ical/:calendar-color',
-                  'http://apple.com/ns/ical/:calendar-order',
-               );
+              'resourcetype',
+              'displayname',
+              'http://calendarserver.org/ns/:getctag',
+              'urn:ietf:params:xml:ns:caldav:supported-calendar-component-set',
+              'http://apple.com/ns/ical/:calendar-color',
+              'http://apple.com/ns/ical/:calendar-order',
+          );
       $this->DoPROPFINDRequest($url, $properties, 0);
 
       return $this->parse_calendar_info();
@@ -780,10 +835,17 @@ class CalDAVClient {
   /**
    * Find the calendars, from the calendar_home_set
    */
+  /**
+   * modified 11th April 2023 to add supported-calendar-component-set
+   * @author RogerCO
+   * @param unknown $url
+   * @return CalDAVCalendar
+   */
   function GetCalendarDetails( $url = null ) {
       if ( isset($url) ) $this->SetCalendar($url);
 
-      $calendar_properties = array( 'resourcetype', 'displayname', 'http://calendarserver.org/ns/:getctag', 'urn:ietf:params:xml:ns:caldav:calendar-timezone', 'supported-report-set' );
+      $calendar_properties = array( 'resourcetype', 'displayname', 'http://calendarserver.org/ns/:getctag', 
+          'urn:ietf:params:xml:ns:caldav:calendar-timezone', 'supported-report-set','urn:ietf:params:xml:ns:caldav:supported-calendar-component-set' );
       $this->DoPROPFINDRequest( $this->calendar_url, $calendar_properties, 0);
 
       $hnode = $this->xmltags['DAV::href'][0];
@@ -1158,6 +1220,11 @@ EOFILTER;
   /**
    * Get calendar info after a PROPFIND
    */
+  /**
+   * modified 11th April 2023 to add supported-calendar-component-set
+   * @author RogerCO
+   * @return CalDAVCalendar[]
+   */
   function parse_calendar_info() {
       $calendars = array();
       if ( isset($this->xmltags['urn:ietf:params:xml:ns:caldav:calendar']) ) {
@@ -1204,6 +1271,10 @@ EOFILTER;
                       case 'http://apple.com/ns/ical/:calendar-order':
                           $calendar->setOrder((isset($v['value']) ?
                               $v['value'] : '-'));
+                          break;
+                      case 'urn:ietf:params:xml:ns:caldav:supported-calendar-component-set':
+                          $calendar->setComponents((isset($v['value']) ?
+                          $v['value'] : '-'));
                           break;
                   }
               }

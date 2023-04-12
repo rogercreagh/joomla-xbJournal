@@ -1,7 +1,7 @@
 <?php
 /*******
  * @package xbJournals Compnent
- * @filesource admin/views/servers/tmpl/default.php
+ * @filesource admin/views/calendars/tmpl/default.php
  * @version 0.0.0.8 12th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
@@ -33,24 +33,24 @@ if (!$listOrder) {
 $saveOrder      = $listOrder == 'ordering';
 $canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
 if ($saveOrder) {
-    $saveOrderingUrl = 'index.php?option=com_xbjournals&task=servers.saveOrderAjax&tmpl=component';
+    $saveOrderingUrl = 'index.php?option=com_xbjournals&task=calendars.saveOrderAjax&tmpl=component';
     HTMLHelper::_('sortablelist.sortable', 'xbjournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 
-$servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id=';
+$calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 
 ?>
-<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=servers'); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=calendars'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
 	<div id="j-sidebar-container">
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
+		<h3><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h3>
 	<div class="pull-right span2">
 		<p style="text-align:right;">
 			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. JText::_(($fnd==1)?'XBJOURNALS_SERVER':'XBJOURNALS_SERVERS').' '.JText::_('XBJOURNALS_FOUND');
+			echo $fnd .' '. JText::_(($fnd==1)?'XBJOURNALS_CALENDAR':'XBJOURNALS_CALENDARS').' '.JText::_('XBJOURNALS_FOUND');
             ?>
 		</p>
 	</div>
@@ -77,8 +77,8 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 			<thead>
 				<tr>
 					<th class="nowrap center hidden-phone" style="width:25px;">
-						<?php echo HTMLHelper::_('searchtools.sort', '', 'a.ordering', 
-						    $listDirn, $listOrder, null, 'asc', 'XBJOURNALS_ORDERING', 'icon-menu-2'); ?>
+						<?php echo HTMLHelper::_('searchtools.sort', '', 'ordering', 
+						    $listDirn, $listOrder, null, 'asc', 'XBJOURNALS_ORDERING_DESC', 'icon-menu-2'); ?>
 					</th>
 					<th class="hidden-phone center" style="width:25px;">
 						<?php echo HTMLHelper::_('grid.checkall'); ?>
@@ -90,16 +90,16 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_TITLE','title',$listDirn,$listOrder); ?>
 					</th>					
 					<th>
-						<?php echo Text::_('XBJOURNALS_CONNECTION');?>
+						<?php echo Text::_('XBJOURNALS_SERVER');?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >
 						<?php echo (Text::_('XBJOURNALS_DESCRIPTION'));?>
 					</th>
 					<th>
-						<?php echo (Text::_('XBJOURNALS_CALENDARS')); ?>
+						<?php echo (Text::_('XBJOURNALS_ENTRIES')); ?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
-						<?php echo HTMLHelper::_('searchtools.sort', 'Updated', 'modified', $listDirn, $listOrder );?>
+						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_CHECKED', 'last_checked', $listDirn, $listOrder );?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
 						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
@@ -110,7 +110,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 			<tbody>
 			<?php
 			foreach ($this->items as $i => $item) :
-                $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
+                $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
                 $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                         || $item->checked_out==$userId || $item->checked_out==0;
 				$canEditOwn = $user->authorise('core.edit.own', 'com_xbmaps.map.'.$item->id) && $item->created_by == $userId;
@@ -138,9 +138,9 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 				</td>
 				<td class="center">
 					<div class="btn-group">
-						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'map.', $canChange, 'cb'); ?>
+						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'calendar.', $canChange, 'cb'); ?>
 						<?php if ($item->note!=""){ ?>
-							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.JText::_( 'XBMAPS_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
+							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.Text::_( 'XBJOURNALS_ADMIN_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
 								<i class="icon- xbinfo"></i>
 							</span>
 						<?php } else {?>
@@ -152,49 +152,48 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 					<p class="xb12 xbbold xbmb8">
 					<?php if ($item->checked_out) {
 					    $couname = Factory::getUser($item->checked_out)->username;
-					    echo HTMLHelper::_('jgrid.checkedout', $i, JText::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'map.', $canCheckin);
+					    echo HTMLHelper::_('jgrid.checkedout', $i, Text::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'map.', $canCheckin);
 					} ?>
 					<?php if ($canEdit || $canEditOwn) : ?>
-						<a href="<?php echo Route::_($servereditlink.$item->id);?>"
-							title="<?php echo Text::_('XBJOURNALS_EDIT'); ?>" >
+						<a href="<?php echo Route::_($calviewlink.$item->id);?>"
+							title="<?php echo Text::_('edit calendar'); ?>" >
 							<b><?php echo $this->escape($item->title); ?></b></a> 
 					<?php else : ?>
 						<?php echo $this->escape($item->title); ?>
 					<?php endif; ?>
                     <br />                        
-					<?php $alias = Text::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
                     	<span class="xbnit xb08"><?php echo $alias;?></span>
 					</p>
 				</td>
 				<td>
-					<?php echo $item->url;?>
-					<br /><?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_USERNAME').'</span>: '.$item->username; ?>
-					<br /><?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_PASSWORD').'</span>: '.$item->password; ?>
+					<?php echo $item->server_title;?>
 				</td>
 				<td>
 					<?php echo $item->description; ?>
 				</td>
 				<td>
-					<?php if ($item->ccnt > 0) : ?>
+					<?php if ($item->ecnt > 0) : ?>
 						<details>
 							<summary>
-								<?php echo $item->ccnt.' '.lcfirst(Text::_('XBJOURNALS_CALENDARS')).' '.Text::_('XBJOURNALS_FOUND'); ?>
+								<?php echo $item->ecnt.' '.Text::_('XBJOURNALS_TOTAL_JOURNAL_ENTRIES'); ?>
+								<br /><?php echo Text::_('XBJOURNALS_MOST_RECENT_FIVE'); ?>
 							</summary>
 							<ul>
-								<?php foreach ($item->calendars as $i=>$cal) : ?>
-								    <li><a href="index.php?option=com_xbjournals&view=calendar&id=<?php echo $cal['id'];?>">
-								    	<?php echo $cal['title']; ?>
-								    </a></li>
+								<?php foreach ($item->entries as $i=>$ent) : ?>
+								    <li>
+								    	<?php echo $ent['e.title'].'<br ><span class="xb09">'.$ent['e.ent_dtstart'].'</span>'; ?>
+								    </li>
 								<?php  endforeach; ?>
 							</ul>
 						</details>
 					<?php else : ?>
-						<?php echo Text::_('XBJOURNALS_NO_CALS_FOUND'); ?>
+						<?php echo Text::_('XBJOURNALS_NO_ENTRIES_FOUND'); ?>
 						<br />
 					<?php endif; ?>
 				</td>
 				<td class="hidden-phone">
-					<?php echo HtmlHelper::date($item->modified, 'd M Y');?>					
+					<?php echo HtmlHelper::date($item->last_checked, 'd M Y H:m');?>					
 				</td>
 				<td class="hidden-phone">
 					<?php echo $item->id; ?>					

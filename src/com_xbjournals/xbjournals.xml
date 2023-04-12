@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.1" method="upgrade">
 	<name>xbjournals</name>
-	<creationDate>9th April 2023</creationDate>
-	<version>0.0.0.6</version>
+	<creationDate>12th April 2023</creationDate>
+	<version>0.0.0.8</version>
 	<author>Roger C-O</author>
 	<authorEmail>roger@crosborne.uk</authorEmail>
 	<authorUrl>www.crosborne.uk</authorUrl>
@@ -76,14 +76,16 @@
 		<menu img="class:xbjournals" link="option=com_xbjournals">xbJournals</menu>
 		<submenu>
 			<menu link="option=com_xbjournals"
-				img="class:xbjournals-dashboard"
 				>
 				xbjournals_iconmenu_dashboard
 			</menu>
 			<menu link="option=com_xbjournals&amp;view=servers"
-				img="class:xbjournals-servers"
 				>
 				xbjournals_iconmenu_servers
+			</menu>
+			<menu link="option=com_xbjournals&amp;view=calendars"
+				>
+				xbjournals_iconmenu_calendars
 			</menu>
 			<menu link="option=com_config&amp;view=component&amp;component=com_xbjournals"
 					>
