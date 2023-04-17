@@ -210,9 +210,53 @@ class XbjournalsHelper extends ContentHelper
 	    $cal = $db->loadObject();
 	}
 	
-	public static function getCalendarEntries($calid) {
-	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0);
-	    
+	public static function getCalendarJournalEntries($calid) {
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    $cnts = array('server'=>0, 'new'=>0, 'update'=>0, 'same'=>0, 'missing'=>0);
+	    $cal = self::getCalendarDetaisl($calid);
+	    $conn = self::getServerConnectionDetails($cal['server_id']);
+	    $client = new SimpleCalDAVClient();
+	    $client->connect($conn['url'],$conn['username'],$conn['password']);
+	    $client->setCalendarByUrl($cal['cal_url']);
+	    $items = $client->getJournals('20140418T103000Z');
+	    Factory::getApplication()->enqueueMessage(count($items).' found <pre>'.print_r($items[0]->getHref(),true).'</pre><pre>'.print_r($items[count($items)-2]->getData(),true).'</pre>');
+	    /**
+	    get all vjournal items
+	    foreach item
+	       parse item
+	       if uid exists in #__xbjournals_vjournal_entries then
+                check etag
+	            if etag different
+	               update local from server
+	            else 
+	                no change (update last checked)
+	            endif
+            else
+                new item - save to local
+            endif
+        endforeach
+        foreach item in database
+            if uid not in server list
+                deleted on server, mark as archived
+               
+	        get new/modified entry from remote
+	        parse entry
+	        if uid exists in #__xbjournals_vjournal_entries 
+	           update entry
+	        else
+	           create entry
+	     **/
 	    return $cnts;
 	}
+	
+	public static function getCalendarDetaisl($calid) {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('*')->from('#__xbjournals_calendars')->where('id = '.$db->quote($calid));
+	    $db->setQuery($query);
+	    $ans = $db->loadAssoc();
+	    return $ans;
+	    
+	}
+
 }

@@ -64,7 +64,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
-        ToolbarHelper::custom('calendars.getentries', 'file-plus', '', 'XBJOURNALS_GETCALS', true) ;
+        ToolbarHelper::custom('calendars.getitems', 'file-plus', '', 'get items', true) ;
 //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }

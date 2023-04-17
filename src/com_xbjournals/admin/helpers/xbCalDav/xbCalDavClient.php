@@ -2,7 +2,7 @@
 /*******
  * @package xbCalDav Library
  * @filesource admin/helpers/xbCalDav/xbcaldavclient.php
- * @version 0.0.0.1 8th April 2023
+ * @version 0.0.0.1 17th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * based on SimpleCalDavClient by Michael Palm <palm.michael@gmx.de>
@@ -10,7 +10,6 @@
  * original source https://github.com/
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
  ******/
-namespace XbCalDav;
 
 // No direct access to this file
 defined('_JEXEC') or die;
@@ -37,11 +36,18 @@ defined('_JEXEC') or die;
  *  
  **/
 
-require_once 'xbCalDavCoreClient.php';
+use Joomla\CMS\Factory;
+
+require_once 'CalDAVClient.php';
+require_once('CalDAVException.php');
+require_once('CalDAVFilter.php');
+require_once('CalDAVObject.php');
+
+
 
 class xbCalDavClient {
     private $client;
-    private $url;
+    private $serverid;
     
     /**
      * function connect()
@@ -68,7 +74,7 @@ class xbCalDavClient {
     public function connect ( $url, $user, $pass )
     {
         //  Connect to CalDAV-Server and log in
-        $client = new xbCalDavCoreClient($url, $user, $pass);
+        $client = new CalDAVClient($url, $user, $pass);
         
         // Valid CalDAV-Server? Or is it just a WebDAV-Server?
         if( ! $client->isValidCalDAVServer() )
@@ -108,6 +114,40 @@ class xbCalDavClient {
         $this->client = $client;
     }
     
+    public function connectByServerID($serverid) {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->selec('url, username,password')
+            ->from($db->qn('#__xbjournals_servers'))
+            ->where('id = '.$db->q($serverid));
+        $db->setQuery($query);
+        $server = $db->loadAssoc();
+        if ($server) {
+            $client = new CalDAVClient($server['url'], $server['username'], $server['password']);
+            // Check for errors
+            if( $client->GetHttpResultCode() != '200' ) {
+                if( $client->GetHttpResultCode() == '401' ) // unauthorisized
+                {
+                    throw new CalDAVException('Login failed', $client);
+                }
+                
+                elseif( $client->GetHttpResultCode() == '' ) // can't reach server
+                {
+                    throw new CalDAVException('Can\'t reach server', $client);
+                }
+                
+                else // Unknown status
+                {
+                    throw new CalDAVException('Recieved unknown HTTP status while checking the connection after establishing it', $client);
+                }
+            }
+            
+            $this->client = $client;
+        } else {
+            
+        }
+    }
+    
     /**
      * function findCalendars()
      *
@@ -127,6 +167,9 @@ class xbCalDavClient {
         return $this->client->FindCalendars(true);
     }
     
+    function setCalendarById(int $calid) {
+        
+    }
     /**
      * function setCalendar()
      *
@@ -276,49 +319,6 @@ class xbCalDavClient {
         }
     }
     
-    /**
-     * function getEvents()
-     * Gets a all events from the CalDAV-Server which lie in a defined time interval.
-     *
-     * Arguments:
-     * @param $start The starting point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *           		GMT. If omitted the value is set to -infinity.
-     * @param $end The end point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *           		GMT. If omitted the value is set to +infinity.
-     *
-     * Return value:
-     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found events.
-     *
-     * Debugging:
-     * @throws CalDAVException
-     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
-     */
-    function getEvents ( $start = null, $end = null )
-    {
-        // Connection and calendar set?
-        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
-        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
-        
-        // Are $start and $end in the correct format?
-        if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
-            or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
-        { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
-        
-        // Get it!
-        $results = $this->client->GetEvents( $start, $end );
-        
-        // GET-request successfull?
-        if ( $this->client->GetHttpResultCode() != '207' )
-        {
-            throw new CalDAVException('Recieved unknown HTTP status', $this->client);
-        }
-        
-        // Reformat
-        $report = array();
-        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
-        
-        return $report;
-    }
     
     /**
      * function getJournals()
@@ -386,53 +386,6 @@ class xbCalDavClient {
         return $report;
     }
     
-    
-    /**
-     * function getTODOs()
-     * Gets a all TODOs from the CalDAV-Server which lie in a defined time interval and match the
-     * given criteria.
-     *
-     * Arguments:
-     * @param $start The starting point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *              	GMT. If omitted the value is set to -infinity.
-     * @param $end The end point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *              	GMT. If omitted the value is set to +infinity.
-     * @param $complete Filter for completed tasks (true) or for uncompleted tasks (false). If omitted, the function will return both.
-     * @param $cancelled Filter for cancelled tasks (true) or for uncancelled tasks (false). If omitted, the function will return both.
-     *
-     * Return value:
-     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found TODOs.
-     *
-     * Debugging:
-     * @throws CalDAVException
-     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
-     */
-    function getTODOs ( $start = null, $end = null, $completed = null, $cancelled = null )
-    {
-        // Connection and calendar set?
-        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
-        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
-        
-        // Are $start and $end in the correct format?
-        if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
-            or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
-        { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
-        
-        // Get it!
-        $results = $this->client->GetTodos( $start, $end, $completed, $cancelled );
-        
-        // GET-request successfull?
-        if ( $this->client->GetHttpResultCode() != '207' )
-        {
-            throw new CalDAVException('Recieved unknown HTTP status', $this->client);
-        }
-        
-        // Reformat
-        $report = array();
-        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
-        
-        return $report;
-    }
     
     /**
      * function getCustomReport()

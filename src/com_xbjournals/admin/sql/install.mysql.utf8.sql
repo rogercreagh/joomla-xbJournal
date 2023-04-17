@@ -137,9 +137,11 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `entry_type` ENUM('Journal','Note') NOT NULL DEFAULT 'Journal',  
   `ent_href` varchar(511) NOT NULL DEFAULT '',
   `ent_etag` varchar(511) NOT NULL DEFAULT '',
+  `ent_data` text,
+  
+  `ent_uid` varchar(190) NOT NULL DEFAULT '',
   `ent_sequence` varchar(190) NOT NULL DEFAULT '',
   `ent_dtstamp`  varchar(190) NOT NULL DEFAULT '',
-  `ent_uid` varchar(190) NOT NULL DEFAULT '',
   `ent_created` varchar(190) NOT NULL DEFAULT '',
   `ent_last_modified` varchar(190) NOT NULL DEFAULT '',
   `ent_summary` varchar(1022) NOT NULL DEFAULT '',
@@ -153,6 +155,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `ent_organizer` varchar(254) NOT NULL DEFAULT '',
   `ent_recurid` varchar(190) NOT NULL DEFAULT '',
   `ent_rrule` varchar(190) NOT NULL DEFAULT '', 
+  
   `title` varchar(254) NOT NULL DEFAULT '' COMMENT 'uses cal_summary truncated to 254 chars',
   `alias` varchar(190) NOT NULL DEFAULT '', 
   `catid` int(10) NOT NULL DEFAULT '0',
@@ -176,9 +179,12 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
 
 CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entryitems` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
-  `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_calendars table',
+  `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to entry',
   `entry_type` varchar(190) NOT NULL DEFAULT '' COMMENT 'required - which item type is this ',
+  `entry_properties varchar(190)
+  `entry_value text,
   `cal_attach_inline` BLOB,
+  
   `cal_attach_url` varchar(254),
   `cal_attach_params` varchar(510) COMMENT 'either inline or url as per params',  
   `cal_attendee` varchar(510),  

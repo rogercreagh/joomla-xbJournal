@@ -146,6 +146,16 @@ class SimpleCalDAVClient {
 		else { $this->url = $this->client->calendar_url; }
 	}
 	
+	function setCalendarByUrl($calurl) {
+	    if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+	    
+	    $this->client->SetCalendar($this->client->first_url_part.$calurl);
+	    
+	    // Is there a '/' at the end of the calendar_url?
+	    if ( ! preg_match( '#^.*?/$#', $this->client->calendar_url, $matches ) ) { $this->url = $this->client->calendar_url.'/'; }
+	    else { $this->url = $this->client->calendar_url; }
+	    
+	}
 	/**
 	 * function create()
 	 * Creates a new calendar resource on the CalDAV-Server (event, todo, etc.).
@@ -385,6 +395,48 @@ class SimpleCalDAVClient {
 	    return $report;
 	}
 	
+	function getEtags() {
+	    // Connection and calendar set?
+	    if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+	    if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+	    
+// 	    // Get it!
+// 	    $results = $this->client->GetNotes();
+	    
+// 	    // GET-request successfull?
+// 	    if ( $this->client->GetHttpResultCode() != '207' )
+// 	    {
+// 	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+// 	    }
+	    
+// 	    // Reformat
+// 	    $report = array();
+// 	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+	    
+// 	    return $report;
+	}
+	
+	
+	function getEntryByHref($href = null) {
+	    // Connection and calendar set?
+	    if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+	    if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+	    
+	    // Get it!
+	    $results = $this->client->GetEntryByHref();
+	    
+	    // GET-request successfull?
+	    if ( $this->client->GetHttpResultCode() != '207' )
+	    {
+	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+	    }
+	    
+	    // Reformat
+	    $report = array();
+	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+	    
+	    return $report;
+	}
 	
 	/**
 	 * function getTODOs()

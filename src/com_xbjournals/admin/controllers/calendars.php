@@ -18,11 +18,11 @@ class XbjournalsControllerCalendars extends JControllerAdmin {
 				return $model;
 	}
 	
-	public function getentries() {
+	public function getitems() {
 	    $jip =  Factory::getApplication()->input;
 	    $cid =  $jip->get('cid');
 	    $calid = $cid[0];
-	    $newcnt = XbjournalsHelper::getCalendarEntries($calid);
+	    $newcnt = XbjournalsHelper::getCalendarJournalEntries($calid);
 	    Factory::getApplication()->enqueueMessage($cnts['new'].' new entries added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
 	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
 	}

@@ -32,6 +32,7 @@
  *
  */
 
+
 class CalDAVCalendar {
 	private $url;
 	private $displayname;

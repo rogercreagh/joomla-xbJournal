@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource 
- * @version 0.0.0.5 5th April 2023
+ * @version 0.0.0.9 17th April 2023
  * @since 0.0.0.1 1st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
@@ -52,7 +52,7 @@ $document->addScript('https://kit.fontawesome.com/012857417f.js', array(), array
 
 // Require helper files
 JLoader::register('XbjournalsHelper', JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbjournals.php');
-//JLoader::register('XbfilmsGeneral', JPATH_ADMINISTRATOR . '/components/com_xbfilms/helpers/xbfilmsgeneral.php');
+JLoader::register('XbxbCalDavClient', JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/xbCalDavClient.php');
 //JLoader::register('XbcultureHelper', JPATH_ADMINISTRATOR . '/components/com_xbpeople/helpers/xbculture.php');
 
 // Get an instance of the controller prefixed
