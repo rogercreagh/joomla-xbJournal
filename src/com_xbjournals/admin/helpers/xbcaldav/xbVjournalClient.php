@@ -1,8 +1,8 @@
 <?php
 /*******
- * @package xbCalDav Library
- * @filesource admin/helpers/xbCalDav/xbcaldavclient.php
- * @version 0.0.0.1 17th April 2023
+ * @package xbcaldav Library
+ * @filesource admin/helpers/xbcaldav/xbVjournalClient.php
+ * @version 0.0.1.0 19th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * based on SimpleCalDavClient by Michael Palm <palm.michael@gmx.de>
@@ -15,37 +15,30 @@
 defined('_JEXEC') or die;
 //comment the above line out if not using within Joomla CMS
 
-/** this library provides basic functions for communicating with a CalDAV server 
- *  - connect to a server given url and login credentials
- *  - find calendars on the server and connect to a calendar
- *  - read, create, change and delete calendar components as below
- *  - event entries (VEVENT)
- *  - journal entries (VJOURNAL with start date)
- *  - note entries (VJOURNALS with no start date)
- *  - tasks (VTODO)
- *  
- *  For calendar components are saved database tables row with href (text), etag (text), and data (blob) as fields
- *  plus additional fields for the key component data elements (summary/title etc)
- *  
- *  Data elements should be manipulated by reading the whole data field and parsing it into its elements for display
- *  and then reconstructing the data blob for saving locally or on the server.
- *  This can be done using the iCalendar php library https://github.com/phpfui/icalendar
- *  which is based on https://github.com/ZContent/icalendar
- *  
- *  See comment headers for functions below for usage tips
- *  
+/** this library is based on SimpleCalDAVClient by Michael Palm (c) 2014 Michael Palm <palm.michael@gmx.de> 
+ * SimpleCalDavClient library was heavily based on AgenDAV caldav-client-v2.php by Jorge L�pez P�rez <jorge@adobo.org> which
+ * again is heavily based on DAViCal caldav-client-v2.php by Andrew McMillan <andrew@mcmillan.net.nz>.
+ * We stand on the shoulders of giants.
+ * 
+ * This version provides core functions for communicating with a CalDAV server to manage VJOURNAL components
+ * VJOURNAL is like VEVENT but entries typically do not have an end date (DTEND), it is just attached to a day
+ * If an VJOURNAL entry has no DTSTART then it is treated as a NOTE which does not belong to a particular date.
+ * There is no separate component type for VNOTE, it is just a VJOURNAL without a DTSTART property, but in this library they
+ * are identified on reading from the server and treated separately.
+ * 
+ *   
  **/
 
 use Joomla\CMS\Factory;
 
-require_once 'CalDAVClient.php';
+require_once 'xbCalDAVClient.php';
 require_once('CalDAVException.php');
 require_once('CalDAVFilter.php');
 require_once('CalDAVObject.php');
 
 
 
-class xbCalDavClient {
+class xbVjournalClient {
     private $client;
     private $serverid;
     
@@ -62,19 +55,10 @@ class xbCalDavClient {
      * @throws CalDAVException
      * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); }
      */
-    
-    /**
-     * @name connect()
-     * @desc Connects to a CalDAV server
-     * @param string $url
-     * @param string $user
-     * @param string $pass
-     * @throws CalDAVException
-     */
-    public function connect ( $url, $user, $pass )
+    function connect ( $url, $user, $pass )
     {
         //  Connect to CalDAV-Server and log in
-        $client = new CalDAVClient($url, $user, $pass);
+        $client = new xbCalDAVClient($url, $user, $pass);
         
         // Valid CalDAV-Server? Or is it just a WebDAV-Server?
         if( ! $client->isValidCalDAVServer() )
@@ -114,40 +98,6 @@ class xbCalDavClient {
         $this->client = $client;
     }
     
-    public function connectByServerID($serverid) {
-        $db = Factory::getDbo();
-        $query = $db->getQuery(true);
-        $query->selec('url, username,password')
-            ->from($db->qn('#__xbjournals_servers'))
-            ->where('id = '.$db->q($serverid));
-        $db->setQuery($query);
-        $server = $db->loadAssoc();
-        if ($server) {
-            $client = new CalDAVClient($server['url'], $server['username'], $server['password']);
-            // Check for errors
-            if( $client->GetHttpResultCode() != '200' ) {
-                if( $client->GetHttpResultCode() == '401' ) // unauthorisized
-                {
-                    throw new CalDAVException('Login failed', $client);
-                }
-                
-                elseif( $client->GetHttpResultCode() == '' ) // can't reach server
-                {
-                    throw new CalDAVException('Can\'t reach server', $client);
-                }
-                
-                else // Unknown status
-                {
-                    throw new CalDAVException('Recieved unknown HTTP status while checking the connection after establishing it', $client);
-                }
-            }
-            
-            $this->client = $client;
-        } else {
-            
-        }
-    }
-    
     /**
      * function findCalendars()
      *
@@ -167,9 +117,6 @@ class xbCalDavClient {
         return $this->client->FindCalendars(true);
     }
     
-    function setCalendarById(int $calid) {
-        
-    }
     /**
      * function setCalendar()
      *
@@ -190,6 +137,17 @@ class xbCalDavClient {
         else { $this->url = $this->client->calendar_url; }
     }
     
+    function setCalendarByUrl($calurl) {
+        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+        
+        $this->client->SetCalendar($this->client->first_url_part.$calurl);
+        
+        // Is there a '/' at the end of the calendar_url?
+        if ( ! preg_match( '#^.*?/$#', $this->client->calendar_url, $matches ) ) { $this->url = $this->client->calendar_url.'/'; }
+        else { $this->url = $this->client->calendar_url; }
+        
+    }
+
     /**
      * function create()
      * Creates a new calendar resource on the CalDAV-Server (event, todo, etc.).
@@ -319,6 +277,49 @@ class xbCalDavClient {
         }
     }
     
+    /**
+     * function getEvents()
+     * Gets a all events from the CalDAV-Server which lie in a defined time interval.
+     *
+     * Arguments:
+     * @param $start The starting point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
+     *           		GMT. If omitted the value is set to -infinity.
+     * @param $end The end point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
+     *           		GMT. If omitted the value is set to +infinity.
+     *
+     * Return value:
+     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found events.
+     *
+     * Debugging:
+     * @throws CalDAVException
+     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
+     */
+    function getEvents ( $start = null, $end = null )
+    {
+        // Connection and calendar set?
+        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+        
+        // Are $start and $end in the correct format?
+        if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
+            or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
+        { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
+        
+        // Get it!
+        $results = $this->client->GetEvents( $start, $end );
+        
+        // GET-request successfull?
+        if ( $this->client->GetHttpResultCode() != '207' )
+        {
+            throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+        }
+        
+        // Reformat
+        $report = array();
+        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+        
+        return $report;
+    }
     
     /**
      * function getJournals()
@@ -359,7 +360,7 @@ class xbCalDavClient {
     
     /**
      * @name getNotes()
-     * @desc gets VJOURNAL entries without a DTSTART or DTEND - these are Notes
+     * @desc gets VJOURNAL components without a DTSTART or DTEND - these are Notes
      * @throws Exception
      * @throws CalDAVException
      * @return CalDAVObject[]
@@ -386,7 +387,49 @@ class xbCalDavClient {
         return $report;
     }
     
+    function getEtags() {
+        // Connection and calendar set?
+        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+        
+        // 	    // Get it!
+        // 	    $results = $this->client->GetNotes();
+        
+        // 	    // GET-request successfull?
+        // 	    if ( $this->client->GetHttpResultCode() != '207' )
+            // 	    {
+        // 	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+        // 	    }
+        
+        // 	    // Reformat
+        // 	    $report = array();
+        // 	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+        
+        // 	    return $report;
+    }
     
+    
+    function getEntryByHref($href = null) {
+        // Connection and calendar set?
+        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+        
+        // Get it!
+        $results = $this->client->GetEntryByHref();
+        
+        // GET-request successfull?
+        if ( $this->client->GetHttpResultCode() != '207' )
+        {
+            throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+        }
+        
+        // Reformat
+        $report = array();
+        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+        
+        return $report;
+    }
+        
     /**
      * function getCustomReport()
      * Sends a custom request to the server
@@ -431,4 +474,137 @@ class xbCalDavClient {
         return $report;
     }
 
+    function parseCalDAVObject(CalDAVObject $calitem) {
+        
+        $journalentry = array();
+        //	        $cnt++;
+        $journalentry['etag'] = $calitem->getEtag();
+        $journalentry['href'] = $calitem->getHref();
+        $lines = $calitem->getData();
+        //	        $lines = str_replace("\r\n ", "", $lines);
+        //	        $lines = str_replace("\r ", "", $lines);
+        $lines = str_replace("\n"." ", "", $lines);
+        $lines = explode("\n",$lines);
+        $calok = false;
+        $journalok = false;
+        $otherprops = array();
+        $attachments = array();
+        $attendees = array();
+        $comments = array();
+        foreach ($lines as $line) {
+            //    	        $linearray = array();
+            $value = substr($line,strpos($line,':')+1);
+            $params = explode(';',substr($line,0,strpos($line,':')));
+            $property = array_shift($params);
+            if ($property != 'ATTACH') {
+                $value =str_replace('\n',"\n",$value);
+                $value =str_replace('\,',',',$value);
+                $value =str_replace('\;',';',$value);
+            }
+            if (!$calok) {
+                if (($property == 'BEGIN') && ($value == 'VCALENDAR')) {
+                    $calok = true ;
+                }
+            } else {
+                if (!$journalok) {
+                    switch ($property) {
+                        case 'VERSION':
+                            $journalentry['version'] = $value;
+                            break;
+                        case 'PRODID':
+                            $journalentry['prodid'] = $value;
+                            break;
+                        case 'BEGIN':
+                            if ($value == 'VJOURNAL') {
+                                $journalok = true;
+                            }
+                            break;
+                        case 'END':
+                            if ($value == 'VCALENDAR') {
+                                $calok = false;
+                            }
+                            break;
+                    }
+                } else { //calok and journalok
+                    $valparam = ($params=='') ? $value : array('value'=>$value,'params'=>$params);
+                    switch ($property) {
+                        //SINGLE - dtstamp, uid, sequence, created, last-modified,
+                        //summary, description, geo, url, class, status, dtstart, categories
+                        // MUTIPLE - comment, attendee, attach
+                        
+                        case 'DTSTAMP':
+                            $journalentry['dtstamp'] = $valparam;
+                            break;
+                        case 'UID':
+                            $journalentry['uid'] = $valparam;
+                            break;
+                        case 'SEQUENCE':
+                            $journalentry['sequence'] = $valparam;
+                            break;
+                        case 'CREATED':
+                            $journalentry['created'] = $valparam;
+                            break;
+                        case 'LAST-MODIFIED':
+                            $journalentry['last-modified'] = $valparam;
+                            break;
+                        case 'SUMMARY':
+                            $journalentry['summary'] = $valparam;
+                            break;
+                        case 'DESCRIPTION':
+                            $journalentry['description'] = $valparam;
+                            break;
+                        case 'GEO':
+                            $journalentry['geo'] = $valparam;
+                            break;
+                        case 'URL':
+                            $journalentry['url'] = $valparam;
+                            break;
+                        case 'CLASS':
+                            $journalentry['class'] = $valparam;
+                            break;
+                        case 'STATUS':
+                            $journalentry['status'] = $valparam;
+                            break;
+                        case 'DTSTART':
+                            $journalentry['dtstart'] = $valparam;
+                            break;
+                        case 'CATEGORIES':
+                            $journalentry['categories'] = $valparam;
+                            break;
+                        case 'COMMENT':
+                            $comments[] = $valparam;
+                            break;
+                        case 'ATTENDEE':
+                            $attendees[] = $valparam;
+                            break;
+                        case 'ATTACH':
+                            $attachments[] = $valparam;
+                            break;
+                        case 'END':
+                            if ($value == 'VJOURNAL') {
+                                $journalok = false;
+                            }
+                            break;
+                        default:
+                            //add to other array
+                            if ($property) {
+                                $otherprops[] = array('value'=>$value, 'params'=>$params,'property'=>$property);
+                            }
+                            break;
+                    } //endswitch $property                    
+                } //end else cal and journal ok
+            } //end cal ok
+        } //end foreach line
+        if ($otherprops) $journalentry['otherprops'] = $otherprops;
+        if ($attachments) $journalentry['attach'] = $attachments;
+        if ($attendees) $journalentry['attendee'] = $attendees;
+        if ($comments) $journalentry['comment'] = $comments;
+        
+        return $journalentry;
+    } //end parseCalDAVObject
+    
 }
+
+    
+
+    

@@ -1,4 +1,15 @@
 <?php
+/*******
+ * @package xbcaldav Library
+ * @filesource admin/helpers/xbcaldav/xbVjournalClient.php
+ * @version 0.0.1.0 19th April 2023
+ * @author Roger C-O
+ * @copyright Copyright (c) Roger Creagh-Osborne, 2023
+ * based on CalDavClient by Michael Palm <palm.michael@gmx.de>
+ * portions copyright (c) Michael Palm <palm.michael@gmx.de>, 2014
+ * original source https://github.com/
+ * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
+ ******/
 /**
  * Copyright 2014 Michael Palm <palm.michael@gmx.de>
  *
@@ -20,7 +31,7 @@ require_once('include/XMLDocument.php');
 
 
 
-class CalDAVClient {
+class xbCalDAVClient {
   /**
   * Server, username, password, calendar
   *
@@ -53,7 +64,7 @@ class CalDAVClient {
   *
   * @var string
   */
-  public $user_agent = 'simpleCalDAVclient';
+  public $user_agent = 'xbVjournalClient';
   
   protected $headers = array();
   protected $body = "";
@@ -210,9 +221,8 @@ class CalDAVClient {
   }
 
   /**
-   * Add a Depth: header.  Valid values are 1 or infinity
-   *
-   * @param int $depth  The depth, default to infinity
+   * 
+   * @param unknown $user_agent
    */
   function SetUserAgent( $user_agent = null ) {
       $this->user_agent = $user_agent;
@@ -287,6 +297,8 @@ class CalDAVClient {
   function GetHttpRequest() {
       return $this->httpRequest;
   }
+  
+ 
   /**
    * Output http response headers
    *
@@ -295,6 +307,7 @@ class CalDAVClient {
   function GetResponseHeaders() {
       return $this->httpResponseHeaders;
   }
+
   /**
    * Output http response body
    *
@@ -426,8 +439,6 @@ class CalDAVClient {
       return $options;
   }
 
-
-
   /**
    * Send an XML request to the server (e.g. PROPFIND, REPORT, MKCALENDAR)
    *
@@ -444,8 +455,6 @@ class CalDAVClient {
       return $this->DoRequest($url);
   }
 
-
-
   /**
    * Get a single item from the server.
    *
@@ -457,7 +466,6 @@ class CalDAVClient {
       return $this->DoRequest( $url );
   }
 
-
   /**
    * Get the HEAD of a single item from the server.
    *
@@ -468,7 +476,6 @@ class CalDAVClient {
       $this->requestMethod = "HEAD";
       return $this->DoRequest( $url );
   }
-
 
   /**
    * PUT a text/icalendar resource, returning the etag
@@ -512,7 +519,6 @@ class CalDAVClient {
       return $etag;
   }
 
-
   /**
    * DELETE a text/icalendar resource
    *
@@ -531,7 +537,6 @@ class CalDAVClient {
       $this->DoRequest($url);
       return $this->httpResultCode;
   }
-
 
   /**
    * Get a single item from the server.
@@ -554,7 +559,6 @@ class CalDAVClient {
       return $this->GetXmlResponse();
   }
 
-
   /**
    * Get/Set the Principal URL
    *
@@ -566,7 +570,6 @@ class CalDAVClient {
       }
       return $this->principal_url;
   }
-
 
   /**
    * Get/Set the calendar-home-set URL
@@ -581,9 +584,8 @@ class CalDAVClient {
       return $this->calendar_home_set;
   }
 
-
   /**
-   * Get/Set the calendar-home-set URL
+   * Get/Set the calendar URLs
    *
    * @param $urls array of string The calendar URLs to set
    */
@@ -594,7 +596,6 @@ class CalDAVClient {
       }
       return $this->calendar_urls;
   }
-
 
   /**
    * Return the first occurrence of an href inside the named tag.
@@ -1182,6 +1183,8 @@ EOFILTER;
    * @param string    $href         The href from a call to GetEvents or GetTodos etc.
    *
    * @return string The iCalendar of the calendar entry
+   * 
+   * ???this doesn't do that - it just returns the etag
    */
   function GetEntryByHref( $href ) {
       //$href = str_replace( rawurlencode('/'),'/',rawurlencode($href));

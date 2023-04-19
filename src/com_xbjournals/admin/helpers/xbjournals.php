@@ -162,7 +162,7 @@ class XbjournalsHelper extends ContentHelper
 	public static function checkValidServer(string $url, string $user, string $pword) {
 	    
 	    $message = '';
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/CalDAVClient.php';
 	    
 	    $client = new CalDAVClient($url, $user, $pword);
 	    // Valid CalDAV-Server? Or is it just a WebDAV-Server?
@@ -184,6 +184,7 @@ class XbjournalsHelper extends ContentHelper
 	    }
 	    // Check for errors
 	    $res = $client->GetHttpResultCode();
+	    
 	    if( $res != '200' ) {
     	    switch ($res) {
     	        case '401':
@@ -211,42 +212,31 @@ class XbjournalsHelper extends ContentHelper
 	}
 	
 	public static function getCalendarJournalEntries($calid) {
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/xbVjournalClient.php';
 	    $cnts = array('server'=>0, 'new'=>0, 'update'=>0, 'same'=>0, 'missing'=>0);
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
-	    $client = new SimpleCalDAVClient();
+	    $client = new xbVjournalClient();
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    $client->setCalendarByUrl($cal['cal_url']);
-	    $items = $client->getJournals('20140418T103000Z');
-	    Factory::getApplication()->enqueueMessage(count($items).' found <pre>'.print_r($items[0]->getHref(),true).'</pre><pre>'.print_r($items[count($items)-2]->getData(),true).'</pre>');
-	    /**
-	    get all vjournal items
-	    foreach item
-	       parse item
-	       if uid exists in #__xbjournals_vjournal_entries then
-                check etag
-	            if etag different
-	               update local from server
-	            else 
-	                no change (update last checked)
-	            endif
-            else
-                new item - save to local
-            endif
-        endforeach
-        foreach item in database
-            if uid not in server list
-                deleted on server, mark as archived
-               
-	        get new/modified entry from remote
-	        parse entry
-	        if uid exists in #__xbjournals_vjournal_entries 
-	           update entry
-	        else
-	           create entry
-	     **/
-	    return $cnts;
+	    $calitems = $client->getJournals('20140418T103000Z');
+//	    Factory::getApplication()->enqueueMessage(count($calitems).' found <pre>'.print_r($calitems[0],true).'</pre><pre>'.print_r($calitems[count($calitems)-2]->getData(),true).'</pre>');
+	    $journalentries = array();
+//	    $cnt=0;
+	    
+	    foreach ($calitems as $calitem) {
+	        $journalentry = $client->parseCalDAVObject($calitem);
+	        
+	        if (!empty($journalentry)) $journalentries[] = $journalentry;
+	    // check if uid exists
+	    // if yes then check etag
+	    //     if same then donothing
+	    //     else overwrite data
+	    // if no then save data
+	        
+	    }
+	    Factory::getApplication()->enqueueMessage('<pre>'.print_r($journalentries[0],true).'</pre><pre>'.print_r($journalentries[count($journalentries)-1],true).'</pre>');
+	    return $journalentries;
 	}
 	
 	public static function getCalendarDetaisl($calid) {
