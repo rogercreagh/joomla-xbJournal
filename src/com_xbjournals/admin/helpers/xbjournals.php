@@ -62,7 +62,7 @@ class XbjournalsHelper extends ContentHelper
     
 	/**
 	 * @name checkDataExists()
-	 * @desc checks (case insensitive) if a given title exists in a given db table
+	 * @desc checks (case insensitive) if a given title (or other text column) value exists in a given db table
 	 * @param string $value - the title to search for
 	 * @param string $table - the table name to search
 	 * @param string $col - the column in the table (default 'title')
@@ -87,15 +87,15 @@ class XbjournalsHelper extends ContentHelper
 	 * if not in database #__xbjournals_calendars then adds
 	 * if already in database then if disabled then publish it
 	 * if in database but no longer on server then disable it
-	 * @param unknown $serverid
+	 * @param $serverid
 	 */
 	public static function getServerCalendars($serverid) {
 	    
 	    $conn = self::getServerConnectionDetails($serverid);
 	    
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalClient.php';
 	    
-	    $client = new SimpleCalDAVClient();
+	    $client = new xbVjournalClient();
 	    
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    
@@ -126,7 +126,7 @@ class XbjournalsHelper extends ContentHelper
 	        if ($res['id']>0) {
     	        //check if it has changed, if so update
 	            if ($res['cal_ctag'] != $calctag) {
-	                //todo update here
+	                //TODO update here
 	                $cnts['update']++;
 	            } else {
     	            $cnts['same'] ++;
@@ -162,9 +162,9 @@ class XbjournalsHelper extends ContentHelper
 	public static function checkValidServer(string $url, string $user, string $pword) {
 	    
 	    $message = '';
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/CalDAVClient.php';
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbCalDAVClient.php';
 	    
-	    $client = new CalDAVClient($url, $user, $pword);
+	    $client = new xbCalDAVClient($url, $user, $pword);
 	    // Valid CalDAV-Server? Or is it just a WebDAV-Server?
 	    if( ! $client->isValidCalDAVServer() ) {	
 	        $res = $client->GetHttpResultCode();
@@ -209,33 +209,24 @@ class XbjournalsHelper extends ContentHelper
 	    $query->select('*')->from('#__xbjournals_calendars')->where('id = '.$db->q($calendarid));
 	    $db->setQuery($query);
 	    $cal = $db->loadObject();
+	    //incomplete - what is this to do?
 	}
 	
 	public static function getCalendarJournalEntries($calid) {
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/xbVjournalClient.php';
-	    $cnts = array('server'=>0, 'new'=>0, 'update'=>0, 'same'=>0, 'missing'=>0);
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalClient.php';
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
 	    $client = new xbVjournalClient();
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    $client->setCalendarByUrl($cal['cal_url']);
 	    $calitems = $client->getJournals('20140418T103000Z');
-//	    Factory::getApplication()->enqueueMessage(count($calitems).' found <pre>'.print_r($calitems[0],true).'</pre><pre>'.print_r($calitems[count($calitems)-2]->getData(),true).'</pre>');
-	    $journalentries = array();
-//	    $cnt=0;
-	    
+	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
-	        $journalentry = $client->parseCalDAVObject($calitem);
+	        $journalentry = $client->parseVjournalObject($calitem);
 	        
 	        if (!empty($journalentry)) $journalentries[] = $journalentry;
-	    // check if uid exists
-	    // if yes then check etag
-	    //     if same then donothing
-	    //     else overwrite data
-	    // if no then save data
-	        
 	    }
-	    Factory::getApplication()->enqueueMessage('<pre>'.print_r($journalentries[0],true).'</pre><pre>'.print_r($journalentries[count($journalentries)-1],true).'</pre>');
+//	    Factory::getApplication()->enqueueMessage('<pre>'.print_r($journalentries[0],true).'</pre><pre>'.print_r($journalentries[count($journalentries)-1],true).'</pre>');
 	    return $journalentries;
 	}
 	

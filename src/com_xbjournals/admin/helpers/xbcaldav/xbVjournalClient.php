@@ -353,7 +353,7 @@ class xbVjournalClient {
         
         // Reformat
         $report = array();
-        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+        foreach($results as $item) $report[] = new CalDAVObject($this->url.$item['href'], $item['data'], $item['etag']);
         
         return $report;
     }
@@ -474,39 +474,37 @@ class xbVjournalClient {
         return $report;
     }
 
-    function parseCalDAVObject(CalDAVObject $calitem) {
+    function parseVjournalObject(CalDAVObject $calitem) {
         
         $journalentry = array();
-        //	        $cnt++;
+        $calok = false;
+        $journalok = false;
+
         $journalentry['etag'] = $calitem->getEtag();
         $journalentry['href'] = $calitem->getHref();
         $lines = $calitem->getData();
         //	        $lines = str_replace("\r\n ", "", $lines);
         //	        $lines = str_replace("\r ", "", $lines);
-        $lines = str_replace("\n"." ", "", $lines);
-        $lines = explode("\n",$lines);
-        $calok = false;
-        $journalok = false;
-        $otherprops = array();
-        $attachments = array();
-        $attendees = array();
-        $comments = array();
+        $lines = str_replace("\n"." ", "", $lines); //unfold on newline followed by space
+        $lines = explode("\n",$lines); //create array of lines each consisting of property(;parameters):value
         foreach ($lines as $line) {
-            //    	        $linearray = array();
-            $value = substr($line,strpos($line,':')+1);
-            $params = explode(';',substr($line,0,strpos($line,':')));
-            $property = array_shift($params);
-            if ($property != 'ATTACH') {
+            $value = substr($line,strpos($line,':')+1); //the value is everything after the first colon
+            $params = explode(';',substr($line,0,strpos($line,':'))); //make an array of property and any values
+            $property = array_shift($params); //extract the property
+            //TODO handle case with multiple values separated by commas before unescaping
+            if ($property != 'ATTACH') { //unescape newline text and comma and semicolons
+                //actually this should only be for values of type text
                 $value =str_replace('\n',"\n",$value);
                 $value =str_replace('\,',',',$value);
                 $value =str_replace('\;',';',$value);
             }
-            if (!$calok) {
+            if (!$calok) { //spool through looking for start of vcalendar
                 if (($property == 'BEGIN') && ($value == 'VCALENDAR')) {
                     $calok = true ;
                 }
             } else {
-                if (!$journalok) {
+                if (!$journalok) { //get calendar properties and look for start of vjournal
+                    //ignoring timezone and other stuff with own begin-end wrapper
                     switch ($property) {
                         case 'VERSION':
                             $journalentry['version'] = $value;
@@ -518,6 +516,7 @@ class xbVjournalClient {
                             if ($value == 'VJOURNAL') {
                                 $journalok = true;
                             }
+                            //else set flag to wait for end
                             break;
                         case 'END':
                             if ($value == 'VCALENDAR') {
@@ -526,80 +525,17 @@ class xbVjournalClient {
                             break;
                     }
                 } else { //calok and journalok
-                    $valparam = ($params=='') ? $value : array('value'=>$value,'params'=>$params);
-                    switch ($property) {
-                        //SINGLE - dtstamp, uid, sequence, created, last-modified,
-                        //summary, description, geo, url, class, status, dtstart, categories
-                        // MUTIPLE - comment, attendee, attach
-                        
-                        case 'DTSTAMP':
-                            $journalentry['dtstamp'] = $valparam;
-                            break;
-                        case 'UID':
-                            $journalentry['uid'] = $valparam;
-                            break;
-                        case 'SEQUENCE':
-                            $journalentry['sequence'] = $valparam;
-                            break;
-                        case 'CREATED':
-                            $journalentry['created'] = $valparam;
-                            break;
-                        case 'LAST-MODIFIED':
-                            $journalentry['last-modified'] = $valparam;
-                            break;
-                        case 'SUMMARY':
-                            $journalentry['summary'] = $valparam;
-                            break;
-                        case 'DESCRIPTION':
-                            $journalentry['description'] = $valparam;
-                            break;
-                        case 'GEO':
-                            $journalentry['geo'] = $valparam;
-                            break;
-                        case 'URL':
-                            $journalentry['url'] = $valparam;
-                            break;
-                        case 'CLASS':
-                            $journalentry['class'] = $valparam;
-                            break;
-                        case 'STATUS':
-                            $journalentry['status'] = $valparam;
-                            break;
-                        case 'DTSTART':
-                            $journalentry['dtstart'] = $valparam;
-                            break;
-                        case 'CATEGORIES':
-                            $journalentry['categories'] = $valparam;
-                            break;
-                        case 'COMMENT':
-                            $comments[] = $valparam;
-                            break;
-                        case 'ATTENDEE':
-                            $attendees[] = $valparam;
-                            break;
-                        case 'ATTACH':
-                            $attachments[] = $valparam;
-                            break;
-                        case 'END':
-                            if ($value == 'VJOURNAL') {
-                                $journalok = false;
-                            }
-                            break;
-                        default:
-                            //add to other array
-                            if ($property) {
-                                $otherprops[] = array('value'=>$value, 'params'=>$params,'property'=>$property);
-                            }
-                            break;
-                    } //endswitch $property                    
+                    $property = strtolower($property);
+                    if (($property == 'end') && ($value == 'VJOURNAL')) {
+                        $journalok = false;
+                    //elseif begin set flag to wait for end
+                    } else {
+                        $valparam = (!empty($params)) ? array('value'=>$value,'params'=>$params) : $value;
+                        $journalentry[$property][] = $valparam;                       
+                    }
                 } //end else cal and journal ok
             } //end cal ok
-        } //end foreach line
-        if ($otherprops) $journalentry['otherprops'] = $otherprops;
-        if ($attachments) $journalentry['attach'] = $attachments;
-        if ($attendees) $journalentry['attendee'] = $attendees;
-        if ($comments) $journalentry['comment'] = $comments;
-        
+        } //end foreach line        
         return $journalentry;
     } //end parseCalDAVObject
     

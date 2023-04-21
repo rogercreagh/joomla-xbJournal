@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.1.1 21st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -75,4 +75,126 @@ class XbjournalsModelCalendars extends JModelList {
         return $items;
     }
     
+    /**
+     * @name getCalendarJournalItems()
+     * @desc gets all the items from the server for the calendar
+     * if item updated save new version
+     * if item new save it
+     * if item deleted mark as archived (keep it in local database, but hide from front-end
+     * @param int $calid - the joomla id of the calendar
+     * @return array with counts of items, new, changed, same, deleted
+     */
+    public function getCalendarJournalItems($calid) {
+        $cnts = array('local'=>0,'server'=>0,'new'=>0,'same'=>0,'updated'=>0,'deleted'=>0);
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('entry_type, etag, uid, alias')
+            ->from($db->qn('#__xbjournals_vjournal_entries'))
+            ->where($db->qn('calendar_id').' = '.$db->q($calid)
+                .' AND '.$db->qn('entry_type').' = '.$db->q('Journal'));
+        $db->setQuery($query);
+        $localitems = $db->loadAssocList('id'); 
+        if ($localitems) {
+            $cnts['local'] = count($localitems);
+        }
+        $serveritems = XbjournalsHelper::getCalendarJournalEntries($calid);
+        if ($serveritems) {
+            $cnts['server'] = count($serveritems);
+        }
+        if ($cnts['server']>0){
+            foreach ($serveritems as $sitem) {
+                if ($cnts['local'] == 0) {
+                    //new item
+                    $cnts['new'] = $cnts['server'];
+                } else {
+                    //put this bit as a function that can also be called fro  getCalendarNoteItems()
+                    $key = array_search($sitem['uid'],array_column($localitems,'uid','id'));
+                    if ($key===false) {
+                        //new item
+                        $cnts['new']++;
+                    } else {
+                        if ($sitem['etag'] == $localitems[$key]['etag']) {
+                            //no change
+                            $cnts['same']++;
+                        } else {
+                            //update
+                            $cnts['updated']++;
+                        }  //end etag matches              
+                    } //endif item found                   
+               } //endif local items>0
+            } //endforeach server item
+            // now check for missing items (array_diff on array of uids)
+            if ($cnts['local'] > 0 ) {
+                $missing = array_diff(array_column($localitems,'uid','id'), array_column($serveritems,'uid'));
+                //set status archived
+                $cnts['deleted'] = count($missing);               
+            }
+        } //endif server items>0
+        Factory::getApplication()->enqueueMessage('local: '.$cnts['local'].' server: '.$cnts['server']
+            .' new: '.$cnts['new'].' same: '.$cnts['same'].' updated: '.$cnts['updated'].' deleted: '.$cnts['deleted']);
+    }
+    
+    function addNewItem($item) {
+        $res = false;
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $setarr = array();
+        $otherarr = array();
+        $otherprops = array();
+        foreach ($item as $prop) {
+            switch ($prop['property']) {
+                case 'etag':
+                case 'href':
+                case 'uid':
+                case 'description':
+                case 'location':
+                case 'url':
+                case 'class':
+                case 'status':
+                case 'geo':
+                case 'comments':
+                    //these all have value only no params for now
+                    $setarr[] = $db->qn($prop['property']).' = '.json_encode($prop);
+                    break;
+                case 'attach':
+                    //this adds to a separate table and optionally also saves images to /images/xbjournals and docs to /xbjournals/files/
+                    break;
+                case 'summary':
+                    //generate title and alias (checking unique and adding cycle no)
+                    break;
+                case 'dtstamp':
+                case 'dtstart':
+                case 'created':
+                case 'modified':
+                    $datestr = $prop['value'];
+                    //input is YYYYMMDD or YYYYMMDDHHMMSS or YYYYMMDDHHMMSSZ
+                    //output should be Y-m-d H:i:s (always datetime, with 00:00:00 if date only)
+                    //we will ignore timezones for now
+                    if (strlen($datestr) < 14) $datestr .= str_repeat('0', 14-strlen($$datestr));
+                    $date = DateTime::createFromFormat('YmdHis',$datestr);
+                    $datestr = $date->format('Y-m-d H:i:s');
+                    $prop['value']=$datestr;
+                    //convert string to sql date format
+                    break;
+                default:
+                    //add to others array;
+                    $otherarr[] = $prop;
+                    break;
+            }
+            
+        }
+        $setarr[] = $db->qn('otherprops').' = '.json_encode($otherprops);
+        $setarr[] = $db->qn('catid').' = '.$db->q('');
+        $setarr[] = $db->qn('state').' = '.$db->q('1');
+        $setarr[] = $db->qn('created_by').' = '.$db->q('');
+        $setarr[] = $db->qn('note').' = '.$db->q('imported '.date('d M Y'));
+        $setarr[] = $db->qn('').' = '.$db->q('');
+        $db->getQuery(true);
+        $query->insert('#__xbjournals_vjournal_entries')
+            ->set($setarr);
+        //add catid,state=1,created_by,note='imported date'
+        //add to db
+        Factory::getApplication()->enqueueMessage($query->dump());
+        return $res;
+    }
 }

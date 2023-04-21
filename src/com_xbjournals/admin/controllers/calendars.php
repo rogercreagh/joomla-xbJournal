@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/controllers/calendars.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.1.1 21st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -18,7 +18,7 @@ class XbjournalsControllerCalendars extends JControllerAdmin {
 				return $model;
 	}
 	
-	public function getitems() {
+	public function getServerItems() {
 	    $jip =  Factory::getApplication()->input;
 	    $cid =  $jip->get('cid');
 	    $calid = $cid[0];

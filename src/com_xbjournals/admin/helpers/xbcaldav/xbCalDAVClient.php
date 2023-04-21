@@ -26,7 +26,7 @@
  */
 
 
-//require_once('CalDAVCalendar.php');
+require_once('CalDAVCalendar.php');
 require_once('include/XMLDocument.php');
 
 
@@ -796,6 +796,8 @@ class xbCalDAVClient {
       if ( !isset($this->calendar_home_set[0]) ) {
           $this->FindCalendarHome($recursed);
       }
+      //ical properties: calscale, method, propid (r), version (r), 
+      
       $properties = 
           array(
             'resourcetype',

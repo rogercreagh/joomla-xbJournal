@@ -97,7 +97,6 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_servers` (
 
 # moved to install script in case data is not deleted on uninstall CREATE UNIQUE INDEX `serveraliasindex` ON `#__xbjournals_servers` (`alias`);
 
-
 CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `id` int(10) NOT NULL AUTO_INCREMENT COMMENT 'primary key',
   `server_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_servers table',
@@ -134,71 +133,55 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
 CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `calendar_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to xbjournals_calendars', 
-  `entry_type` ENUM('Journal','Note') NOT NULL DEFAULT 'Journal',  
+  `entry_type` ENUM('Journal','Note') NOT NULL DEFAULT 'Journal' COMMENT 'note if dtstart not set',  
   `etag` varchar(511) NOT NULL,
   `href` varchar(511) NOT NULL,
-  `data` text,
+  `data` text COMMENT 'original raw ical',
   `version` varchar(190) NOT NULL DEFAULT '0',
   `prodid` varchar(190) NOT NULL DEFAULT '0',
   `dtstamp`  varchar(190) NOT NULL DEFAULT '',  
   `uid` varchar(190) NOT NULL DEFAULT '',
-  `sequence` varchar(190) NOT NULL DEFAULT '',
-  `created` varchar(190) NOT NULL DEFAULT '',
-  `last-modified` varchar(190) NOT NULL DEFAULT '',
-  `summary` varchar(1022) NOT NULL DEFAULT '',
+  `sequence` varchar(190) NOT NULL DEFAULT '0',
+  `summary` varchar(1022) NOT NULL DEFAULT '' COMMENT 'used as Joomla title',
   `description` text DEFAULT '',
   `geo` varchar(190) NOT NULL DEFAULT '',
   `location` varchar(510) NOT NULL DEFAULT '',
   `url` varchar(254) NOT NULL DEFAULT '',
   `class` varchar(190) NOT NULL DEFAULT '',
   `status` varchar(190) NOT NULL DEFAULT '',
-  `dtstart` varchar(190),
+  `dtstart` varchar(190) COMMENT 'null if note',
   `categories` varchar(1022) NOT NULL DEFAULT '' COMMENT 'used as joomla tags',
   `comments` varchar(4094) NOT NULL DEFAULT '',
-  `attendees` varchar(190) NOT NULL DEFAULT '',
   `otherprops` varchar(4094) NOT NULL DEFAULT '',
-  
   `title` varchar(254) NOT NULL DEFAULT '' COMMENT 'uses cal_summary truncated to 254 chars',
-  `alias` varchar(190) NOT NULL DEFAULT '', 
+  `alias` varchar(254) NOT NULL DEFAULT '', 
   `catid` int(10) NOT NULL DEFAULT '0',
   `access` int(10) NOT NULL DEFAULT '0',
   `state` tinyint(3) NOT NULL DEFAULT '0',
-  `created` datetime,
+  `created` datetime COMMENT 'ical created value',
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
   `checked_out` int(10) NOT NULL DEFAULT '0',
   `checked_out_time` datetime,
-  `modified` datetime,
+  `modified` datetime COMMENT 'ical modified-time',
   `modified_by` int(10) NOT NULL DEFAULT '0',
   `metadata` mediumtext NOT NULL DEFAULT '',
   `ordering` int(10) NOT NULL DEFAULT '0',
   `params` mediumtext NOT NULL DEFAULT '',
-  `note` mediumtext,
+  `note` mediumtext COMMENT 'admin note',
    PRIMARY KEY (`id`)
   )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 
 # moved to install script in case data is not deleted on uninstall CREATE UNIQUE INDEX `entryaliasindex` ON `#__xbjournals_vjournal_entries` (`alias`);
 
-CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entryitems` (
+CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_attachments` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
   `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to entry',
-  `entry_type` varchar(190) NOT NULL DEFAULT '' COMMENT 'required - which item type is this ',
-  `entry_properties varchar(190)
-  `entry_value text,
-  `cal_attach_inline` BLOB,
-  
-  `cal_attach_url` varchar(254),
-  `cal_attach_params` varchar(510) COMMENT 'either inline or url as per params',  
-  `cal_attendee` varchar(510),  
-  `cal_comment` varchar(1023),  
-  `cal_contact` varchar(510),
-  `cal_rrule`  varchar(510),
-  `cal_exdate` varchar(510),
-  `cal_related` varchar(510),
-  `cal_rdate` varchar(190),
-  `cal_rstatus` varchar(190),
-  `cal_x-prop` varchar(1022),
-  `cal_iana-prop` varchar(1022),
+  `inline_data` BLOB,
+  `uri` text,
+  `encoding` varchar(190) NOT NULL DEFAULT '0',
+  `fmttype` varchar(190) NOT NULL DEFAULT '0',
+  `value` varchar(1022) NOT NULL DEFAULT '0',
    PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 

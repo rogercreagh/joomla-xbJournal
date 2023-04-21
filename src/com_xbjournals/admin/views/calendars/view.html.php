@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/calendars/view.html.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.1.1 21st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -64,7 +64,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
-        ToolbarHelper::custom('calendars.getitems', 'file-plus', '', 'get items', true) ;
+        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
 //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }
