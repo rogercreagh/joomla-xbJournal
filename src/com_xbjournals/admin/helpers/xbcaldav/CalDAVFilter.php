@@ -31,7 +31,7 @@ class CalDAVFilter {
      *               "VEVENT", "VTODO", "VJOURNAL", "VFREEBUSY" or "VALARM".
      *               You have to decide.
      */
-    public function __construct ( $type ) {
+    public function __construct ( string $type = 'VJOURNAL' ) {
 		$this->resourceType = $type;
 	}
 	

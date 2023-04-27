@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/calendars/view.html.php
- * @version 0.0.1.1 21st April 2023
+ * @version 0.0.1.3 25th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -28,18 +28,6 @@ class XbjournalsViewCalendars extends JViewLegacy {
         
 //        $this->searchTitle = $this->state->get('filter.search');
         
-//         require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
-        
-//         $client = new SimpleCalDAVClient();
-        
-//         $client->connect('https://cloud.crosborne.uk/remote.php/dav/calendars/roger','roger','Tbcb&1g0');
-        
-//         $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
-        
-//         $client->setCalendar($arrayOfCalendars["gweldulas"]); // Here: Use the calendar ID of your choice. If you don't know which calendar ID to use, try config/listCalendars.php
-        
-//         $this->journalitems = $client->getJournals(); // Returns array($firstNewEventOnServer, $secondNewEventOnServer);
-//         $this->notes = $client->getNotes(); // Returns array($firstNewEventOnServer, $secondNewEventOnServer);
         
         // Check for errors.
 //        if (count($errors = $this->get('Errors'))) {
@@ -64,8 +52,9 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
-        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
-//        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
+//        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
+        ToolbarHelper::custom('calendars.getJournalItems', 'file-plus', '', 'Get Items from Server', true) ;
+        //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }
 //         if ($canDo->get('core.edit.state')) {

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.0.7 11th April 2023
+ * @version 0.0.1.2 23rd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -90,6 +90,14 @@ class com_xbjournalsInstallerScript
             $componentXML = Installer::parseXMLInstallFile(Path::clean(JPATH_ADMINISTRATOR . '/components/com_xbjournals/xbjournals.xml'));
             $message = '<b>xbJournals '.$componentXML['version'].' '.$componentXML['creationDate'].'</b><br />';
                         
+            //create xbjournals image folder
+            if (!file_exists(JPATH_ROOT.'/images/xbjournals')) {
+                mkdir(JPATH_ROOT.'/images/xbjournals',0775);
+                $message .= 'Journals images folder created (/images/xbjournals/).<br />';
+            } else{
+                $message .= '"/images/xbjournals/" already exists.<br />';
+            }
+            
             // Recover categories if they exist assigned to extension !com_xbfilms!
             $db = Factory::getDbo();
             $qry = $db->getQuery(true);
@@ -106,9 +114,9 @@ class com_xbjournalsInstallerScript
             $message .= $cnt.' existing xbJournals categories restored. ';
             // create default categories using category table
             $cats = array(
-                array("title"=>"Uncategorised","desc"=>"default fallback category for all xbJournal items"),
-                array("title"=>"Remote","desc"=>"category for remote xbJournal entries"),
-                array("title"=>"Local","desc"=>"category for locally created xbJournal entries"));
+                array("title"=>"Uncategorised","desc"=>"default fallback category for all xbJournal items"));
+            //    array("title"=>"Remote","desc"=>"category for remote xbJournal entries"),
+            //    array("title"=>"Local","desc"=>"category for locally created xbJournal entries"));
             $message .= $this->createCategory($cats);
             
             $app->enqueueMessage($message,'Info');
@@ -172,6 +180,24 @@ class com_xbjournalsInstallerScript
             if (!$err) {
                 $message .= '- entry alias index created.';
             }
+            $querystr = 'ALTER TABLE '.$prefix.'xbjournals_vjournal_entries ADD INDEX entryuidindex (uid)';
+            $err=false;
+            try {
+                $db->setQuery($querystr);
+                $db->execute();
+            } catch (Exception $e) {
+                if($e->getCode() == 1061) {
+                    $message .= '- entry uid index already exists';
+                } else {
+                    $message .= '<br />[ERROR creating entryuidindex: '.$e->getCode().' '.$e->getMessage().']<br />';
+                    $app->enqueueMessage($message, 'Error');
+                    $message = '';
+                    $err = true;
+                }
+            }
+            if (!$err) {
+                $message .= '- entry uid index created.';
+            }
             
             $app->enqueueMessage($message);
                         
@@ -196,10 +222,10 @@ class com_xbjournalsInstallerScript
  	protected function uninstalldata() {
  	    $message = '';
  	    $db = Factory::getDBO();
- 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals_calendars`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_entryitems`');
+ 	    $db->setQuery('DROP TABLE IF EXISTS `#__xbjournals_calendars`, `#__xbjournals_servers`, `#__xbjournals_vjournal_entries`, `#__xbjournals_vjournal_attachments`');
  	    $res = $db->execute();
  	    if ($res === false) {
- 	        $message = 'Error deleting xbFilms tables, please check manually';
+ 	        $message = 'Error deleting xbJournals tables, please check manually';
  	        Factory::getApplication()->enqueueMessage($message,'Error');
  	        return false;
  	    }

@@ -36,7 +36,7 @@
 		/>
 
 		<field name="description" type="editor"
-			class="inputbox" label="DESCRIPTION" description=""
+			class="inputbox" label="XBJOURNALS_DESCRIPTION" description="XBJOURNALS_LOCAL_DESCRIPTION_DESC"
 			filter="JComponentHelper::filterText"  buttons="true" hide="article,pagebreak,readmore"  
 		/>
 			

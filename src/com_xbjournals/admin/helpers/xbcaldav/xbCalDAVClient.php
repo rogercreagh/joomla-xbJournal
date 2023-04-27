@@ -1,7 +1,7 @@
 <?php
 /*******
  * @package xbcaldav Library
- * @filesource admin/helpers/xbcaldav/xbVjournalClient.php
+ * @filesource admin/helpers/xbcaldav/xbVjournalHelper.php
  * @version 0.0.1.0 19th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
@@ -64,7 +64,7 @@ class xbCalDAVClient {
   *
   * @var string
   */
-  public $user_agent = 'xbVjournalClient';
+  public $user_agent = 'xbVjournalHelper';
   
   protected $headers = array();
   protected $body = "";
@@ -1037,26 +1037,31 @@ EOFILTER;
       return $this->DoCalendarQuery($filter, $relative_url);
   }
 
+  
   /**
    * @name GetJournals();
-   * @param unknown $start
-   * @param unknown $finish
-   * @param unknown $relative_url
+   * @desc gets all vJournal entries between start and end datetimes
+   * if start or end is set will only get Jounal items
+   * if start and end both null will get journals and notes
+   * if start = '' will get only notes
+   * @param string $start - yyyymmddThhmmssZ
+   * @param string $finish - yyyymmddThhmmssZ
+   * @param string $relative_url
    * @return array|array[]
    */
-  function GetJournals( $start = null, $finish = null, $relative_url = null ) {
-      $this->SetDepth('1');
-      $filter = "";
-      if ( isset($start) && isset($finish) )
-          $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
-          elseif ( isset($start) && ! isset($finish) )
-          $range = "<C:time-range start=\"$start\"/>";
-          elseif ( ! isset($start) && isset($finish) )
-          $range = "<C:time-range end=\"$finish\"/>";
-          else
-              $range = '';
-              
-              $filter = <<<EOFILTER
+    function GetJournals(string $start = null, string $finish = null, string $relative_url = null ) {
+        $this->SetDepth('1');
+        $filterstr = "";
+        if ( ($start !='') && isset($finish) ) {
+            $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
+        } elseif ( ($start!='') && ! isset($finish) ) {
+            $range = "<C:time-range start=\"$start\"/>"; 
+        } elseif ( ($start!='') && isset($finish) ) {
+            $range = "<C:time-range end=\"$finish\"/>";
+        } else {
+            $range = '';
+        }
+        $filterstr = <<<EOFILTER
 <C:filter>
 <C:comp-filter name="VCALENDAR">
 <C:comp-filter name="VJOURNAL">
@@ -1066,90 +1071,34 @@ $range
 </C:filter>
 EOFILTER;
 
-return $this->DoCalendarQuery($filter, $relative_url);
-  }
-  
-  
- /**
-  * @name GetNotes()
-  * @param unknown $relative_url
-  * @return array|array[]
-  */ 
-  function GetNotes( $relative_url = null ) {
-      $this->SetDepth('1');
-      $filter = <<<EOFILTER
+        return $this->DoCalendarQuery($filterstr, $relative_url);
+    }
+    
+    /**
+    * @name GetNotes()
+    * @param CalDAVFilter $filter - an 
+    * @param string $relative_url
+    * @return array|array[]
+    */ 
+    function GetNotes(CalDAVFilter $filterobj = null, string $relative_url = null ) {
+        $this->SetDepth('1');
+        if (isset($filterobj)) {
+            $filterstr = $filterobj->toXML();
+        } else {
+            $filterstr = <<<EOFILTER
 <C:filter>
 <C:comp-filter name="VCALENDAR">
 <C:comp-filter name="VJOURNAL">
 <C:prop-filter name="dtstart"><C:is-not-defined/></C:prop-filter>
+$filterstr
 </C:comp-filter>
 </C:comp-filter>
 </C:filter>
-EOFILTER;
-
-    return $this->DoCalendarQuery($filter, $relative_url);
-  }
+EOFILTER;          
+        }
+        return $this->DoCalendarQuery($filterstr, $relative_url);
+    }
   
-  
-  /**
-   * Get the todo's in a range from $start to $finish.  The dates should be in the
-   * format yyyymmddThhmmssZ and should be in GMT.  The events are returned as an
-   * array of event arrays.  Each event array will have a 'href', 'etag' and 'event'
-   * part, where the 'href' is relative to the calendar and the event contains the
-   * definition of the event in iCalendar format.
-   *
-   * @param timestamp $start The start time for the period
-   * @param timestamp $finish The finish time for the period
-   * @param boolean   $completed Whether to include completed tasks
-   * @param boolean   $cancelled Whether to include cancelled tasks
-   * @param string    $relative_url The URL relative to the base_url specified when the calendar was opened.  Default ''.
-   *
-   * @return array An array of the relative URLs, etags, and events, returned from DoCalendarQuery() @see DoCalendarQuery()
-   */
-  function GetTodos( $start = null, $finish = null, $completed = null, $cancelled = null, $relative_url = "" ) {
-  	$this->SetDepth('1');
-  	
-  	if ( isset($start) && isset($finish) )
-  		$range = "<C:comp-filter name=\"VALARM\"><C:time-range start=\"$start\" end=\"$finish\"/></C:comp-filter>";
-  	elseif ( isset($start) && ! isset($finish) )
-  		$range = "<C:comp-filter name=\"VALARM\"><C:time-range start=\"$start\"/></C:comp-filter>";
-  	elseif ( ! isset($start) && isset($finish) )
-  		$range = "<C:comp-filter name=\"VALARM\"><C:time-range end=\"$finish\"/></C:comp-filter>";
-  	else
-  		$range = '';
-
-  	
-  	// Warning!  May contain traces of double negatives...
-  	if(isset($completed) && $completed == true)
-  		$completed_filter = '<C:prop-filter name="STATUS"><C:text-match negate-condition="no">COMPLETED</C:text-match></C:prop-filter>';
-  	else if(isset($completed) && $completed == false)
-  		$completed_filter = '<C:prop-filter name="STATUS"><C:text-match negate-condition="yes">COMPLETED</C:text-match></C:prop-filter>';
-  	else
-  		$completed_filter = '';
-  	
-  	if(isset($cancelled) && $cancelled == true)
-  		$cancelled_filter = '<C:prop-filter name="STATUS"><C:text-match negate-condition="no">CANCELLED</C:text-match></C:prop-filter>';
-  	else if(isset($cancelled) && $cancelled == false)
-  		$cancelled_filter = '<C:prop-filter name="STATUS"><C:text-match negate-condition="yes">CANCELLED</C:text-match></C:prop-filter>';
-  	else
-  		$cancelled_filter = '';
-  	
-      $filter = <<<EOFILTER
-<C:filter>
-<C:comp-filter name="VCALENDAR">
-<C:comp-filter name="VTODO">
-$completed_filter
-$cancelled_filter
-$range
-</C:comp-filter>
-</C:comp-filter>
-</C:filter>
-EOFILTER;
-
-      return $this->DoCalendarQuery($filter);
-  }
-
-
   /**
    * Get the calendar entry by UID
    *

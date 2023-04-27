@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.1.2 23rd April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -182,7 +182,7 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 							<ul>
 								<?php foreach ($item->entries as $i=>$ent) : ?>
 								    <li>
-								    	<?php echo $ent['e.title'].'<br ><span class="xb09">'.$ent['e.ent_dtstart'].'</span>'; ?>
+								    	<?php echo $ent['title'].'<br ><span class="xb09">'.$ent['dtstart'].'</span>'; ?>
 								    </li>
 								<?php  endforeach; ?>
 							</ul>

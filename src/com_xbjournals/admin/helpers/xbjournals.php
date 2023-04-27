@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.1.3 25th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -93,9 +93,9 @@ class XbjournalsHelper extends ContentHelper
 	    
 	    $conn = self::getServerConnectionDetails($serverid);
 	    
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalClient.php';
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
 	    
-	    $client = new xbVjournalClient();
+	    $client = new xbVjournalHelper();
 	    
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    
@@ -212,14 +212,20 @@ class XbjournalsHelper extends ContentHelper
 	    //incomplete - what is this to do?
 	}
 	
-	public static function getCalendarJournalEntries($calid) {
-	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalClient.php';
+	/**
+	 * @name getCalendarJournalEntries()
+	 * 
+	 * @param int $calid
+	 * @return array[]
+	 */
+	public static function getCalendarJournalEntries(int $calid) {
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
-	    $client = new xbVjournalClient();
+	    $client = new xbVjournalHelper();
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    $client->setCalendarByUrl($cal['cal_url']);
-	    $calitems = $client->getJournals('20140418T103000Z');
+	    $calitems = $client->getJournals();
 	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
 	        $journalentry = $client->parseVjournalObject($calitem);
@@ -240,4 +246,25 @@ class XbjournalsHelper extends ContentHelper
 	    
 	}
 
+	/**
+	 * @name checkValueExists()
+	 * @desc returns true if given value exists in given table column (case insensitive)
+	 * @param string $value - text to check
+	 * @param string $table - the table to check in
+	 * @param string $col- the column to check
+	 * @return boolean - true if value is found in column
+	 */
+	public static function checkValueExists( $value,  $table, $col) {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('id')->from($db->quoteName($table))
+	    ->where('LOWER('.$db->quoteName($col).')='.$db->quote(strtolower($value)));
+	    $db->setQuery($query);
+	    $res = $db->loadResult();
+	    if ($res > 0) {
+	        return true;
+	    }
+	    return false;
+	}
+	
 }

@@ -27,4 +27,13 @@ class XbjournalsControllerCalendars extends JControllerAdmin {
 	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
 	}
 	
+	public function getJournalItems() {
+	    $jip =  Factory::getApplication()->input;
+	    $cid =  $jip->get('cid');
+	    $calid = $cid[0];
+	    $newcnts = $this->getModel('Calendars')->importJournalItems($calid);
+	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
+	    
+	}
+	
 }

@@ -25,19 +25,6 @@ class XbjournalsViewDashboard extends JViewLegacy {
         
         $this->state = $this->get('State');
         
-//         require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbCalDav/SimpleCalDAVClient.php';
-        
-//         $client = new SimpleCalDAVClient();
-        
-//         $client->connect('https://cloud.crosborne.uk/remote.php/dav/calendars/roger','roger','Tbcb&1g0');
-        
-//         $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
-        
-//         $client->setCalendar($arrayOfCalendars["gweldulas"]); // Here: Use the calendar ID of your choice. If you don't know which calendar ID to use, try config/listCalendars.php
-        
-//         $this->journalitems = $client->getJournals(); // Returns array($firstNewEventOnServer, $secondNewEventOnServer);
-//         $this->notes = $client->getNotes(); // Returns array($firstNewEventOnServer, $secondNewEventOnServer);
-        
         // Check for errors.
 //        if (count($errors = $this->get('Errors'))) {
 //            throw new Exception(implode("\n", $errors), 500);

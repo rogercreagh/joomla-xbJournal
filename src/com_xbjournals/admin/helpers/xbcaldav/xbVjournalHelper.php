@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbcaldav Library
- * @filesource admin/helpers/xbcaldav/xbVjournalClient.php
- * @version 0.0.1.0 19th April 2023
+ * @filesource admin/helpers/xbcaldav/xbVjournalHelper.php
+ * @version 0.0.1.4 26th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * based on SimpleCalDavClient by Michael Palm <palm.michael@gmx.de>
@@ -38,7 +38,7 @@ require_once('CalDAVObject.php');
 
 
 
-class xbVjournalClient {
+class xbVjournalHelper {
     private $client;
     private $serverid;
     
@@ -323,8 +323,9 @@ class xbVjournalClient {
     
     /**
      * function getJournals()
-     * @desc gets the VJOURNAL entries which have a start time set (ie it excludes notes which have no start or end time)
-     *
+     * @desc gets the VJOURNAL entries 
+     * sett start and/or end time to only get journal entries
+     * with no times will get ALL items including notes, use getNotes() for notes only.
      * @param unknown $start
      * @param unknown $end
      * @throws Exception
@@ -365,7 +366,7 @@ class xbVjournalClient {
      * @throws CalDAVException
      * @return CalDAVObject[]
      */
-    function getNotes ()
+    function getNotes (string $filter = '')
     {
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
@@ -474,21 +475,33 @@ class xbVjournalClient {
         return $report;
     }
 
+    /**
+     * @name function parseVjournalObject()
+     * @desc takes a CalDAVOject which has href,etag, and data properties
+     * and parses each line in the data reurning an array indexed by property name
+     * with each row containing an array of property name, parameters, and value
+     * @param CalDAVObject $calitem
+     * @return array[] 
+     */
     function parseVjournalObject(CalDAVObject $calitem) {
         
         $journalentry = array();
         $calok = false;
         $journalok = false;
 
-        $journalentry['etag'] = $calitem->getEtag();
-        $journalentry['href'] = $calitem->getHref();
+        $journalentry['etag'] = array('property'=>'etag','value'=>$calitem->getEtag(),'params'=>array());
+        $journalentry['href'] = array('property'=>'href','value'=>$calitem->getHref(),'params'=>array());
         $lines = $calitem->getData();
         //	        $lines = str_replace("\r\n ", "", $lines);
         //	        $lines = str_replace("\r ", "", $lines);
         $lines = str_replace("\n"." ", "", $lines); //unfold on newline followed by space
         $lines = explode("\n",$lines); //create array of lines each consisting of property(;parameters):value
+        $n = 0;
         foreach ($lines as $line) {
-            $value = substr($line,strpos($line,':')+1); //the value is everything after the first colon
+            $n++;
+            $cpos = self::getColon($line);
+            //the value is everything after the first colon not inside double quotes
+            $value = substr($line,$cpos+1); 
             $params = explode(';',substr($line,0,strpos($line,':'))); //make an array of property and any values
             $property = array_shift($params); //extract the property
             //TODO handle case with multiple values separated by commas before unescaping
@@ -507,10 +520,10 @@ class xbVjournalClient {
                     //ignoring timezone and other stuff with own begin-end wrapper
                     switch ($property) {
                         case 'VERSION':
-                            $journalentry['version'] = $value;
+                            $journalentry['version'] = array('property'=>'version','value'=>$value,'params'=>array());
                             break;
                         case 'PRODID':
-                            $journalentry['prodid'] = $value;
+                            $journalentry['prodid'] = array('property'=>'prodid','value'=>$value,'params'=>array());
                             break;
                         case 'BEGIN':
                             if ($value == 'VJOURNAL') {
@@ -530,14 +543,39 @@ class xbVjournalClient {
                         $journalok = false;
                     //elseif begin set flag to wait for end
                     } else {
-                        $valparam = (!empty($params)) ? array('value'=>$value,'params'=>$params) : $value;
-                        $journalentry[$property][] = $valparam;                       
+                        //we need property in the item array and also as the entry array key
+                        $valparam = array('property'=>$property,'value'=>$value,'params'=>$params);
+                        $pkey = $property;
+                        if (key_exists($property, $journalentry))
+                            $pkey = $property.$n;
+                        $journalentry[$pkey] = $valparam;                       
                     }
                 } //end else cal and journal ok
             } //end cal ok
         } //end foreach line        
         return $journalentry;
     } //end parseCalDAVObject
+    
+    /** 
+     * @name function getColon()
+     * @desc finds the position of the first colon char not inside double quotes
+     * recursive function. returns false if no colon found or position (starting at 0) of colon
+     * @param string $line - the text to search
+     * @param int start - the position to start the search (for recursion)
+     * @return false | int
+     */
+    function getColon(string $line, int $start=0) {
+        $cpos = strpos($line,':',$start);
+        if ($cpos === false) return false;
+        $qpos = strpos($line,'"',$start);
+        if ($qpos === false) return $cpos;
+        if ($qpos<$cpos) {
+            $q2pos = strpos($line,'"',$qpos);
+            if ($q2pos === false) return false;            
+            $cpos = $this->getColon($line,$q2pos);
+        }
+        return $cpos;
+    }
     
 }
 
