@@ -23,6 +23,7 @@ class com_xbjournalsInstallerScript
     protected $extension = 'com_xbjournals';
     protected $ver = 'v0';
     protected $date = '';
+    private $uncatid = 0;
     
     function preflight($type, $parent) {
         $jversion = new Version();
@@ -117,7 +118,7 @@ class com_xbjournalsInstallerScript
                 array("title"=>"Uncategorised","desc"=>"default fallback category for all xbJournal items"));
             //    array("title"=>"Remote","desc"=>"category for remote xbJournal entries"),
             //    array("title"=>"Local","desc"=>"category for locally created xbJournal entries"));
-            $message .= $this->createCategory($cats);
+            $message .= $this->createCategories($cats);
             
             $app->enqueueMessage($message,'Info');
             
@@ -199,6 +200,7 @@ class com_xbjournalsInstallerScript
                 $message .= '- entry uid index created.';
             }
             
+            
             $app->enqueueMessage($message);
                         
             echo '<div style="padding: 7px; margin: 0 0 8px; list-style: none; -webkit-border-radius: 4px; -moz-border-radius: 4px;
@@ -232,7 +234,7 @@ class com_xbjournalsInstallerScript
  	    return true;
  	}
  	
- 	public function createCategory($cats) {
+ 	public function createCategories($cats) {
  	    $message = 'Creating '.$this->extension.' categories. ';
  	    foreach ($cats as $cat) {
  	        $db = Factory::getDBO();
@@ -262,6 +264,7 @@ class com_xbjournalsInstallerScript
  	                    // Build the path for our category
  	                    $category->rebuildPath($category->id);
  	                    $message .= $cat['title'].' id:'.$category->id.' created ok. ';
+ 	                    if  ($category->alias == 'uncategorised') $this->uncatid = $category->id;
  	                } else {
  	                    //throw new Exception(500, $category->getError());
  	                    Factory::getApplication()->enqueueMessage($category->getError(),'Error');
@@ -275,4 +278,38 @@ class com_xbjournalsInstallerScript
  	    return $message;
  	}
  	
+ 	public function createLocals() {
+        $db = Factory::getDbo();
+ 	    $query = $db->getQuery(true);
+ 	    $query->insert($db->qn('#__xbjournals_servers'))
+            ->columns(`title`, `alias`, `description`, `access`, `state`, `created`, `created_by`, `created_by_alias`,
+                `modified`, `modified_by`, `checked_out`, `checked_out_time`, `ordering`, `note`)
+            ->values('Local Server', 'local-server', 'Not synchronized with any server', '1', '1', current_timestamp(), '0', '', 
+                NULL, '0', '0', NULL, '0', 'Created by xbJournals install. Do not delete.');	    
+  	    $db->setQuery($query);
+  	    try {
+  	        $db->execute();
+  	        $localserver = $db->insertid();
+  	    } catch (Exception $e) {
+  	        Factory::getApplication()->enqueueMessage('Failed to create local server entry'.'<br />'.$e->getMessage(),'Warning');
+  	        return false;
+  	    }
+  	    $query->clear();
+  	    $query->insert($db->qn('#__xbjournals_calendars'))
+            ->columns(`server_id`, `cal_displayname`, `cal_url`, `cal_ctag`, `cal_calendar_id`, `cal_rgb_color`, `cal_order`, `cal_components`,
+                `title`, `alias`, `description`,
+                `catid`, `access`, `state`, `created`, `created_by`, `created_by_alias`, `modified`, `modified_by`, `checked_out`, `checked_out_time`, `metadata`, `note`)
+                ->values($db->q($localserver), 'Local Calendar', '', 'https://mydomain/1', 'asdf', '#ccc', '0', 'VJOURNAL',
+                    'Local Calendar', 'local-calendar', 'For local journals and notebooks. Not a CalDAV calendar',
+                    $db->q($this->uncatid), '1', '1', current_timestamp(), '0', '', NULL, '0', '0', NULL, '0', 'Created by xbJournals install. Do not delete.');
+        $db->setQuery($query);
+        try {
+            $db->execute();
+            $localcal = $db->insertid();
+        } catch (Exception $e) {
+            Factory::getApplication()->enqueueMessage('Failed to create local calendar entry'.'<br />'.$e->getMessage(),'Warning');
+            return false;
+        }
+        return $localcal;
+ 	}
 }

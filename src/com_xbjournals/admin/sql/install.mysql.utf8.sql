@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals v0.0.1.1 23rd April 2023
+# sql installation file for component xbJournals v0.0.2.0 4th May 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_servers` (
   `password` varchar(190) NOT NULL DEFAULT '',
   `description` varchar(4094) NOT NULL DEFAULT '',
   `access` int(10) NOT NULL  DEFAULT '0',
-  `state` tinyint(3) NOT NULL DEFAULT '0',
+  `state` tinyint(3) NOT NULL DEFAULT '1',
   `created` datetime,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `href` varchar(510) NOT NULL,
   `dtstamp` datetime,  
   `uid` varchar(190) NOT NULL COMMENT 'indexed',
+  `sequence`int(10) NOT NULL DEFAULT '1',
   `summary` varchar(1022) NOT NULL DEFAULT '' COMMENT 'used for title',
   `description` text DEFAULT '',
   `geo` varchar(30) COMMENT 'lat,long floats',

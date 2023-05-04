@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.1.3 25th April 2023
+ * @version 0.0.2.0 1st May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -10,15 +10,19 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\HTML\HTMLHelper;
-use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Filter\OutputFilter;
+use Joomla\CMS\Helper\ContentHelper;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Installer\Installer;
+use Joomla\CMS\Language\Text;
+//use Joomla\String\StringHelper;
+
 
 class XbjournalsHelper extends ContentHelper
 {
+    
 	public static function getActions($component = 'com_xbjournals', $section = 'component', $categoryid = 0) {
 	    
 	    $user 	=Factory::getUser();
@@ -246,6 +250,8 @@ class XbjournalsHelper extends ContentHelper
 	    
 	}
 
+/***************** functions that could move to xbLibrary *******************************/	
+	
 	/**
 	 * @name checkValueExists()
 	 * @desc returns true if given value exists in given table column (case insensitive)
@@ -266,5 +272,438 @@ class XbjournalsHelper extends ContentHelper
 	    }
 	    return false;
 	}
+
+	/**
+	 * @name getItemCnt
+	 * @desc returns the number of items in a table
+	 * @param string $table
+	 * @return integer
+	 */
+	public static function getItemCnt($table) {
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('COUNT(*)')->from($db->quoteName($table));
+	    $db->setQuery($query);
+	    $cnt=-1;
+	    try {
+	        $cnt = $db->loadResult();
+	    } catch (Exception $e) {
+	        $dberr = $e->getMessage();
+	        Factory::getApplication()->enqueueMessage($dberr.'<br />Query: '.$query, 'error');
+	    }
+	    return $cnt;
+	}
+
+	/**
+	 * @name deleteFromTable()
+	 * @desc deletes items from specified table according to specified condition
+	 * @param string $table - the table name
+	 * @param string $condition - the text to be in the query WHERE clause
+	 * @throws \Exception
+	 * @return boolean
+	 */
+	public static function deleteFromTable(string $table, string $condition) {
+	    $db = Factory::getDbo();
+	    //delete existing role list
+	    $query = $db->getQuery(true);
+	    $query->delete($db->quoteName($table));
+	    $query->where($condition);
+	    $db->setQuery($query);
+	    try {
+	        $db->execute();
+	    }
+	    catch (\RuntimeException $e) {
+	        throw new \Exception($e->getMessage(), 500);
+	        return false;
+	    }
+	    return true;
+	}
+	
+    public static function truncateToText(string $source, int $maxlen=250, string $split = 'word') { //null=exact|false=word|true=sentence 
+        if ($maxlen < 5) return $source; //silly the elipsis '...' is 3 chars
+        $action = strpos(' firstsent lastsent word abridge exact',$split); 
+        // firstsent = 1 lastsent = 11, word = 20, abridge = 25, exact = 33
+        $lastword = '';
+        //todo for php8.1+ we could use enum
+	    if (!$action) return $source; //invalid $split value
+	    $source = trim(html_entity_decode(strip_tags($source)));
+	    if ((strlen($source)<$maxlen) && ($action > 19)) return $source; //not enough chars anyway
+	    $maxlen = $maxlen - 4; // allow space for ellipsis
+	    // for abridge we'll save the last word to add back preceeded by ellipsis after truncating
+	    if ($action == 25) {
+	        $lastspace = strrpos($source, ' ');
+            $excess = strlen($source) - $maxlen;
+	        if ($lastspace && ($lastspace > $maxlen)) {
+	            $lastword = substr($source, $lastspace);
+	        } else {
+	            // no space to get lastword outside maxlen, so just take last 6 chars as lastword	            
+	            $lastword = ($excess>6) ? substr($source, strlen($source)-6) : substr($source,strlen($source)-$excess);	            
+	        }
+	        $maxlen = $maxlen - strlen($lastword);
+	    }	    
+	    $source = substr($source, 0, $maxlen);
+	    //for exact trim at maxlength
+	    if ($action == 33) return $source.'...';
+	    //for word or abridge simply find the last space and add the ellipsisplus lastword for abridge
+	    $lastwordend = strrpos($source, ' ');
+	    if ($action > 19) {
+    	    if ($lastwordend) {
+    	        $source = substr($source,$lastwordend);
+    	    }
+    	    return $source.'...'.$lastword;
+	    }
+	    //ok so we are doing first/last complete sentence
+	    // get a temp version with '? ' and '! ' replaced by '. '
+	    $dotsonly = str_replace(array('! ','? '),'. ',$source.' ');
+	    if ($action == 1) {
+	        // look for first ". " as end of sentence
+	        $dot = strpos($dotsonly,'. ');
+	    } else {
+	        // look for last ". " as end of sentence
+	        $dot = strrpos($dotsonly,'. ');
+	    }
+	    if ($dot !== false) {
+	        return substr($source, 0, $dot+1).'...';
+	        
+	    }
+	    return $source;
+	}
+	
+	public static function truncateHtml(string $source, int $maxlen=250, bool $wordbreak = true) {
+	    if ($maxlen < 10) return $source; //silly the elipsis '...' is 3 chars empire->emp...  workspace-> work... 'and so on' -> 'and so...'
+	    $maxlen = $maxlen - 3; //to allow for 3 char ellipsis '...' rather thaan utf8 
+	    if (($wordbreak) && (strpos($source,' ') === false )) $wordbreak = false; //nowhere to wordbreak
+        $truncstr = substr($source, 0, $maxlen);
+	    if (!self::isHtml($source)) {
+	        //we can just truncate and find a wordbreak if needed
+	        if (!$wordbreak || ($wordbreak) && (substr($source, $maxlen+1,1)== ' ')) {
+	            //weve got a word at the end
+	            return $truncstr.'...';
+	        }
+	        //ok we've got to look for a wordbreak (space or newline)
+	        $lastspace = strrpos(str_replace("\n"," ",$truncstr),' ');
+	        if ($lastspace) { // not if it is notfound or is first character (pos=0)
+	            return substr($truncstr, 0, $lastspace).'...';
+	        }
+	        // still here - no spaces left in truncstr so return it all
+	        return $truncstr.'...';
+	    }
+	    //ok so it is html
+	    //get rid of any unclosed tag at the end of $truncstr
+	    // Check if we are within a tag, if we are remove it
+	    if (strrpos($truncstr, '<') > strrpos($truncstr, '>')) {
+	        $lasttagstart = strrpos($truncstr, '<');
+	        $truncstr = trim(substr($truncstr, 0, $lasttagstart));
+	    }
+	    $testlen = strlen(trim(html_entity_decode(strip_tags($truncstr))));
+	    while ( $testlen > $maxlen ) {
+	        $toloose = $testlen - $maxlen;
+	        $trunclen = strlen($truncstr);
+	        $endlasttag = strrpos($truncstr,'>');
+	        if (($trunclen - $endlasttag) >= $toloose) {
+	            $truncstr = substr($truncstr, $trunclen - $toloose);
+	        } else {
+	            //we need to remove another tag
+	            $lasttagstart = strrpos($truncstr,'<');
+	            if ($lasttagstart) {
+	                $truncstr = substr($truncstr, 0, $lastagstart);
+	            } else {
+	                $truncstr = substr($truncstr, 0, $maxlen);
+	            }
+	        }
+	        $testlen = strlen(trim(html_entity_decode(strip_tags($truncstr))));
+	    }
+	    if (!$wordbreak) return $truncstr.'...';
+	    $lastspace = strrpos(str_replace("\n",' ',$truncstr),' ');
+	    if ($lastspace) {
+	        $truncstr = substr($truncstr, 0, $lastspace);
+	    }
+	    return $truncstr.'...';
+	}
+	
+	/**
+	 * 
+	 * @param string $test
+	 * @return number
+	 */
+	public static function isHtml(string $test) {
+	    // regex for self-closed tag (<[a-z]+?[^>]*?\/>) eg <br />
+	    //regex for closed tag <[a-z]+?[^<]*? >[^<]*?<\/.*? > eg <p>para</p>
+	    return preg_match("<[a-z]+?[^<]*?>[^<]*?<\/.*?>|<[a-z]+?[^>]*?\/>",$test);
+	}
+	
+	public static function removeHtml(string $source, bool $replents = true) {
+	    $plainstr = $source;
+	    //remove self closed tags complete
+	    preg_replace('/<[a-z]+?[^>]*?\/>/i','',$plainstr);
+	    //remove non-self closed tags maintaining content
+	    preg_replace('/<[a-z]+?[^<]*?>([^<]*?)<\/.*?>/i','$1',$plainstr);
+	    //if we have a broken tag or unclosed tag it will not be replaced
+	    if ($replents) $plainstr = html_entity_decode($plainstr); 
+	    return $plainstr;
+	}
+	
+	public static function penPont() {
+	    $params = ComponentHelper::getParams('com_xbjournals');
+	    $beer = trim($params->get('roger_beer'));
+	    //Factory::getApplication()->enqueueMessage(password_hash($beer));
+	    $hashbeer = $params->get('penpont');
+	    if (password_verify($beer,$hashbeer)) { return true; }
+	    return false;
+	}
+	
+	
+	/***
+	 * @name checkComponent()
+	 * @desc test whether a component is installed and enabled.
+	 * NB This sets the seesion variable if component installed to 1 if enabled or 0 if disabled.
+	 * Test sess variable==1 if wanting to use component
+	 * @param  $name - component name as stored in the extensions table (eg com_xbfilms)
+	 * @return boolean|number - true= installed and enabled, 0= installed not enabled, null = not installed
+	 */
+	public static function checkComponent($name) {
+	    $sname=substr($name,4).'_ok';
+	    $sess= Factory::getSession();
+	    $db = Factory::getDbo();
+	    $db->setQuery('SELECT enabled FROM #__extensions WHERE element = '.$db->quote($name));
+	    $res = $db->loadResult();
+	    if (is_null($res)) {
+	        $sess->clear($sname);
+	    } else {
+	        $sess->set($sname,$res);
+	    }
+	    return $res;
+	}
+	
+	/**
+	 * @name credit()
+	 * @desc tests if reg code is installed and returns blank, or credit for site and PayPal button for admin
+	 * @param string $ext - extension name to display, must match 'com_name' and xml filename and crosborne link page when converted to lower case
+	 * @return string - empty is registered otherwise for display
+	 */
+	public static function credit(string $ext) {
+	    if (self::penPont()) {
+	        return '';
+	    }
+	    $lext = strtolower($ext);
+	    $credit='<div class="xbcredit">';
+	    if (Factory::getApplication()->isClient('administrator')==true) {
+	        $xmldata = Installer::parseXMLInstallFile(JPATH_ADMINISTRATOR.'/components/com_'.$lext.'/'.$lext.'.xml');
+	        $credit .= '<a href="http://crosborne.uk/'.$lext.'" target="_blank">'
+	            .$ext.' Component '.$xmldata['version'].' '.$xmldata['creationDate'].'</a>';
+	            $credit .= '<br />'.Text::_('XBCULTURE_BEER_TAG');
+	            $credit .= Text::_('XBCULTURE_BEER_FORM');
+	    } else {
+	        $credit .= $ext.' by <a href="http://crosborne.uk/'.$lext.'" target="_blank">CrOsborne</a>';
+	    }
+	    $credit .= '</div>';
+	    return $credit;
+	}
+	
+	/**
+	 * @name getExtensionInfo()
+	 * @param string $element 'mod_...' or 'com_...' for component or module, for plugin the plugin=string from the xml plus the folder (type of plugin))
+	 * @return false if not installed, version string if installed followed but '(not enabled)' if not enabled
+	 */
+	public static function getExtensionInfo($element, $folder=null) {
+	    $db = Factory::getDBO();
+	    $qry = $db->getQuery(true);
+	    $qry->select('enabled, manifest_cache')
+	    ->from($db->quoteName('#__extensions'))
+	    ->where('element = '.$db->quote($element));
+	    if ($folder) {
+	        $qry->where('folder = '.$db->quote($folder));
+	    }
+	    $db->setQuery($qry);
+	    $res = $db->loadAssoc();
+	    if (is_null($res)) {
+	        return false;
+	    } else {
+	        $manifest = json_decode($res['manifest_cache'],true);
+	    }
+	    $manifest['enabled'] = $res['enabled'];
+	    return $manifest;
+	}
+	
+	/**
+	 * @name getCat()
+	 * @desc given category id returns title and description
+	 * @param int $catid
+	 * @return object|null
+	 */
+	public static function getCat($catid) {
+	    $db = Factory::getDBO();
+	    $query = $db->getQuery(true);
+	    $query->select('*')
+	    ->from('#__categories AS a ')
+	    ->where('a.id = '.$catid);
+	    $db->setQuery($query);
+	    return $db->loadObject();
+	}
+
+	/**
+	 * @name getChildCats()
+	 * @desc for a given category returns an array of child category ids
+	 * @param int $pid - id of the parent category
+	 * @param string $ext - the extension the parent belongs to (or null to look it up)
+	 * @param boolean $incroot - whether to include the parent id in the return array
+	 * @return array of ids
+	 */
+	public static function getChildCats(int $pid, $ext = null, $incroot = true) {
+	    $db    = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    if (is_null($ext)) {
+	        $query->select($db->quoteName('extension'))
+	        ->from($db->quoteName('#__categories')
+	            ->where($db->quoteName('id').'='.$pid));
+	        $ext = $db->loadResult();
+	    }
+	    $query->clear();
+	    $query->select('*')->from('#__categories')->where('id='.$pid);
+	    $db->setQuery($query);
+	    $pcat=$db->loadObject();
+	    $start = $incroot ? '>=' : '>';
+	    $query->clear();
+	    $query->select('id')->from('#__categories')->where('extension = '.$db->quote($ext));
+	    $query->where(' lft'.$start.$pcat->lft.' AND rgt <='.$pcat->rgt);
+	    $db->setQuery($query);
+	    return $db->loadColumn();
+	}
+		
+	/**
+	 * @name getTag()
+	 * @desc gets a tag's details given its id
+	 * @param (int) $tagid
+	 * @return mixed
+	 */
+	public static function getTag($tagid) {
+	    $db = Factory::getDBO();
+	    $query = $db->getQuery(true);
+	    $query->select('*')
+	    ->from('#__tags AS a ')
+	    ->where('a.id = '.$tagid);
+	    $db->setQuery($query);
+	    return $db->loadObject();
+	}
+	
+	/**
+	 * @name createCategory()
+	 * @desc creates a new category if it doesn't exist, returns id of category
+	 * NB passing a name and no alias will check for alias based on name.
+	 * @param (string) $name for category
+	 * @param string $alias - usually lowercase name with hyphens for spaces, must be unique, will be created from name if not supplied
+	 * @param number $parentid - id of parent category (defaults to root
+	 * @param string $ext - the extension owning the category
+	 * @param string $desc - optional description
+	 * @return integer - id of new or existing category, or false if error. Error message is enqueued
+	 */
+	public static function createCategory($name, $alias='',$parentid = 1,  $ext='com_xbpeople', $desc='' ) {
+	    if ($alias=='') {
+	        //create alias from name
+	        $alias = OutputFilter::stringURLSafe(strtolower($name));
+	    }
+	    //check category doesn't already exist
+	    $catid = self::getIdFromAlias('#__categories',$alias, $ext);
+	    if ($catid>0) {
+	        return $catid;
+	    } else {
+	        $db = Factory::getDbo();
+	        $query = $db->getQuery(true);
+	        //get category model
+	        $basePath = JPATH_ADMINISTRATOR.'/components/com_categories';
+	        require_once $basePath.'/models/category.php';
+	        $config  = array('table_path' => $basePath.'/tables');
+	        //setup data for new category
+	        $category_model = new CategoriesModelCategory($config);
+	        $category_data['id'] = 0;
+	        $category_data['parent_id'] = $parentid;
+	        $category_data['published'] = 1;
+	        $category_data['language'] = '*';
+	        $category_data['params'] = array('category_layout' => '','image' => '');
+	        $category_data['metadata'] = array('author' => '','robots' => '');
+	        $category_data['extension'] = $ext;
+	        $category_data['title'] = $name;
+	        $category_data['alias'] = $alias;
+	        $category_data['description'] = $desc;
+	        if(!$category_model->save($category_data)){
+	            Factory::getApplication()->enqueueMessage('Error creating category: '.$category_model->getError(), 'error');
+	            return false;
+	        }
+	        $id = $category_model->getItem()->id;
+	        return $id;
+	    }
+	}
+	
+	/**
+	 * @name getIdFromALias()
+	 * @desc given a table name and an alias string returns the id of the corresponding item
+	 * @param (string) $table
+	 * @param (string) $alias
+	 * @param string $ext
+	 * @return mixed|void|NULL
+	 */
+	public static function getIdFromAlias($table,$alias, $ext = 'com_xbpeople') {
+	    $alias = trim($alias,"' ");
+	    $table = trim($table,"' ");
+	    $db = Factory::getDBO();
+	    $query = $db->getQuery(true);
+	    $query->select('id')->from($db->quoteName($table))->where($db->quoteName('alias')." = ".$db->quote($alias));
+	    if ($table === '#__categories') {
+	        $query->where($db->quoteName('extension')." = ".$db->quote($ext));
+	    }
+	    $db->setQuery($query);
+	    $res =0;
+	    $res = $db->loadResult();
+	    return $res;
+	}
+	
+	/**
+	 * @name checkTitleExists()
+	 * @desc returns true if given title exists in given table (case insensitive)
+	 * If table is xbcharacters then uses name column rather than title
+	 * @param string $title
+	 * @param string $table
+	 * @return boolean
+	 */
+	public static function checkTitleExists( $title,  $table) {
+	    $col = ($table == '#__xbcharacters') ? 'name' : 'title';
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('id')->from($db->quoteName($table))
+	    ->where('LOWER('.$db->quoteName($col).')='.$db->quote(strtolower($title)));
+	    $db->setQuery($query);
+	    $res = $db->loadResult();
+	    if ($res > 0) {
+	        return true;
+	    }
+	    return false;
+	}
+	
+	/**
+	 * @name sitePageHeader()
+	 * @desc builds a page header string from passed data
+	 * @param array $displayData
+	 * @return string
+	 */
+	public static function sitePageheader($displayData) {
+	    $header ='';
+	    if (!empty($displayData)) {
+	        $header = '	<div class="row-fluid"><div class="span12 xbpagehead">';
+	        if ($displayData['showheading']) {
+	            $header .= '<div class="page-header"><h1>'.$displayData['heading'].'</h1></div>';
+	        }
+	        if ($displayData['title'] != '') {
+	            $header .= '<h3>'.$displayData['title'].'</h3>';
+	            if ($displayData['subtitle']!='') {
+	                $header .= '<h4>'.$displayData['subtitle'].'</h4>';
+	            }
+	            if ($displayData['text'] != '') {
+	                $header .= '<p>'.$displayData['text'].'</p>';
+	            }
+	        }
+	    }
+	    return $header;
+	}
+	
 	
 }

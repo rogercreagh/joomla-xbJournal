@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/dashboard/view.html.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.2.0 4th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -11,24 +11,69 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Component\ComponentHelper;
-use Joomla\CMS\Toolbar\Toolbar;
-use Joomla\CMS\Toolbar\ToolbarHelper;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
+use Joomla\CMS\Toolbar\Toolbar;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class XbjournalsViewDashboard extends JViewLegacy {
     
     public function display($tpl = null) {    
  
+        $this->params = ComponentHelper::getParams('com_xbjournals');
+        
+        $this->cats = $this->get('Cats');        
+        $this->tags = $this->get('Tagcnts');
+        
+        $this->xmldata = Installer::parseXMLInstallFile(JPATH_COMPONENT_ADMINISTRATOR . '/xbjournals.xml');
+        $this->client = $this->get('Client');
+        
         $this->servers = $this->get('Servers');
         $this->calendars = $this->get('Calendars');
         
         $this->state = $this->get('State');
         
         // Check for errors.
-//        if (count($errors = $this->get('Errors'))) {
-//            throw new Exception(implode("\n", $errors), 500);
-//        }
+        if (count($errors = $this->get('Errors'))) {
+            throw new Exception(implode("\n", $errors), 500);
+        }
+        
+        if ($this->cats){
+            $clink='index.php?option=com_xbjournals&view=catinfo&id=';
+            $this->catlist = '<ul class="inline">';
+            foreach ($this->cats as $key=>$value) {
+                $this->catlist .= '<li>';
+                if ($value['level']==1) {
+                    $this->catlist .= '&nbsp;&nbsp;&nbsp;';
+                } else {
+                    $this->catlist .= ' └─'.substr($value['path'],0,strrpos($value['path'], '/')).'-'; //str_repeat('-&nbsp;', $value['level']-1);
+                }
+                $lbl = $value['published']==1 ? 'label-success' : '';
+                $this->catlist .='<a class="label label-success" href="'.$clink.$value['id'].'">'.$value['title'].'</a>&nbsp;(<i>'.$value['mapcnt'].':'.$value['mrkcnt'].':'.$value['trkcnt'].'</i>) ';
+                $this->catlist .= '</li>';
+            }
+            $this->catlist .= '</ul>';
+        } else {
+            $this->catlist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
+        }
+        
+        if ($this->tags){
+            $tlink='index.php?option=com_xbmaps&view=taginfo&id=';
+            $this->taglist = '<ul class="inline">';
+            foreach ($this->tags['tags'] as $key=>$value) {
+                $this->taglist .= '<li>';
+                if ($value['level']==1) {
+                    $this->taglist .= '&nbsp;&nbsp;&nbsp;';
+                } else {
+                    $this->taglist .= ' └─'.substr($value['path'],0,strrpos($value['path'], '/')).'-';
+                }
+                $this->taglist .= '<a class="label label-info" href="'.$tlink.$value['id'].'">'.$key.'</a>&nbsp;(<i>'.$value['mapcnt'].':'.$value['mrkcnt'].':'.$value['trkcnt'].')</i></li> ';
+            }
+            $this->taglist .= '</ul>';
+        } else {
+            $this->taglist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
+        }
         
         $this->addToolbar();
         XbjournalsHelper::addSubmenu('dashboard');
