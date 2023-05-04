@@ -27,7 +27,7 @@ if (!Factory::getUser()->authorise('core.manage', 'com_xbjournals')) {
 //add the component, xbculture and fontawesome css
 $params = ComponentHelper::getParams('com_xbjournals');
 if ($params->get('savedata','notset')=='notset') {
-    Factory::getApplication()->enqueueMessage(Text::_('XBCULTURE_OPTIONS_UNSAVED'),'Error');
+    Factory::getApplication()->enqueueMessage(Text::_('XBJOURNALS_OPTIONS_UNSAVED'),'Error');
 }
 
 $document = Factory::getDocument();

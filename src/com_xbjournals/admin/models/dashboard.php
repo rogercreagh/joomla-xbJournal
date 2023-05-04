@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/dashboard.php
- * @version 0.0.0.5 5th April 2023
+ * @version 0.0.2.0 4th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -58,6 +58,33 @@ class XbjournalsModelDashboard extends JModelList {
         $db->setQuery($query);
         $servers = $db->loadObjectList();
         return $servers;
+    }
+    
+    public function getClient() {
+        $result = array();
+        $client = Factory::getApplication()->client;
+        $class = new ReflectionClass('Joomla\Application\Web\WebClient');
+        $constants = array_flip($class->getConstants());
+        
+        $result['browser'] = $constants[$client->browser].' '.$client->browserVersion;
+        $result['platform'] = $constants[$client->platform].($client->mobile ? ' (mobile)' : '');
+        $result['mobile'] = $client->mobile;
+        return $result;
+    }
+    
+    public function getJournalStates() {
+        return array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0);
+    }
+
+    public function getNotebookStates() {
+        return array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0);
+    }
+    
+    public function getTagCnts() {
+        $result = array('journals' => 0, 'notes' =>0 );
+        
+       return $result;
+        
     }
     
 }

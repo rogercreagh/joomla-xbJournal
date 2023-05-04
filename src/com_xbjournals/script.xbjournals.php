@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.1.2 23rd April 2023
+ * @version 0.0.2.0 4th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -200,6 +200,8 @@ class com_xbjournalsInstallerScript
                 $message .= '- entry uid index created.';
             }
             
+            $res = $this->createLocals();
+            $message .= $res;
             
             $app->enqueueMessage($message);
                         
@@ -279,37 +281,117 @@ class com_xbjournalsInstallerScript
  	}
  	
  	public function createLocals() {
+ 	    $created = date("Y-m-d H:i:s");
+ 	    $null = null;
         $db = Factory::getDbo();
  	    $query = $db->getQuery(true);
  	    $query->insert($db->qn('#__xbjournals_servers'))
-            ->columns(`title`, `alias`, `description`, `access`, `state`, `created`, `created_by`, `created_by_alias`,
-                `modified`, `modified_by`, `checked_out`, `checked_out_time`, `ordering`, `note`)
-            ->values('Local Server', 'local-server', 'Not synchronized with any server', '1', '1', current_timestamp(), '0', '', 
-                NULL, '0', '0', NULL, '0', 'Created by xbJournals install. Do not delete.');	    
+            ->columns(array('title', 'alias', 'description', 'access', 'state', 'created', 'created_by', 'created_by_alias',
+                'modified', 'modified_by', 'checked_out', 'checked_out_time', 'ordering', 'note'))
+                ->values(implode(',',array($db->q('Local Server'), $db->q('local-server'), $db->q('Not synchronized with any server'), '1', '1', $db->q($created), '0', '', 
+                    '', '0', '0', '', '0', $db->q('Created by xbJournals install. Do not delete.'))));	    
   	    $db->setQuery($query);
   	    try {
   	        $db->execute();
   	        $localserver = $db->insertid();
   	    } catch (Exception $e) {
-  	        Factory::getApplication()->enqueueMessage('Failed to create local server entry'.'<br />'.$e->getMessage(),'Warning');
-  	        return false;
+  	        Factory::getApplication()->enqueueMessage('Failed to create local server entry<br />'.$query->dump().'<br />'.$e->getMessage(),'Warning');
+  	        return 'Error saving local calendar';;
   	    }
+  	    
   	    $query->clear();
   	    $query->insert($db->qn('#__xbjournals_calendars'))
-            ->columns(`server_id`, `cal_displayname`, `cal_url`, `cal_ctag`, `cal_calendar_id`, `cal_rgb_color`, `cal_order`, `cal_components`,
-                `title`, `alias`, `description`,
-                `catid`, `access`, `state`, `created`, `created_by`, `created_by_alias`, `modified`, `modified_by`, `checked_out`, `checked_out_time`, `metadata`, `note`)
-                ->values($db->q($localserver), 'Local Calendar', '', 'https://mydomain/1', 'asdf', '#ccc', '0', 'VJOURNAL',
-                    'Local Calendar', 'local-calendar', 'For local journals and notebooks. Not a CalDAV calendar',
-                    $db->q($this->uncatid), '1', '1', current_timestamp(), '0', '', NULL, '0', '0', NULL, '0', 'Created by xbJournals install. Do not delete.');
+            ->columns(array('server_id', 'cal_displayname', 'cal_url', 'cal_ctag', 'cal_calendar_id', 'cal_rgb_color', 'cal_order', 'cal_components',
+                'title', 'alias', 'description',
+                'catid', 'access', 'state', 'created', 'created_by', 'created_by_alias', 'modified', 'modified_by', 'checked_out', 'checked_out_time', 'metadata', 'note'))
+                ->values(implode(',',array($db->q($localserver), $db->q('Local Calendar'), '', $db->q('https://mydomain/1'), $db->q('asdf'), $db->q('#ccc'), '0', $db->q('VJOURNAL'),
+                    $db->q('Local Calendar'), $db->q('local-calendar'), $db->q('For local journals and notebooks. Not a CalDAV calendar'),
+                    $db->q($this->uncatid), '1', '1', $db->q($created), '0', '', '', '0', '0', '', '0', $db->q('Created by xbJournals install. Do not delete.'))));
         $db->setQuery($query);
         try {
             $db->execute();
             $localcal = $db->insertid();
         } catch (Exception $e) {
-            Factory::getApplication()->enqueueMessage('Failed to create local calendar entry'.'<br />'.$e->getMessage(),'Warning');
-            return false;
+            Factory::getApplication()->enqueueMessage('Failed to create local calendar entry<br />'.$e->getMessage(),'Warning');
+            return 'Error saving local calendar';
         }
-        return $localcal;
+        return 'Local calendar (id='.$localcal.' created ok';
  	}
+ 	
+ 	public function createLocals() {
+ 	    $null = "null";
+ 	    $created = date("Y-m-d H:i:s");
+ 	    $db = Factory::getDbo();
+ 	    $query = $db->getQuery(true);
+ 	    $query->insert($db->qn('#__xbjournals_servers'))
+ 	    ->columns(array('title', 'alias', 'description', 'access', 'state', 'created', 'created_by', 'created_by_alias',
+ 	        'modified', 'modified_by', 'checked_out', 'checked_out_time', 'ordering', 'note'))
+ 	        ->values(implode(',',array($db->q('Local Server'), $db->q('local-server'), $db->q('Not synchronized with any server'), '1', '1', $db->q($created), '0', $db->q('auto'),
+ 	            $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
+ 	        $db->setQuery($query);
+ 	        try {
+ 	            $db->execute();
+ 	            $localserver = $db->insertid();
+ 	        } catch (Exception $e) {
+ 	            Factory::getApplication()->enqueueMessage('Failed to create local server entry<br />'.$query->dump().'<br />'.$e->getMessage(),'Warning');
+ 	            return 'Error saving local calendar';;
+ 	        }
+ 	        
+ 	        $query->clear();
+ 	        $query->insert($db->qn('#__xbjournals_calendars'))
+ 	        ->columns(array('server_id', 'cal_displayname', 'cal_url', 'cal_ctag', 'cal_calendar_id', 'cal_rgb_color', 'cal_order', 'cal_components',
+ 	            'title', 'alias', 'description',
+ 	            'catid', 'access', 'state', 'created', 'created_by', 'created_by_alias', 'modified', 'modified_by', 'checked_out', 'checked_out_time', 'metadata', 'note'))
+ 	            ->values(implode(',',array($db->q($localserver), $db->q('Local Calendar'), '', $db->q('https://mydomain/1'), $db->q('asdf'), $db->q('#ccc'), '0', $db->q('VJOURNAL'),
+ 	                $db->q('Local Calendar'), $db->q('local-calendar'), $db->q('For local journals and notebooks. Not a CalDAV calendar'),
+ 	                '0', '1', '1', $db->q($created), '0', $db->q('auto'), $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
+ 	                $db->setQuery($query);
+ 	                try {
+ 	                    $db->execute();
+ 	                    $localcal = $db->insertid();
+ 	                } catch (Exception $e) {
+ 	                    Factory::getApplication()->enqueueMessage('Failed to create local calendar entry<br />'.$e->getMessage(),'Warning');
+ 	                    return 'Error saving local calendar';
+ 	                }
+ 	                return 'Local calendar (id='.$localcal.' created ok';
+ 	}
+ 	public function createLocals() {
+ 	    $null = "null";
+ 	    $created = date("Y-m-d H:i:s");
+ 	    $db = Factory::getDbo();
+ 	    $query = $db->getQuery(true);
+ 	    $query->insert($db->qn('#__xbjournals_servers'))
+ 	    ->columns(array('title', 'alias', 'description', 'access', 'state', 'created', 'created_by', 'created_by_alias',
+ 	        'modified', 'modified_by', 'checked_out', 'checked_out_time', 'ordering', 'note'))
+ 	        ->values(implode(',',array($db->q('Local Server'), $db->q('local-server'), $db->q('Not synchronized with any server'), '1', '1', $db->q($created), '0', $db->q('auto'),
+ 	            $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
+ 	        $db->setQuery($query);
+ 	        try {
+ 	            $db->execute();
+ 	            $localserver = $db->insertid();
+ 	        } catch (Exception $e) {
+ 	            Factory::getApplication()->enqueueMessage('Failed to create local server entry<br />'.$query->dump().'<br />'.$e->getMessage(),'Warning');
+ 	            return 'Error saving local calendar';;
+ 	        }
+ 	        
+ 	        $query->clear();
+ 	        $query->insert($db->qn('#__xbjournals_calendars'))
+ 	        ->columns(array('server_id', 'cal_displayname', 'cal_url', 'cal_ctag', 'cal_calendar_id', 'cal_rgb_color', 'cal_order', 'cal_components',
+ 	            'title', 'alias', 'description',
+ 	            'catid', 'access', 'state', 'created', 'created_by', 'created_by_alias', 'modified', 'modified_by', 'checked_out', 'checked_out_time', 'metadata', 'note'))
+ 	            ->values(implode(',',array($db->q($localserver), $db->q('Local Calendar'), '', $db->q('https://mydomain/1'), $db->q('asdf'), $db->q('#ccc'), '0', $db->q('VJOURNAL'),
+ 	                $db->q('Local Calendar'), $db->q('local-calendar'), $db->q('For local journals and notebooks. Not a CalDAV calendar'),
+ 	                '0', '1', '1', $db->q($created), '0', $db->q('auto'), $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
+ 	                $db->setQuery($query);
+ 	                try {
+ 	                    $db->execute();
+ 	                    $localcal = $db->insertid();
+ 	                } catch (Exception $e) {
+ 	                    Factory::getApplication()->enqueueMessage('Failed to create local calendar entry<br />'.$e->getMessage(),'Warning');
+ 	                    return 'Error saving local calendar';
+ 	                }
+ 	                return 'Local calendar (id='.$localcal.' created ok';
+ 	}
+ 	//Failed to create local calendar entry
+ 	//You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ''https://mydomain/1','asdf','#ccc',0,'VJOURNAL','Local Calendar','local-calen...' at line 3
 }

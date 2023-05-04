@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.2.0 29th April 2023
+ * @version 0.0.2.0 4th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -113,64 +113,79 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                             			</tbody>
                             		</table>                            	
                             	<?php endif; ?>
-        						<h3 class="xbtitle">
-        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->serverStates['total']; ?></span> 
-        							<a href="index.php?option=com_xbjournals&view=servers"><?php echo Text::_('XBJOURNALS_SERVERS'); ?></a>
-        						</h3>
-        						<div class="row-striped">
-        							<div class="row-fluid">
-        								<div class="span6">
-        									<span class="badge badge-success xbmr10"><?php echo $this->serverStates['published']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_PUBLISHED')); ?>
-        								</div>
-        								<div class="span6">
-        									<span class="badge <?php echo $this->serverStates['unpublished']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->serverStates['unpublished']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_UNPUBLISHED')); ?>
-        								</div>
-        							</div>
-        							<div class="row-fluid">
-        								<div class="span6">
-        									<span class="badge <?php echo $this->serverStates['archived']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->serverStates['archived']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_ARCHIVED')); ?>
-        								</div>
-        								<div class="span6">
-        									<span class="badge <?php echo $this->serverStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->serverStates['trashed']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_TRASHED')); ?>
-        								</div>
-        							</div>
-        						</div>
         					</div>
             			</div>
             		</div>
             		<div class="row-fluid">
             			<div class="span12">
         					<div class="xbbox xbboxgrn">
-        						<h3 class="xbtitle">
-        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
-        							<a href="index.php?option=com_xbjournals&view=calendars"><?php echo ucfirst(Text::_('XBJOURNALS_CALENDARS')); ?></a>
-        						</h3>
-        						<div class="row-striped">
-        							<div class="row-fluid">
-        								<div class="span6">
-        									<span class="badge badge-success xbmr10"><?php echo $this->calendarStates['published']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_PUBLISHED')); ?>
-        								</div>
-        								<div class="span6">
-        									<span class="badge <?php echo $this->calendarStates['unpublished']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->calendarStates['unpublished']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_UNPUBLISHED')); ?>
-        								</div>
-        							</div>
-        							<div class="row-fluid">
-        								<div class="span6">
-        									<span class="badge <?php echo $this->calendarStates['archived']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->calendarStates['archived']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_ARCHIVED')); ?>
-        								</div>
-        								<div class="span6">
-        									<span class="badge <?php echo $this->calendarStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->calendarStates['trashed']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_TRASHED')); ?>
-        								</div>
-        							</div>
-        						</div>
+                            	<h4><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h4>
+                            
+                            	<?php if (empty($this->calendars)) : ?>
+                            		<div class="alert alert-no-items">
+                            			<?php echo Text::_('No calendar records found'); ?>
+                            		</div>
+                            	<?php else : ?>
+                            		<?php $ccnt = count($this->calendars); ?>
+                            		<p>
+                            		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
+                            		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
+                            		<table class="table table-striped table-hover">	
+                            			<thead>
+                            				<tr>
+                            					<th>
+                            						<?php echo Text::_('Title'); ?>
+                            					</th>					
+                            					<th>
+                            						<?php echo Text::_('Server');?>
+                            					</th>
+                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
+                            						<?php echo Text::_('Checked');?>
+                            					</th>
+                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
+                            						<?php echo Text::_('JGRID_HEADING_ID');?>
+                            					<th>
+                            					</th>
+                            				</tr>
+                            			</thead>
+                            			<tbody>
+                            			<?php
+                            			foreach ($this->calendars as $i => $item) :
+                                            $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
+                             				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
+                                            $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
+                            			?>
+                            			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
+                            				<td>
+                            					<p class="xb12 xbbold xbmb8">
+                            					<?php if ($canEdit || $canEditOwn) : ?>
+                            						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
+                            							title="<?php echo JText::_('edit calendar'); ?>" >
+                            							<b><?php echo $this->escape($item->title); ?></b></a> 
+                            					<?php else : ?>
+                            						<?php echo $this->escape($item->title); ?>
+                            					<?php endif; ?>
+                                                <br />                        
+                            					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+                                                	<span class="xbnit xb08"><?php echo $alias;?></span>
+                            					</p>
+                            				</td>
+                            				<td>
+                            					<?php echo $item->server; ?>
+                            				</td>
+                            				<td class="hidden-phone">
+                            					<span class="xbnit"><?php echo HtmlHelper::date($item->last_checked, 'd M Y');?></span>
+                            				</td>
+                            				<td class="hidden-phone">
+                            					<?php echo $item->id; ?>
+                            				</td>
+                            			</tr>			
+                            			<?php endforeach; ?>
+                            			
+                            			</tbody>
+                            		</table>
+                            	
+                            	<?php endif; ?>
         					</div>
             			
             			</div>
@@ -268,7 +283,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 								<br /><?php echo $this->xmldata['copyright']; ?>
 							</p>		        		
 	        			<?php echo HTMLHelper::_('bootstrap.endSlide'); ?>
-		        		<?php echo HTMLHelper::_('bootstrap.addSlide', 'slide-cpanel', Text::_('XBJOURNALS_REGINFO'), 'reginfo','xbaccordion'); ?>
+		        		<?php echo HTMLHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_REGINFO'), 'reginfo','xbaccordion'); ?>
                             <?php  if (XbjournalsHelper::penPont()) {
                                 echo Text::_('XBJOURNALS_BEER_THANKS'); 
                             } else {
@@ -319,21 +334,17 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             	<div class="span6">
         			<div class="xbbox xbboxmag">
         				<h3 class="xbtitle">
-        					<span class="badge badge-info pull-right"><?php echo ($this->tags['tagcnts']['mapcnt'] + $this->tags['tagcnts']['mrkcnt']  + $this->tags['tagcnts']['trkcnt']) ; ?></span> 
+        					<span class="badge badge-info pull-right"><?php echo ('0') ; ?></span> 
         					<a href="index.php?option=com_xbjournals&view=tagslist"><?php echo Text::_('XBJOURNALS_TAGS'); ?></a>
         				</h3>
         				<div class="row-striped">
         					<div class="row-fluid">
-                              <?php echo 'Films: ';
-        						echo '<span class="bkcnt badge  pull-right">'.$this->tags['tagcnts']['mapcnt'].'</span>'; ?>
+                              <?php echo 'Journal Entries: ';
+        						echo '<span class="bkcnt badge  pull-right">'.$this->tags['journals'].'</span>'; ?>
                             </div>  
                             <div class="row-fluid">
-                              <?php echo 'People: ';
-        						echo '<span class="percnt badge pull-right">'.$this->tags['tagcnts']['mrkcnt'].'</span>'; ?>
-                            </div>  
-                            <div class="row-fluid">
-                              <?php echo 'Reviews: ';
-        						echo '<span class="revcnt badge pull-right">'.$this->tags['tagcnts']['trkcnt'].'</span>'; ?>
+                              <?php echo 'Notebook entries: ';
+        						echo '<span class="percnt badge pull-right">'.$this->tags['notes'].'</span>'; ?>
                             </div>  
                          </div>
         				 <h3 class="xbsubtitle"><?php echo Text::_('XBJOURNALS_COUNT_TAGS'); ?></h3>
@@ -353,73 +364,6 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 
 
 
-		<h4><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h4>
-
-	<?php if (empty($this->calendars)) : ?>
-		<div class="alert alert-no-items">
-			<?php echo Text::_('No calendar records found'); ?>
-		</div>
-	<?php else : ?>
-		<?php $ccnt = count($this->calendars); ?>
-		<p>
-		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
-		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
-		<table class="table table-striped table-hover">	
-			<thead>
-				<tr>
-					<th>
-						<?php echo Text::_('Title'); ?>
-					</th>					
-					<th>
-						<?php echo Text::_('Server');?>
-					</th>
-					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
-						<?php echo Text::_('Checked');?>
-					</th>
-					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
-						<?php echo Text::_('JGRID_HEADING_ID');?>
-					<th>
-					</th>
-				</tr>
-			</thead>
-			<tbody>
-			<?php
-			foreach ($this->calendars as $i => $item) :
-                $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
- 				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
-                $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
-			?>
-			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
-				<td>
-					<p class="xb12 xbbold xbmb8">
-					<?php if ($canEdit || $canEditOwn) : ?>
-						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
-							title="<?php echo JText::_('edit calendar'); ?>" >
-							<b><?php echo $this->escape($item->title); ?></b></a> 
-					<?php else : ?>
-						<?php echo $this->escape($item->title); ?>
-					<?php endif; ?>
-                    <br />                        
-					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
-                    	<span class="xbnit xb08"><?php echo $alias;?></span>
-					</p>
-				</td>
-				<td>
-					<?php echo $item->server; ?>
-				</td>
-				<td class="hidden-phone">
-					<span class="xbnit"><?php echo HtmlHelper::date($item->last_checked, 'd M Y');?></span>
-				</td>
-				<td class="hidden-phone">
-					<?php echo $item->id; ?>
-				</td>
-			</tr>			
-			<?php endforeach; ?>
-			
-			</tbody>
-		</table>
-	
-	<?php endif; ?>
 
         <?php 
 //        echo '<pre>'.print_r($this->journalitems,true).'</pre>';

@@ -43,7 +43,7 @@ class XbjournalsHelper extends ContentHelper
 	
 	public static function addSubmenu($vName = 'dashboard') {
 		JHtmlSidebar::addEntry(
-            Text::_('XBCULTURE_ICONMENU_DASHBOARD'),
+            Text::_('XBJOURNALS_ICONMENU_DASHBOARD'),
             'index.php?option=com_xbjournals&view=dashboard',
             $vName == 'dashboard'
 	        );
@@ -491,8 +491,8 @@ class XbjournalsHelper extends ContentHelper
 	        $xmldata = Installer::parseXMLInstallFile(JPATH_ADMINISTRATOR.'/components/com_'.$lext.'/'.$lext.'.xml');
 	        $credit .= '<a href="http://crosborne.uk/'.$lext.'" target="_blank">'
 	            .$ext.' Component '.$xmldata['version'].' '.$xmldata['creationDate'].'</a>';
-	            $credit .= '<br />'.Text::_('XBCULTURE_BEER_TAG');
-	            $credit .= Text::_('XBCULTURE_BEER_FORM');
+	            $credit .= '<br />'.Text::_('XBJOURNALS_BEER_TAG');
+	            $credit .= Text::_('XBJOURNALS_BEER_FORM');
 	    } else {
 	        $credit .= $ext.' by <a href="http://crosborne.uk/'.$lext.'" target="_blank">CrOsborne</a>';
 	    }
