@@ -77,6 +77,10 @@
 #toolbar- .btn {
 	visibility:hidden; width:22px;
 }
+/* add spacing in toolbar to group buttons */
+#toolbar-publish,  #toolbar-batch {
+	margin-left:25px;
+}
  
 /* make tab titles a bit more prominent */
 ul.nav-tabs { 
@@ -88,6 +92,10 @@ ul.nav-tabs {
 .subform-repeatable thead { 
 	background-color:aliceblue;
 }
+.subform-repeatable .table th {
+  font-weight:normal;
+  font-style:italic;
+}
 
 /* style accordions */
 .xbaccordion .accordion-heading {
@@ -98,52 +106,188 @@ ul.nav-tabs {
 }
 
 /* end of joomla system overrides */
-/* xb classes for simple styles */
+
+/* badges and labels 
+-important(reddish) -warning(orange) -success(green) -info(blue) -inverse(darkgrey) 
+are defined in template with slightly darker colour when href and white bold text
+adding here some more named colours, the lighter ones with grey border and text 
+green and blue are used for categories and tags
+*/
+
+.badge-pink, .label-pink {
+	background-color: #ffaaaa!important;
+}
+.badge-red, .label-red {
+	background-color: #e70000 !important;
+}
+.badge-yellow, .label-yellow {
+	background-color: #ffff3f !important;
+}
+.badge-orange, .label-orange {
+	background-color: #e66100 !important;
+}
+.badge-ltgreen, .label-ltgreen {
+	background-color: #ccffcc !important;
+}
+.badge-green, .label-green, .badge-cat, .label-cat {
+	background-color: #009900 !important;
+}
+.badge-cyan, .label-cyan {
+	background-color: #5fffff !important;
+}
+.badge-ltblue, .label-ltblue {
+	background-color: #d0d0ff !important;
+}
+.badge-blue, .label-blue, .badge-tag, .label-tag {
+	background-color: #0000cf !important;
+}
+.badge-ltmag, .label-ltmag {
+	background-color: #ffbbff !important;
+}
+.badge-mag, .label-mag {
+	background-color: #7f007f !important;
+}
+.badge-ltgrey, .label-ltgrey {
+	background-color: #cccccc !important;
+}
+.badge-grey, .label-grey {
+	background-color: #777777 !important;
+}
+.badge-black, .label-black {
+	background-color: #000 !important;
+}
+
+.badge-yellow, .label-yellow, .badge-ltgreen, .label-ltgreen,
+.badge-cyan, .label-cyan, .badge-ltblue, .label-ltblue,
+.badge-ltmag, .label-ltmag, .badge-ltgrey, .label-ltgrey {
+	color: #555 !important;
+    border: solid 1px #777;
+}
+
+/* boxes with rounded corner border and gradient shading */
+.xbbox {
+	padding: 8px 7px 7px 15px;
+	margin: 0 0 8px;
+	list-style: none;
+	border: solid 1px #777777;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.xbboxshadow {
+	-webkit-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.5);
+	box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.5);
+}
+.xbboxwht {
+	background-color: #f0f0f0; /* to lift fromm pure white bckgrnd */
+}
+
+/* box gradientbackgrounds */
+.gradpink { background-image: linear-gradient(#ffffff, #ffaaaa); }
+.gradyellow { background-image: linear-gradient(#ffffff, #ffff3f); }
+.gradgreen, .gradcat { background-image: linear-gradient(#ffffff,#ccffcc); }
+.gradcyan { background-image: linear-gradient(#ffffff,#5fffff); }
+.gradblue, .gradtag { background-image: linear-gradient(#ffffff,#d0d0ff); }
+.gradmag { background-image: linear-gradient(#ffffff,#ffbbff); }
+.gradgrey { background-image: linear-gradient(#ffffff,#cccccc); }
+
+/* vertical scrolling for boxes - use with max-height (.xbmhxxx) */
+.xbyscroll {
+	overflow-y:scroll;
+}
+
+/* the preview eye button */
+.xbeye {
+	color:#fff; 
+	background-color:#689fcc; 
+	text-align:center; 
+	padding:2px 4px 1px 4px;
+	border-radius: 4px;
+}
+.xbeye:hover {
+	background-color:#185b91;
+}
+
+/* xb classes for simple styles 
+some common combinations are also defined (eg xbnit - normal weight,italic, 5px left pad)
+*/
+
 /* centre div */
 .xbcentre { margin-left:auto; margin-right:auto;}
+
 /* text alignment */
-.xbtc {text-align:center;}
+.xbtc, .xbcredit {text-align:center;}
 .xbtr {text-align:right;}
-/* font attributes */
+
+/* font sizes in em */
 .xb15 { font-size:1.5em; }
-.xb12 { font-size:1.2em; }
-.xb11 { font-size:1.1em; }
+.xb12, .xbtitle { font-size:1.2em; }
+.xb11, .xbsubtitle { font-size:1.1em; }
 .xb10 { font-size:1.0em; }
 .xb095 { font-size:0.95em; }
-.xb09 { font-size:0.9em; }
+.xb09, .xbnote { font-size:0.9em; }
 .xb085 { font-size:0.85em; }
-.xb08 { font-size:0.8em; }
+.xb08, .xbcredit { font-size:0.8em; }
+
+/* font weights and styles */
 .xbnorm, .xbnit { font-weight: normal; }
-.xbbold { font-weight: bold; }
-.xbit { font-style:italic; }
+.xbbold, .xbtitle { font-weight: bold; }
+.xbit, .xbnit, .xbcredit { font-style:italic; }
+.xbfw300, .xbsubtitle {font-weight:300;}
+
 /* margins */
-.xbm0 { margin:0 !important; } /*flagged important as we want to override any template margins*/
-.xbml10 { margin-left:10px; }
+.xbm0 { margin:0 !important; } /*flagged important as used to override any template margins*/
+.xbml10, .xbsubtitle { margin-left:10px; }
 .xbml15 { margin-left:15px; }
 .xbml20 { margin-left:20px; }
+
 .xbmr10 { margin-right:10px; }
 .xbmr20 { margin-right:20px; }
+
 .xbmt2 { margin-top:2px; }
 .xbmt10 { margin-top:10px; }
 .xbmt16 { margin-top:16px; }
+
 .xbmb0 { margin-bottom:0; }
-.xbmb8 { margin-bottom:8px; }
+.xbmb8, .xbtitle { margin-bottom:8px; }
 .xbmb12 { margin-bottom:12px; }
-.xbmh200 {max-height:200px; }
-.xbmh300 {max-height:300px; }
-.xbmh400 {max-height:400px; }
+
 /* padding */
 .xbpr5, .xbnit { padding-right:5px; }
 .xbpr10 { padding-right:10px;}
 .xbpt17 { padding-top:17px;}
+
+/* heights */
+.xbmh200 {max-height:200px; }
+.xbmh300 {max-height:300px; }
+.xbmh400 {max-height:400px; }
+
 /* maxwidth eg for divs */
 .xbmw1000 { max-width:1000px; }
 .xbmw1100 { max-width:1100px; }
 .xbmw1200 { max-width:1200px; }
 .xbmw1400 { max-width:1400px; }
+
 /* borders */
 .xbbb1 { border-bottom:solid 1px gray;}
 
-.xbyscroll { overflow-y:scroll;}
+/* some colour things */
+.xbhlt {
+	background-color: #f7f78f;
+	color: #444;
+}
+.xbdim {
+	background-color: #ccc;
+	color: #888;
+}
+.xbgold { color:#edc500; }
+.xbred { color:#c00000; }
+.xbblue, .xbinfo, .xbhelp { color: #0000c0;}
+.xbbook, .xbgreen { color: #008040;}
+.xbdarkgrey { color: #555;}
+.xbgrey, .xbnote {color:#888;}
+
+/* may also need the bootstrap chosen styles from xbculture.css */
 
 
