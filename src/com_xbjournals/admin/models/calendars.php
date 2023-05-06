@@ -199,6 +199,7 @@ class XbjournalsModelCalendars extends JModelList {
                 case 'etag':
                 case 'href':
                 case 'uid':
+                case 'sequence':
                 case 'description':
                 case 'location':
                 case 'geo':
@@ -251,7 +252,7 @@ class XbjournalsModelCalendars extends JModelList {
             } //endswitch $item['property']           
         } // endforeach $item
         
-        $entrytype = (array_key_exists('dtstamp', $item)) ? 'Journal' : 'Note';
+        $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
         if ($categories) 
             $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q($categories));

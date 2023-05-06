@@ -1,7 +1,7 @@
 /*******
  * @package xbJournals Component
  * @filesource media/css/xbjournals.css
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.2.0 6th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -115,7 +115,7 @@ green and blue are used for categories and tags
 */
 
 .badge-pink, .label-pink {
-	background-color: #ffaaaa!important;
+	background-color: #ffafaf!important;
 }
 .badge-red, .label-red {
 	background-color: #e70000 !important;
@@ -159,7 +159,8 @@ green and blue are used for categories and tags
 
 .badge-yellow, .label-yellow, .badge-ltgreen, .label-ltgreen,
 .badge-cyan, .label-cyan, .badge-ltblue, .label-ltblue,
-.badge-ltmag, .label-ltmag, .badge-ltgrey, .label-ltgrey {
+.badge-ltmag, .label-ltmag, .badge-ltgrey, .label-ltgrey,
+.badge-pink, .label-pink {
 	color: #555 !important;
     border: solid 1px #777;
 }
@@ -184,12 +185,12 @@ green and blue are used for categories and tags
 }
 
 /* box gradientbackgrounds */
-.gradpink { background-image: linear-gradient(#ffffff, #ffaaaa); }
-.gradyellow { background-image: linear-gradient(#ffffff, #ffff3f); }
+.gradpink { background-image: linear-gradient(#ffffff, #ffafaf); }
+.gradyellow { background-image: linear-gradient(#ffffff, #ffff9f); }
 .gradgreen, .gradcat { background-image: linear-gradient(#ffffff,#ccffcc); }
 .gradcyan { background-image: linear-gradient(#ffffff,#5fffff); }
 .gradblue, .gradtag { background-image: linear-gradient(#ffffff,#d0d0ff); }
-.gradmag { background-image: linear-gradient(#ffffff,#ffbbff); }
+.gradmag { background-image: linear-gradient(#ffffff,#ffcfff); }
 .gradgrey { background-image: linear-gradient(#ffffff,#cccccc); }
 
 /* vertical scrolling for boxes - use with max-height (.xbmhxxx) */

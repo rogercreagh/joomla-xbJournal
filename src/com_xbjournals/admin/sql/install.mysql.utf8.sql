@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals v0.0.2.0 4th May 2023
+# sql installation file for component xbJournals v0.0.2.0 6th May 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_servers` (
   `created` datetime,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `modified` datetime DEFAULT NULL,
   `modified_by` int(10) NOT NULL  DEFAULT '0',
   `checked_out` int(10) NOT NULL DEFAULT '0',
   `checked_out_time` datetime,
@@ -114,10 +114,10 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `catid` int(10) NOT NULL  DEFAULT '0' COMMENT 'default to uncategorised',
   `access` int(10) NOT NULL  DEFAULT '0',
   `state` tinyint(3) NOT NULL DEFAULT '0' COMMENT 'enforce state unpublished (0) if does not support VJOURNAL',
-  `created` datetime DEFAULT CURRENT_TIMESTAMP,
+  `created` datetime DEFAULT NULL,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',
-  `modified` datetime DEFAULT CURRENT_TIMESTAMP,
+  `modified` datetime DEFAULT NULL,
   `modified_by` int(10) NOT NULL  DEFAULT '0',
   `checked_out` int(10) NOT NULL DEFAULT '0',
   `checked_out_time` datetime,

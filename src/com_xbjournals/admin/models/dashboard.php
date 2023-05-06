@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/dashboard.php
- * @version 0.0.2.0 4th May 2023
+ * @version 0.0.2.0 5th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -33,8 +33,9 @@ class XbjournalsModelDashboard extends JModelList {
 			.'a.modified AS modified, a.modified_by AS modified_by,'
             .'a.checked_out AS checked_out, a.checked_out_time AS checked_out_time,'
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
+        $query->select('(SELECT COUNT(DISTINCT(c.id)) FROM #__xbjournals_calendars AS c WHERE c.server_id = a.id) AS calcnt');
         $query->from('#__xbjournals_servers AS a');
-        
+ //       $query->leftJoin('#__xbjournals_calendars AS c ON c.server_id = a.id');
         $query->order('title ASC');
         $db->setQuery($query);
         $servers = $db->loadObjectList();
@@ -45,11 +46,13 @@ class XbjournalsModelDashboard extends JModelList {
         $db = Factory::getDbo();
         $query = $db->getQuery(true);
         
-        $query->select('a.id AS id, a.title AS title, a.alias AS alias,'
+        $query->select('a.id AS id, a.title AS title, a.alias AS alias, a.state AS published,'
             .'a.last_checked AS last_checked, a.catid AS catid, a.note AS note,'
             .'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
             .'a.modified AS modified, a.modified_by AS modified_by,'
-            .'s.title AS server');
+            .'a.cal_components AS components, s.title AS server');
+        $query->select('(SELECT COUNT(DISTINCT(e.id)) FROM #__xbjournals_vjournal_entries AS e WHERE e.calendar_id = a.id AND e.entry_type = '.$db->q('Journal').') AS jentcnt');
+        $query->select('(SELECT COUNT(DISTINCT(f.id)) FROM #__xbjournals_vjournal_entries AS f WHERE f.calendar_id = a.id AND f.entry_type = '.$db->q('Note').') AS nentcnt');
         $query->from('#__xbjournals_calendars AS a');
         $query->leftJoin('#__xbjournals_servers AS s ON s.id = a.server_id ');
         

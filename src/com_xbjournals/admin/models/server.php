@@ -15,6 +15,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Application\ApplicationHelper;
+use Joomla\CMS\Table\Table;
 
 class XbjournalsModelServer extends JModelAdmin {
     
@@ -48,7 +49,7 @@ class XbjournalsModelServer extends JModelAdmin {
     
     public function getTable($type = 'Server', $prefix = 'XbjournalsTable', $config = array()) {
         
-        return JTable::getInstance($type, $prefix, $config);
+        return Table::getInstance($type, $prefix, $config);
     }
     
     public function getForm($data = array(), $loadData = true) {

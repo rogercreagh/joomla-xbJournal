@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.2.0 4th May 2023
+ * @version 0.0.2.0 5th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -47,7 +47,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             	<div class="span8">
             		<div class="row-fluid">
             			<div class="span12">
-        					<div class="xbbox xbboxcyan">
+        					<div class="xbbox gradmag">
 								<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
                             	<?php if (empty($this->servers)) : ?>
                             		<div class="alert alert-no-items">
@@ -57,68 +57,42 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                             		<?php $scnt = count($this->servers); ?>
                             		<p><?php echo $scnt; ?> <?php  echo ($scnt == 1) ? Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVERS');
                                 		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
-                            		<table class="table table-striped table-hover">	
-                            			<thead>
-                            				<tr>
-                            					<th>
-                            						<?php echo Text::_('XBJOURNALS_TITLE'); ?>
-                            					</th>					
-                            					<th>
-                            						<?php echo Text::_('XBJOURNALS_DOMAIN');?>
-                            					</th>
-                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
-                            						<?php echo Text::_('XBJOURNALS_UPDATED');?>
-                            					</th>
-                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
-                            						<?php echo Text::_('JGRID_HEADING_ID');?>
-                            					<th>
-                            					</th>
-                            				</tr>
-                            			</thead>
-                            			<tbody>
-                            			<?php foreach ($this->servers as $i => $item) :
+                                	<ul>
+                                		<?php foreach ($this->servers as $i => $item) :
                                             $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
                                             $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                                                     || $item->checked_out==$userId || $item->checked_out==0;
                             				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.map.'.$item->id) && $item->created_by == $userId;
                                             $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.map.'.$item->id) && $canCheckin;
                             			?>
-                                			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
-                                				<td>
-                                					<p class="xb12 xbbold xbmb8">
-                                					<?php if ($canEdit || $canEditOwn) : ?>
-                                						<a href="<?php echo Route::_($servereditlink.$item->id);?>"
-                                							title="<?php echo JText::_('edit server'); ?>" >
-                                							<b><?php echo $this->escape($item->title); ?></b></a> 
-                                					<?php else : ?>
-                                						<?php echo $this->escape($item->title); ?>
-                                					<?php endif; ?>
-                                                    <br />                        
-                                					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
-                                                    	<span class="xbnit xb08"><?php echo $alias;?></span>
-                                					</p>
-                                				</td>
-                                				<td>
-                                					<?php echo parse_url($item->url, PHP_URL_HOST);?>
-                                					<br />Username: <?php echo $item->username; ?>
-                                				</td>
-                                				<td class="hidden-phone">
-                                					<?php echo $item->id; ?>
-                                				</td>
-                                				<td class="hidden-phone">
-                                					<span class="xbnit"><?php echo HtmlHelper::date($item->modified, 'd M Y');?></span>
-                                				</td>
-                                			</tr>			
-                                		<?php endforeach; ?>			
-                            			</tbody>
-                            		</table>                            	
+                                	
+                                		<li>
+                                			<div class="btn-group xbmr10">
+    											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'server.', false, 'cb'); ?>
+    										</div>
+                               				<?php if ($canEdit || $canEditOwn) : ?>
+                                				<a href="<?php echo Route::_($servereditlink.$item->id);?>"
+                                					title="<?php echo JText::_('edit server'); ?>" >
+                                				<b><?php echo $this->escape($item->title); ?></b></a> 
+                                			<?php else : ?>
+                                				<b><?php echo $this->escape($item->title); ?></b>
+                                			<?php endif; ?>
+                            				<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+											<span class="xbnit xb08 xbmr10"><?php echo $alias;?></span>
+                            				<?php echo parse_url($item->url, PHP_URL_HOST);?>
+                            				: <?php echo $item->username; ?>
+                            				<span class="badge badge-pink"><?php echo $item->calcnt; ?></span> 
+                            				<?php echo ($item->calcnt == 1)? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS'); ?>
+                                		</li>
+                                		<?php endforeach; ?>
+                                	</ul>
                             	<?php endif; ?>
         					</div>
             			</div>
             		</div>
             		<div class="row-fluid">
             			<div class="span12">
-        					<div class="xbbox xbboxgrn">
+        					<div class="xbbox gradpink">
                             	<h4><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h4>
                             
                             	<?php if (empty($this->calendars)) : ?>
@@ -130,73 +104,53 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                             		<p>
                             		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
                             		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
-                            		<table class="table table-striped table-hover">	
-                            			<thead>
-                            				<tr>
-                            					<th>
-                            						<?php echo Text::_('Title'); ?>
-                            					</th>					
-                            					<th>
-                            						<?php echo Text::_('Server');?>
-                            					</th>
-                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
-                            						<?php echo Text::_('Checked');?>
-                            					</th>
-                            					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
-                            						<?php echo Text::_('JGRID_HEADING_ID');?>
-                            					<th>
-                            					</th>
-                            				</tr>
-                            			</thead>
-                            			<tbody>
-                            			<?php
-                            			foreach ($this->calendars as $i => $item) :
+                            		  <ul>
+                            		<?php foreach ($this->calendars as $i => $item) :
                                             $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
                              				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
                                             $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
                             			?>
-                            			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
-                            				<td>
-                            					<p class="xb12 xbbold xbmb8">
-                            					<?php if ($canEdit || $canEditOwn) : ?>
-                            						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
-                            							title="<?php echo JText::_('edit calendar'); ?>" >
-                            							<b><?php echo $this->escape($item->title); ?></b></a> 
-                            					<?php else : ?>
-                            						<?php echo $this->escape($item->title); ?>
-                            					<?php endif; ?>
-                                                <br />                        
-                            					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
-                                                	<span class="xbnit xb08"><?php echo $alias;?></span>
-                            					</p>
-                            				</td>
-                            				<td>
-                            					<?php echo $item->server; ?>
-                            				</td>
-                            				<td class="hidden-phone">
-                            					<span class="xbnit"><?php echo HtmlHelper::date($item->last_checked, 'd M Y');?></span>
-                            				</td>
-                            				<td class="hidden-phone">
-                            					<?php echo $item->id; ?>
-                            				</td>
-                            			</tr>			
-                            			<?php endforeach; ?>
-                            			
-                            			</tbody>
-                            		</table>
+                            			<li>
+                                			<div class="btn-group">
+    											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'calendar.', false, 'cb'); ?>
+    										</div>
+                        					<?php if ($canEdit || $canEditOwn) : ?>
+                        						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
+                        							title="<?php echo JText::_('edit calendar'); ?>" >
+                        							<b><?php echo $this->escape($item->title); ?></b></a> 
+                        					<?php else : ?>
+                        						<?php echo $this->escape($item->title); ?>
+                        					<?php endif; ?>
+                            				<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+    										<span class="xbnit xb08"><?php echo $alias;?></span>
+                                			<?php echo $item->server; ?> 
+                                			<?php if (strpos($item->components,'VJOURNAL') === false ) : ?>
+                                				<span class="xbnit xbhlt">
+                                					<?php echo Text::_('XBJOURNALS_VJOURNAL_NOT_ENABLED')?>
+                                				</span>
+                                			<?php else: ?>
+                                				<span class="badge badge-pink"><?php echo ($item->jentcnt+$item->nentcnt); ?></span> 
+                                				<?php echo (($item->jentcnt+$item->nentcnt) == 1)? Text::_('XBJOURNALS_ENTRY') : Text::_('XBJOURNALS_ENTRIES'); ?>
+                                				&nbsp; <?php echo Text::_('Jounals'); ?> <span class="badge badge-cyan"><?php echo ($item->jentcnt); ?></span>
+                                				&nbsp; <?php echo Text::_('Notes'); ?> <span class="badge badge-yellow"><?php echo ($item->nentcnt); ?></span>
+                                			
+                                			<?php endif; ?>	
+                                		</li>
+                            		<?php endforeach; ?> 
+                  				</ul>
+                            	<?php endif; ?>	  
                             	
-                            	<?php endif; ?>
         					</div>
             			
             			</div>
             		</div>
             		<div class="row-fluid">
             			<div class="span12">
-        					<div class="xbbox xbboxblue">
-        						<h3 class="xbtitle">
+        					<div class="xbbox gradcyan">
+        						<p>
         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->journalStates['total']; ?></span> 
-        							<a href="index.php?option=com_xbjournals&view=journals"><?php echo ucfirst(Text::_('XBJOURNALS_JOURNALS')); ?>
-        						</h3>
+        							<b><?php echo ucfirst(Text::_('XBJOURNALS_JOURNAL_ENTRIES')); ?></b>
+        						</p>
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
@@ -225,11 +179,11 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             		</div>
             		<div class="row-fluid">
             			<div class="span12">
-        					<div class="xbbox xbboxmag">
-        						<h3 class="xbtitle">
-        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->notebookStates['total']; ?></span> 
-        							<a href="index.php?option=com_xbjournals&view=notebooks"><?php echo ucfirst(Text::_('XBJOURNALS_NOTEBOOKS')); ?>
-        						</h3>
+        					<div class="xbbox gradyellow">
+        						<p>
+         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->notebookStates['total']; ?></span> 
+        							<b><?php echo ucfirst(Text::_('XBJOURNALS_NOTEBOOK_ENTRIES')); ?></b>
+        						</p>
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
@@ -274,10 +228,10 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 		        			<p>Config (Options) Settings:
 		        			</p>
 	        			<?php echo HTMLHelper::_('bootstrap.endSlide'); ?>
-        				<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_ABOUT'), 'about'); ?>
+        				<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_ABOUT'), 'about','xbaccordion'); ?>
 							<p><?php echo Text::_( 'XBJOURNALS_ABOUT_INFO' ); ?></p>
 						<?php echo HtmlHelper::_('bootstrap.endSlide'); ?>
-						<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_LICENCE'), 'license'); ?>
+						<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_LICENCE'), 'license','xbaccordion'); ?>
 							<p><?php echo Text::_( 'XBJOURNALS_LICENSE_GPL' ); ?>
 								<br><?php echo Text::sprintf('XBJOURNALS_LICENSE_INFO','xbJournals');?>
 								<br /><?php echo $this->xmldata['copyright']; ?>
@@ -296,7 +250,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 			</div>	
 			<div class="row-fluid">
             	<div class="span6">
-					<div class="xbbox xbboxyell">
+					<div class="xbbox gradcat">
 						<h3 class="xbtitle">
 							<span class="badge badge-info pull-right"><?php //echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
 							<a href="index.php?option=com_xbjournals&view=catslist"><?php echo Text::_('XBJOURNALS_CATEGORIES'); ?></a>
@@ -332,7 +286,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 					</div>            			
             	</div>
             	<div class="span6">
-        			<div class="xbbox xbboxmag">
+        			<div class="xbbox gradtag">
         				<h3 class="xbtitle">
         					<span class="badge badge-info pull-right"><?php echo ('0') ; ?></span> 
         					<a href="index.php?option=com_xbjournals&view=tagslist"><?php echo Text::_('XBJOURNALS_TAGS'); ?></a>
@@ -357,20 +311,9 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             			</div>
 	        		</div>
             	</div>
-            	</div>
-           	</div>
+            </div>
+		</div>
 
-
-
-
-
-
-        <?php 
-//        echo '<pre>'.print_r($this->journalitems,true).'</pre>';
-        
-//        echo '<pre>'.print_r($this->notes,true).'</pre>';
-        ?>
-	</div>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="boxchecked" value="0" />
 	<?php echo HTMLHelper::_('form.token'); ?>

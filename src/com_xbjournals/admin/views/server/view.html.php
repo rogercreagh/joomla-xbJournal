@@ -68,7 +68,7 @@ class XbjournalsViewServer extends JViewLegacy {
         } else {
             ToolbarHelper::cancel('server.cancel','JTOOLBAR_CLOSE');
         }
-        ToolbarHelper::custom('','spacer');
+        ToolbarHelper::custom(); //spacer
         ToolbarHelper::help( '', false,'https://crosborne.uk/xbjournals/doc?tmpl=component#serveredit' );
     }
     
