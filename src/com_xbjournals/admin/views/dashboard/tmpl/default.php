@@ -57,7 +57,6 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                             		<?php $scnt = count($this->servers); ?>
                             		<p><?php echo $scnt; ?> <?php  echo ($scnt == 1) ? Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVERS');
                                 		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
-                                	<ul>
                                 		<?php foreach ($this->servers as $i => $item) :
                                             $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
                                             $canCheckin = $user->authorise('core.manage', 'com_checkin') 
@@ -66,26 +65,26 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                                             $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.map.'.$item->id) && $canCheckin;
                             			?>
                                 	
-                                		<li>
-                                			<div class="btn-group xbmr10">
+                                			<div class="pull-left btn-group">
     											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'server.', false, 'cb'); ?>
     										</div>
-                               				<?php if ($canEdit || $canEditOwn) : ?>
-                                				<a href="<?php echo Route::_($servereditlink.$item->id);?>"
-                                					title="<?php echo JText::_('edit server'); ?>" >
-                                				<b><?php echo $this->escape($item->title); ?></b></a> 
-                                			<?php else : ?>
-                                				<b><?php echo $this->escape($item->title); ?></b>
-                                			<?php endif; ?>
-                            				<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
-											<span class="xbnit xb08 xbmr10"><?php echo $alias;?></span>
-                            				<?php echo parse_url($item->url, PHP_URL_HOST);?>
-                            				: <?php echo $item->username; ?>
+                                            <div class="pull-left" style="width:200px;margin-left:20px;">
+                                   				<?php if ($canEdit || $canEditOwn) : ?>
+                                    				<a href="<?php echo Route::_($servereditlink.$item->id);?>"
+                                    					title="<?php echo JText::_('edit server'); ?>" >
+                                    				<b><?php echo $this->escape($item->title); ?></b></a> 
+                                    			<?php else : ?>
+                                    				<b><?php echo $this->escape($item->title); ?></b>
+                                    			<?php endif; ?>
+                                			</div>
+                                            <div class="pull-left" style="width:200px;margin-left:20px;">
+                            				 <?php echo parse_url($item->url, PHP_URL_HOST);?>
+                            				 : <?php echo $item->username; ?>
+                            				</div>
                             				<span class="badge badge-pink"><?php echo $item->calcnt; ?></span> 
                             				<?php echo ($item->calcnt == 1)? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS'); ?>
-                                		</li>
+                                			<div class="clearfix></div>
                                 		<?php endforeach; ?>
-                                	</ul>
                             	<?php endif; ?>
         					</div>
             			</div>
@@ -104,26 +103,26 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                             		<p>
                             		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
                             		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
-                            		  <ul>
                             		<?php foreach ($this->calendars as $i => $item) :
                                             $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
                              				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
                                             $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
                             			?>
-                            			<li>
-                                			<div class="btn-group">
+                                			<div class="pull-left btn-group">
     											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'calendar.', false, 'cb'); ?>
     										</div>
-                        					<?php if ($canEdit || $canEditOwn) : ?>
-                        						<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
-                        							title="<?php echo JText::_('edit calendar'); ?>" >
-                        							<b><?php echo $this->escape($item->title); ?></b></a> 
-                        					<?php else : ?>
-                        						<?php echo $this->escape($item->title); ?>
-                        					<?php endif; ?>
-                            				<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
-    										<span class="xbnit xb08"><?php echo $alias;?></span>
-                                			<?php echo $item->server; ?> 
+                                            <div class="pull-left" style="width:200px;margin-left:20px;">
+                        						<?php if ($canEdit || $canEditOwn) : ?>
+                        							<a href="<?php echo Route::_($calendareditlink.$item->id);?>"
+                        								title="<?php echo JText::_('edit calendar'); ?>" >
+                        								<b><?php echo $this->escape($item->title); ?></b></a> 
+                        						<?php else : ?>
+                        							<?php echo $this->escape($item->title); ?>
+                        						<?php endif; ?>
+                        					</div>
+                                            <div class="pull-left" style="width:200px;margin-left:20px;">
+                                				<?php echo $item->server; ?> 
+                                				</div>
                                 			<?php if (strpos($item->components,'VJOURNAL') === false ) : ?>
                                 				<span class="xbnit xbhlt">
                                 					<?php echo Text::_('XBJOURNALS_VJOURNAL_NOT_ENABLED')?>
@@ -135,9 +134,8 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                                 				&nbsp; <?php echo Text::_('Notes'); ?> <span class="badge badge-yellow"><?php echo ($item->nentcnt); ?></span>
                                 			
                                 			<?php endif; ?>	
-                                		</li>
+                                			<div class="clearfix"></div>
                             		<?php endforeach; ?> 
-                  				</ul>
                             	<?php endif; ?>	  
                             	
         					</div>
