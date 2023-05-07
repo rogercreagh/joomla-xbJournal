@@ -52,9 +52,43 @@
 			label="XBJOURNALS_BEER_FIELD" description="XBJOURNALS_BEER_FIELD_DESC"
 			default=""
 		/>	
+		<field name="beernote2" type="note"
+			label="XBJOURNALS_BEER_TALK"
+			description="XBJOURNALS_BEER_FORM"
+		/>
 		<field name="penpont" type="hidden"
 			default="$2y$10$DeCwB16giLjgL7HgM1RDSeHROFs7QQef2dBQ9jEKehiTGj05jbonK" 
 			/>		
+		<field name="othercreditsnote" type="note"
+			label="XBJOURNALS_CREDITS_NOTE"
+		/>
+		<field name="simplecaldavnote" type="note"
+			label="XBJOURNALS_SIMPLECALDAV"
+			description="XBJOURNALS_SIMPLECALDAV_DESC"
+		/>
+		<field name="jtxbnote" type="note"
+			label="XBJOURNALS_JTXBOARD"
+			description="XBJOURNALS_JTXBOARD_DESC"
+		/>
+		<field name="parsedownnote" type="note"
+			label="XBJOURNALS_PARSEDOWN"
+			description="XBJOURNALS_PARSEDOWN_DESC"
+		/>
+		<field name="otheritemsnote" type="note"
+			label="XBJOURNALS_OTHER_ITEMS"
+		/>
+		<field name="nextcloudbnote" type="note"
+			label="XBJOURNALS_NEXTCLOUD"
+			description="XBJOURNALS_NEXTCLOUD_DESC"
+		/>
+		<field name="devtoolsnote" type="note"
+			label="XBJOURNALS_DEV_TOOLS"
+			description="XBJOURNALS_DEV_TOOLS_DESC"
+		/>
+		<field name="xbcompsbnote" type="note"
+			label="XBJOURNALS_OTHER_XBCOMPONENTS"
+			description="XBJOURNALS_OTHER_XBCOMPONENTS_DESC"
+		/>
 	</fieldset>		
 
 <!-- PERMISSIONS TAB -->

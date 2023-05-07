@@ -185,11 +185,11 @@ green and blue are used for categories and tags
 }
 
 /* box gradientbackgrounds */
-.gradpink { background-image: linear-gradient(#ffffff, #ffafaf); }
-.gradyellow { background-image: linear-gradient(#ffffff, #ffff9f); }
+.gradpink { background-image: linear-gradient(#ffffff, #ffcfcf); }
+.gradyellow { background-image: linear-gradient(#ffffff, #ffffaf); }
 .gradgreen, .gradcat { background-image: linear-gradient(#ffffff,#ccffcc); }
-.gradcyan { background-image: linear-gradient(#ffffff,#5fffff); }
-.gradblue, .gradtag { background-image: linear-gradient(#ffffff,#d0d0ff); }
+.gradcyan { background-image: linear-gradient(#ffffff,#8fffff); }
+.gradblue, .gradtag { background-image: linear-gradient(#ffffff,#dfdfff); }
 .gradmag { background-image: linear-gradient(#ffffff,#ffcfff); }
 .gradgrey { background-image: linear-gradient(#ffffff,#cccccc); }
 
