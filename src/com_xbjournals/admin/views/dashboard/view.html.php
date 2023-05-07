@@ -22,9 +22,12 @@ class XbjournalsViewDashboard extends JViewLegacy {
     public function display($tpl = null) {    
  
         $this->params = ComponentHelper::getParams('com_xbjournals');
+        $this->savedata = $params->get('savedata',1);
+        $this->copy_remote = $params->get('copy_remote',1);
+        $this->savedata = $params->get('attach_path','');        
         
-        $this->cats = $this->get('Cats');        
-        $this->tags = $this->get('Tagcnts');
+        $this->cats = $this->get('CatCnts');        
+        $this->tags = $this->get('TagCnts');
         
         $this->xmldata = Installer::parseXMLInstallFile(JPATH_COMPONENT_ADMINISTRATOR . '/xbjournals.xml');
         $this->client = $this->get('Client');
@@ -59,7 +62,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
 //             }
 //             $this->catlist .= '</ul>';
 //         } else {
-//             $this->catlist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
+               $this->catlist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
 //         }
         
 //         if ($this->tags){
@@ -76,7 +79,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
 //             }
 //             $this->taglist .= '</ul>';
 //         } else {
-//             $this->taglist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
+               $this->taglist = '<p class="xbnit">'.Text::_('XBJOURNALS_NONE_ASSIGNED').'</p>';
 //         }
         
         $this->addToolbar();

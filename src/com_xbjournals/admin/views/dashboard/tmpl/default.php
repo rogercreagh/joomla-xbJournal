@@ -171,7 +171,6 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         							</div>
         						</div>
         					</div>
-            			
             			</div>
             		</div>
             		<div class="row-fluid">
@@ -204,9 +203,46 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         							</div>
         						</div>
         					</div>
-            			
             			</div>
             		</div>
+        			<div class="row-fluid">
+                    	<div class="span6">
+        					<div class="xbbox gradcat">
+        						<h3 class="xbtitle">
+        							<span class="badge badge-cat pull-right"><?php //echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
+        							<a href="index.php?option=com_xbjournals&view=catslist"><?php echo Text::_('XBJOURNALS_CATEGORIES'); ?></a>
+        						</h3>
+                				<div class="row-striped">
+                					<div class="row-fluid">
+                                      <?php echo Text::_('XBJOURNALS_JOURNAL_CATS').': ';
+                						echo '<span class="badge badge-ltgreen pull-right">'.$this->cats['journals'].'</span>'; ?>
+                                    </div>  
+                                    <div class="row-fluid">
+                                      <?php echo Text::_('XBJOURNALS_NOTE_CATS').': ';
+                						echo '<span class="badge badge-ltgreen pull-right">'.$this->cats['notes'].'</span>'; ?>
+                                    </div>  
+                                 </div>
+        					</div>            			
+                    	</div>
+                    	<div class="span6">
+                			<div class="xbbox gradtag">
+                				<h3 class="xbtitle">
+                					<span class="badge badge-tag pull-right"><?php echo ('0') ; ?></span> 
+                					<a href="index.php?option=com_xbjournals&view=tagslist"><?php echo Text::_('XBJOURNALS_TAGS'); ?></a>
+                				</h3>
+                				<div class="row-striped">
+                					<div class="row-fluid">
+                                      <?php echo Text::_('XBJOURNALS_JOURNAL_TAGS').': ';
+                						echo '<span class="badge badge-ltblue  pull-right">'.$this->tags['journals'].'</span>'; ?>
+                                    </div>  
+                                    <div class="row-fluid">
+                                      <?php echo Text::_('XBJOURNALS_NOTE_TAGS').': ';
+                						echo '<span class="badge badge-ltblue pull-right">'.$this->tags['notes'].'</span>'; ?>
+                                    </div>  
+        						</div>
+        	        		</div>
+                    	</div>
+                    </div>
               	</div>
 				<div id="xbinfo" class="span4">
 					<div class="row-fluid">
@@ -222,8 +258,17 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                          	</p>
         				<?php echo HtmlHelper::_('bootstrap.endSlide'); ?>
 		        		<?php echo HTMLHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_KEY_CONFIG'), 'keyconfig','xbaccordion'); ?>
-		        			<p>Config (Options) Settings:
+		        			<p>Config (Options) Key Settings:
 		        			</p>
+		        			<ul>
+		        				<li><?php echo Text::_('XBJOURNALS_CONFIG_DEL_UNINST_LABEL'); ?>: <?php echo ($this->savedata)?  Text::_('JYES') :  Text::_('JNO'); ?>
+		        				</li>
+		        				<li><?php echo Text::_('Save all attachments'); ?>:<?php echo ($this->copy_remote)?  Text::_('JYES') :  Text::_('XBJOURNALS_EMBED_ONLY'); ?>
+		        				</li>
+		        				<li><?php echo Text::_('XBJOURNALS_ATTACH_FOLDER'); ?>:<br />
+		        					<code><?php echo ($this->attach_path); ?></code>
+		        				</li>
+		        			</ul>
 	        			<?php echo HTMLHelper::_('bootstrap.endSlide'); ?>
         				<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_ABOUT'), 'about','xbaccordion'); ?>
 							<p><?php echo Text::_( 'XBJOURNALS_ABOUT_INFO' ); ?></p>
@@ -245,70 +290,6 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 					</div>		
 				</div>
 			</div>	
-			<div class="row-fluid">
-            	<div class="span6">
-					<div class="xbbox gradcat">
-						<h3 class="xbtitle">
-							<span class="badge badge-info pull-right"><?php //echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
-							<a href="index.php?option=com_xbjournals&view=catslist"><?php echo Text::_('XBJOURNALS_CATEGORIES'); ?></a>
-						</h3>
-        				<div class="row-striped">
-        					<div class="row-fluid">
-        						<div class="span6">
-        							<span class="badge badge-success xbmr10"><?php echo $this->catStates['published']; ?></span>
-        							<?php echo Text::_('XBJOURNALS_PUBLISHED'); ?>
-        						</div>
-        						<div class="span6">
-        							<span class="badge <?php echo $this->catStates['unpublished']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->catStates['unpublished']; ?></span>
-        							<?php echo Text::_('XBJOURNALS_UNPUBLISHED'); ?>
-        						</div>
-        					</div>
-         					<div class="row-fluid">
-        						<div class="span6">
-        							<span class="badge <?php echo $this->catStates['archived']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->catStates['archived']; ?></span>
-        							<?php echo Text::_('XBJOURNALS_ARCHIVED'); ?>
-        						</div>
-        						<div class="span6">
-        							<span class="badge <?php echo $this->catStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->catStates['trashed']; ?></span>
-        							<?php echo Text::_('XBJOURNALS_TRASHED'); ?>
-        						</div>
-        					</div>
-                         </div>
-                         <h3 class="xbsubtitle"><?php  echo Text::_('XBJOURNALS_COUNT_CATS'); ?></h3>
-                         <div class="row-striped">
-        					<div class="row-fluid">
-        						    <?php echo $this->catlist; ?>
-        					</div>
-        				</div>
-					</div>            			
-            	</div>
-            	<div class="span6">
-        			<div class="xbbox gradtag">
-        				<h3 class="xbtitle">
-        					<span class="badge badge-info pull-right"><?php echo ('0') ; ?></span> 
-        					<a href="index.php?option=com_xbjournals&view=tagslist"><?php echo Text::_('XBJOURNALS_TAGS'); ?></a>
-        				</h3>
-        				<div class="row-striped">
-        					<div class="row-fluid">
-                              <?php echo 'Journal Entries: ';
-        						echo '<span class="bkcnt badge  pull-right">'.$this->tags['journals'].'</span>'; ?>
-                            </div>  
-                            <div class="row-fluid">
-                              <?php echo 'Notebook entries: ';
-        						echo '<span class="percnt badge pull-right">'.$this->tags['notes'].'</span>'; ?>
-                            </div>  
-                         </div>
-        				 <h3 class="xbsubtitle"><?php echo Text::_('XBJOURNALS_COUNT_TAGS'); ?></h3>
-                          <div class="row-fluid">
-                             <div class="row-striped">
-            					<div class="row-fluid">
-            						<?php echo $this->taglist; ?>
-                               </div>
-                             </div>
-            			</div>
-	        		</div>
-            	</div>
-            </div>
 		</div>
 
 	<input type="hidden" name="task" value="" />

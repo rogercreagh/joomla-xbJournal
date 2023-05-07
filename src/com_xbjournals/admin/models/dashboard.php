@@ -83,10 +83,17 @@ class XbjournalsModelDashboard extends JModelList {
         return array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0);
     }
     
+    public function getCatCnts() {
+        $result = array('journals' => 0, 'notes' =>0 );
+        
+        return $result;
+        
+    }
+    
     public function getTagCnts() {
         $result = array('journals' => 0, 'notes' =>0 );
         
-       return $result;
+        return $result;
         
     }
     

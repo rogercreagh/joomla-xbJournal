@@ -23,7 +23,7 @@
         />
   		<field name="copy_remote" type="radio"
 			label="Save remote attachments"
-			description="If 'yes' remote url attachments will be copied here and the local copy used for display. The original url will be restored back to the server on sync."
+			description="If 'No' then only embedded attachments will be decoded and saved locally for access. If 'Yes' then remote url attachments will be copied here and the local copy used for display. The original url will be restored back to the server on sync."
  			class="btn-group btn-group-yesno"
 			default="0"
 			>
@@ -66,16 +66,16 @@
 			label="XBJOURNALS_SIMPLECALDAV"
 			description="XBJOURNALS_SIMPLECALDAV_DESC"
 		/>
-		<field name="jtxbnote" type="note"
-			label="XBJOURNALS_JTXBOARD"
-			description="XBJOURNALS_JTXBOARD_DESC"
-		/>
 		<field name="parsedownnote" type="note"
 			label="XBJOURNALS_PARSEDOWN"
 			description="XBJOURNALS_PARSEDOWN_DESC"
 		/>
 		<field name="otheritemsnote" type="note"
 			label="XBJOURNALS_OTHER_ITEMS"
+		/>
+		<field name="jtxbnote" type="note"
+			label="XBJOURNALS_JTXBOARD"
+			description="XBJOURNALS_JTXBOARD_DESC"
 		/>
 		<field name="nextcloudbnote" type="note"
 			label="XBJOURNALS_NEXTCLOUD"
