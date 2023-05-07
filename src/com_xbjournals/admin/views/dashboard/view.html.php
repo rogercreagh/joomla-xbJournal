@@ -21,10 +21,10 @@ class XbjournalsViewDashboard extends JViewLegacy {
     
     public function display($tpl = null) {    
  
-        $this->params = ComponentHelper::getParams('com_xbjournals');
+        $params = ComponentHelper::getParams('com_xbjournals');
         $this->savedata = $params->get('savedata',1);
         $this->copy_remote = $params->get('copy_remote',1);
-        $this->savedata = $params->get('attach_path','');        
+        $this->attach_path = $params->get('attach_path','');        
         
         $this->cats = $this->get('CatCnts');        
         $this->tags = $this->get('TagCnts');

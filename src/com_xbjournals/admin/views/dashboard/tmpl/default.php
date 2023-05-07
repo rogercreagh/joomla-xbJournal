@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.2.0 5th May 2023
+ * @version 0.0.2.1 7th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -48,25 +48,25 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             		<div class="row-fluid">
             			<div class="span12">
         					<div class="xbbox gradmag">
-								<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
+        						<p>
+        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. count($this->servers); ?></span> 
+        							<b><?php echo Text::_('XBJOURNALS_SERVERS'); ?></b>
+        						</p>
                             	<?php if (empty($this->servers)) : ?>
                             		<div class="alert alert-no-items">
                             			<?php echo Text::_('No server records found'); ?>
                             		</div>
                             	<?php else : ?>
-                            		<?php $scnt = count($this->servers); ?>
-                            		<p><?php echo $scnt; ?> <?php  echo ($scnt == 1) ? Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVERS');
-                                		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
                             		<?php foreach ($this->servers as $i => $item) :
                                         $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
                                         $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                                                 || $item->checked_out==$userId || $item->checked_out==0;
-                        				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.map.'.$item->id) && $item->created_by == $userId;
-                                        $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.map.'.$item->id) && $canCheckin;
+                        				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.server.'.$item->id) && $item->created_by == $userId;
+                                        $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.server.'.$item->id) && $canCheckin;
                         			?>                           	
-                            			<div class="pull-left btn-group">
-											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'server.', false, 'cb'); ?>
-										</div>
+                            			<div class="pull-left btn-group xbmb8">
+    										<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'server.', false, 'cb'); ?>
+    									</div>
                                         <div class="pull-left" style="width:200px;margin-left:20px;">
                                				<?php if ($canEdit || $canEditOwn) : ?>
                                 				<a href="<?php echo Route::_($servereditlink.$item->id);?>"
@@ -91,23 +91,21 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             		<div class="row-fluid">
             			<div class="span12">
         					<div class="xbbox gradpink">
-                            	<h4><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h4>
-                            
+        						<p>
+        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. count($this->calendars); ?></span> 
+        							<b><?php echo Text::_('XBJOURNALS_CALENDARS'); ?></b>
+        						</p>
                             	<?php if (empty($this->calendars)) : ?>
                             		<div class="alert alert-no-items">
                             			<?php echo Text::_('No calendar records found'); ?>
                             		</div>
                             	<?php else : ?>
-                            		<?php $ccnt = count($this->calendars); ?>
-                            		<p>
-                            		<?php echo $ccnt; ?> <?php  echo ($ccnt == 1) ? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
-                            		  echo ' '.Text::_('XBJOURNALS_FOUND'); ?></p>
                             		<?php foreach ($this->calendars as $i => $item) :
                                             $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
                              				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
                                             $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
                             			?>
-                                			<div class="pull-left btn-group">
+                                			<div class="pull-left btn-group xbmb8">
     											<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'calendar.', false, 'cb'); ?>
     										</div>
                                             <div class="pull-left" style="width:200px;margin-left:20px;">
@@ -135,10 +133,8 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                                 			<?php endif; ?>	
                                 			<div class="clearfix"></div>
                             		<?php endforeach; ?> 
-                            	<?php endif; ?>	  
-                            	
-        					</div>
-            			
+                            	<?php endif; ?>	                             	
+        					</div>           			
             			</div>
             		</div>
             		<div class="row-fluid">
@@ -146,7 +142,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         					<div class="xbbox gradcyan">
         						<p>
         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->journalStates['total']; ?></span> 
-        							<b><?php echo ucfirst(Text::_('XBJOURNALS_JOURNAL_ENTRIES')); ?></b>
+        							<b><?php echo Text::_('XBJOURNALS_JOURNAL_ENTRIES'); ?></b>
         						</p>
         						<div class="row-striped">
         							<div class="row-fluid">
@@ -208,10 +204,10 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         			<div class="row-fluid">
                     	<div class="span6">
         					<div class="xbbox gradcat">
-        						<h3 class="xbtitle">
-        							<span class="badge badge-cat pull-right"><?php //echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
+        						<p>
+        							<span class="badge badge-cat pull-right"><?php echo '0'; //echo Text::_('XBJOURNALS_TOTAL').' '. $this->calendarStates['total']; ?></span> 
         							<a href="index.php?option=com_xbjournals&view=catslist"><?php echo Text::_('XBJOURNALS_CATEGORIES'); ?></a>
-        						</h3>
+        						</p>
                 				<div class="row-striped">
                 					<div class="row-fluid">
                                       <?php echo Text::_('XBJOURNALS_JOURNAL_CATS').': ';
@@ -226,10 +222,10 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
                     	</div>
                     	<div class="span6">
                 			<div class="xbbox gradtag">
-                				<h3 class="xbtitle">
-                					<span class="badge badge-tag pull-right"><?php echo ('0') ; ?></span> 
+                				<p>
+                					<span class="badge badge-tag pull-right"><?php echo '0' ; ?></span> 
                 					<a href="index.php?option=com_xbjournals&view=tagslist"><?php echo Text::_('XBJOURNALS_TAGS'); ?></a>
-                				</h3>
+                				</p>
                 				<div class="row-striped">
                 					<div class="row-fluid">
                                       <?php echo Text::_('XBJOURNALS_JOURNAL_TAGS').': ';
