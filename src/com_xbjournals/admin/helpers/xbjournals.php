@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.2.0 1st May 2023
+ * @version 0.0.3.0 8th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -61,6 +61,16 @@ class XbjournalsHelper extends ContentHelper
 		    Text::_('XBJOURNALS_ICONMENU_CALENDARS'),
 		    'index.php?option=com_xbjournals&view=calendars',
 		    $vName == 'calendars'
+		    );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBJOURNALS_ICONMENU_JOURNALS'),
+		    'index.php?option=com_xbjournals&view=journals',
+		    $vName == 'journals'
+		    );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBJOURNALS_ICONMENU_NOTEBOOKS'),
+		    'index.php?option=com_xbjournals&view=notebooks',
+		    $vName == 'notebooks'
 		    );
 	}
     
@@ -705,5 +715,14 @@ class XbjournalsHelper extends ContentHelper
 	    return $header;
 	}
 	
+	/**
+	 * @name doError()
+	 * @desc reports error to user without throwing exception- use for admin db errors in try..catch
+	 * @param string $message
+	 * @param Exception $e
+	 */
+	function doError(string $message, Exception $e) {
+	    Factory::getApplication()->enqueueMessage($message.'<br />' .$e->getMessage().' ('.$e->getCode().')','Error');
+	}
 	
 }
