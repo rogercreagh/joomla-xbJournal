@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbJournals Compnent
- * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.0.1.2 23rd April 2023
+ * @filesource admin/views/journals/tmpl/default.php
+ * @version 0.0.3.2 8th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -39,6 +39,8 @@ if ($saveOrder) {
 
 $itemeditlink='index.php?option=com_xbjournals&view=journal&task=journal.edit&id=';
 $caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&id=';
+$catviewlink='';
+$tagviewlink='';
 
 ?>
 <form action="<?php echo Route::_('index.php?option=com_xbjournals&view=journals'); ?>" method="post" name="adminForm" id="adminForm">
@@ -110,7 +112,7 @@ $caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&i
 					<th>
 						<?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?>
 					</th>
-					<th>cats&tags
+					<th>
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_JOOMLA_CATEGORY','category_title',$listDirn,$listOrder ).' &amp; ';						
 						echo Text::_( 'XBJOURNALS_TAGS' ); ?>
 					</th>
@@ -122,8 +124,105 @@ $caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&i
 					</th>
 			</thead>
 			<tbody>
+			<?php
+			foreach ($this->items as $i => $item) :
+                $canEdit    = $user->authorise('core.edit', 'com_xbfilms.film.'.$item->id);
+                $canCheckin = $user->authorise('core.manage', 'com_checkin') 
+                                        || $item->checked_out==$userId || $item->checked_out==0;
+				$canEditOwn = $user->authorise('core.edit.own', 'com_xbfilms.film.'.$item->id) && $item->created_by == $userId;
+                $canChange  = $user->authorise('core.edit.state', 'com_xbfilms.film.'.$item->id) && $canCheckin;
+                
+			?>
+				<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
+					<td class="order nowrap center hidden-phone">
+                        <?php
+                            $iconClass = '';
+                            if (!$canChange) {
+                                $iconClass = ' inactive';
+                            } elseif (!$saveOrder) {
+                                $iconClass = ' inactive tip-top hasTooltip" title="' . HTMLHelper::tooltipText('JORDERINGDISABLED');
+                            }
+                        ?>
+                        <span class="sortable-handler<?php echo $iconClass; ?>">
+                        	<span class="icon-menu" aria-hidden="true"></span>
+                        </span>
+                        <?php if ($canChange && $saveOrder) : ?>
+							<input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering; ?>" class="width-20 text-area-order " />
+                        <?php endif; ?>
+					</td>
+					<td class="center hidden-phone">
+						<?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
+					</td>
+					<td class="center">
+						<div class="btn-group">
+							<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'film.', $canChange, 'cb'); ?>
+							<?php if ($item->note!=""){ ?>
+								<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.Text::_( 'XBCULTURE_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
+									<i class="icon-info xbinfo"></i>
+								</span>
+							<?php } else {?>
+								<span class="btn btn-micro inactive" style="visibility:hidden;" title=""><i class="icon-info"></i></span>
+							<?php } ?>
+						</div>
+					</td>
+					<td>
+						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title.' - '.Text::_('XBJOURNALS_JOURNAL'); ?></a>
+						</p> 
+					</td>
+					<td>
+						<p>
+						<?php if ($item->checked_out) {
+						    $couname = Factory::getUser($item->checked_out)->username;
+						    echo HTMLHelper::_('jgrid.checkedout', $i, Text::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'journal.', $canCheckin);
+						} ?>
+						<?php if ($canEdit || $canEditOwn) : ?>
+							<a href="<?php echo Route::_($itemeditlink.$item->id);?>"
+								title="<?php echo Text::_('XBJOURNALS_EDIT_ITEM'); ?>" >
+								<b><?php echo $this->escape($item->title); ?></b>
+							</a>
+						<?php else : ?>
+							<?php echo $this->escape($item->title); ?>
+						<?php endif; ?>
+						</p>
+					</td>
+					<td>
+						<?php if($item->dtstart) {
+						  echo HtmlHelper::date($item->dtstart,'D jS M Y');                      
+                        } ?>
+						
+					</td>
+					<td>
+						
+					</td>
+					<td>
+						<?php if($item->catid) : ?>
+    						<p><a class="label label-cat" href="<?php echo $catviewlink.$item->catid; ?>" 
+        							title="<?php echo $item->category_title; ?>">
+        								<?php echo $item->category_title; ?>
+        							</a>
+    						</p>
+    					<?php endif; ?>
+						<?php if($item->tags) : ?>						
+    						<ul class="inline">
+    						<?php foreach ($item->tags as $t) : ?>
+    							<li><a href="<?php echo $tagviewlink.$t->id; ?>" class="label label-tags">
+    								<?php echo $t->title; ?></a>
+    							</li>												
+    						<?php endforeach; ?>
+    						</ul>	
+    					<?php endif; ?>					    											
+					</td>
+					<td>
+						<?php if($item->dtstamp) {
+						  echo HtmlHelper::date($item->dtstamp , 'd M Y H:i');                      
+                        } ?>
+					</td>
+					<td class="center hidden-phone">
+						<?php echo $item->id; ?>
+					</td>					
+				</tr>
+			<?php endforeach; ?>				
 			</tbody>
-
 		</table>	
 	<?php endif; ?>
 	

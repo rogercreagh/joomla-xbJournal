@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journals.php
- * @version 0.0.3.0 8th May 2023
+ * @version 0.0.3.2 8th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -37,11 +37,15 @@ class XbjournalsModelJournals extends JModelList {
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
         $query->select('(SELECT COUNT(*) FROM #__xbjournals_vjournal_attachments AS at WHERE at.entry_id = a.id) AS atcnt' );
             
-        $query->from('#__xbjournals_journal_entries AS a');
-            
-        $query->leftJoin('#__xbjournals_calendars AS c ON c.id = a.calendar_id');
-        $query->select('c.title AS cal_title');
-        $query->where('a.entry_type == '.$db->q('Journal'));
+        $query->from('#__xbjournals_vjournal_entries AS a');
+        
+        $query->join('LEFT', '#__categories AS cat ON cat.id = a.catid');
+        $query->select('cat.title AS category_title');
+        
+        $query->leftJoin('#__xbjournals_calendars AS cal ON cal.id = a.calendar_id');
+        $query->select('cal.title AS cal_title');
+        $query->where('a.entry_type = '.$db->q('Journal'));
+        
         //filter on published state
         //filter on category
         //filter on vjournal allowed
@@ -58,6 +62,10 @@ class XbjournalsModelJournals extends JModelList {
     public function getItems() {
         $items  = parent::getItems();
         if ($items) {
+            foreach ($items as $item) {
+                $item->tags = '';
+                
+            }
         }
         return $items;
     }

@@ -16,7 +16,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 
-class XbjournalsViewCalendars extends JViewLegacy {
+class XbjournalsViewJournals extends JViewLegacy {
     
     public function display($tpl = null) {    
  
@@ -24,7 +24,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
         
-        $this->jcnt = sizeof(array_column($this->items, null, 'calendar_id'));;
+        $this->jcnt = 1; //sizeof(array_column($this->items, null, 'calendar_id'));;
 //        $this->filterForm = $this->get('FilterForm');
 //        $this->activeFilters = $this->get('ActiveFilters');
         
