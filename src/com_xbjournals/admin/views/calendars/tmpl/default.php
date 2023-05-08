@@ -34,7 +34,7 @@ $saveOrder      = $listOrder == 'ordering';
 $canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
 if ($saveOrder) {
     $saveOrderingUrl = 'index.php?option=com_xbjournals&task=calendars.saveOrderAjax&tmpl=component';
-    HTMLHelper::_('sortablelist.sortable', 'xbjournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
+    HTMLHelper::_('sortablelist.sortable', 'xbjournalsCalendarsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 
 $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
@@ -50,7 +50,7 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 	<div class="pull-right span2">
 		<p style="text-align:right;">
 			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. JText::_(($fnd==1)?'XBJOURNALS_CALENDAR':'XBJOURNALS_CALENDARS').' '.JText::_('XBJOURNALS_FOUND');
+			echo $fnd .' '. Text::_(($fnd==1)?'XBJOURNALS_CALENDAR':'XBJOURNALS_CALENDARS').' '.Text::_('XBJOURNALS_FOUND');
             ?>
 		</p>
 	</div>
@@ -73,7 +73,7 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
-		<table class="table table-striped table-hover" id="xbjournalsServers">	
+		<table class="table table-striped table-hover" id="xbjournalsCalendarsList">	
 			<thead>
 				<tr>
 					<th class="nowrap center hidden-phone" style="width:25px;">
@@ -162,7 +162,7 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 						<?php echo $this->escape($item->title); ?>
 					<?php endif; ?>
                     <br />                        
-					<?php $alias = JText::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
+					<?php $alias = Text::sprintf('JGLOBAL_LIST_ALIAS', $this->escape($item->alias));?>
                     	<span class="xbnit xb08"><?php echo $alias;?></span>
 					</p>
 				</td>
@@ -205,12 +205,6 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 		</table>
 	
 	<?php endif; ?>
-
-        <?php 
-//        echo '<pre>'.print_r($this->journalitems,true).'</pre>';
-        
-//        echo '<pre>'.print_r($this->notes,true).'</pre>';
-        ?>
 	</div>
 	<?php echo $this->pagination->getListFooter(); ?>
 	<input type="hidden" name="task" value="" />

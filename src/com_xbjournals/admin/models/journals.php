@@ -29,17 +29,19 @@ class XbjournalsModelJournals extends JModelList {
         $query = $db->getQuery(true);
         
         $query->select('a.id AS id, a.title AS title, a.alias AS alias, a.calendar_id AS calendar_id,'
+            .'a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp,'
             .'a.description AS description, a.state AS published, a.access AS access, a.catid AS catid,'
 			.'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
 			.'a.modified AS modified, a.modified_by AS modified_by,'
             .'a.checked_out AS checked_out, a.checked_out_time AS checked_out_time,'
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
-        $query->select('(SELECT COUNT(*) FROM #__xbjournals_vjournal_entries AS e WHERE e.calendar_id = a.id) AS ecnt' );
+        $query->select('(SELECT COUNT(*) FROM #__xbjournals_vjournal_attachments AS at WHERE at.entry_id = a.id) AS atcnt' );
             
         $query->from('#__xbjournals_journal_entries AS a');
             
         $query->leftJoin('#__xbjournals_calendars AS c ON c.id = a.calendar_id');
         $query->select('c.title AS cal_title');
+        $query->where('a.entry_type == '.$db->q('Journal'));
         //filter on published state
         //filter on category
         //filter on vjournal allowed

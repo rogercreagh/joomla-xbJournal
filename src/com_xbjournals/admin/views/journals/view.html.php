@@ -23,6 +23,8 @@ class XbjournalsViewCalendars extends JViewLegacy {
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
+        
+        $this->jcnt = sizeof(array_column($this->items, null, 'calendar_id'));;
 //        $this->filterForm = $this->get('FilterForm');
 //        $this->activeFilters = $this->get('ActiveFilters');
         
@@ -53,7 +55,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
 //        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
-        ToolbarHelper::custom('calendars.getJournalItems', 'file-plus', '', 'Get Items from Server', true) ;
+//        ToolbarHelper::custom('calendars.getJournalItems', 'file-plus', '', 'Get Items from Server', true) ;
         //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }

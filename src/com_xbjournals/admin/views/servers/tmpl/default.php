@@ -34,7 +34,7 @@ $saveOrder      = $listOrder == 'ordering';
 $canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
 if ($saveOrder) {
     $saveOrderingUrl = 'index.php?option=com_xbjournals&task=servers.saveOrderAjax&tmpl=component';
-    HTMLHelper::_('sortablelist.sortable', 'xbjournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
+    HTMLHelper::_('sortablelist.sortable', 'xbjournalsServersList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 
 $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id=';
@@ -73,7 +73,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
-		<table class="table table-striped table-hover" id="xbjournalsServers">	
+		<table class="table table-striped table-hover" id="xbjournalsServersList">	
 			<thead>
 				<tr>
 					<th class="nowrap center hidden-phone" style="width:25px;">
