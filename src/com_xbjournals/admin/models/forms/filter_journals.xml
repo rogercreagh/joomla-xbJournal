@@ -10,6 +10,56 @@
 			hint="JSEARCH_FILTER"
 			class="js-stools-search-string"
 		/>
+		<field
+			name="journal"
+			type="journals"
+			label="XBJOURNALS_JOURNAL"
+			description="XBJOURNALS_JOURNAL_FILTER_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">XBJOURNALS_SELECT_JOURNAL</option>
+		</field>
+		<field
+			name="published"
+			type="status"
+			label="COM_CONTENT_FILTER_PUBLISHED"
+			description="COM_CONTENT_FILTER_PUBLISHED_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+		<field
+			name="category_id" type="xbitemcats"
+			label="JOPTION_FILTER_CATEGORY"
+			description="JOPTION_FILTER_CATEGORY_DESC"
+			extension="com_xbjournals"
+			itemtable="#__xbjournals_vjournal_entries"
+			multiple="true"
+			class="multipleCats"
+			onchange="this.form.submit();"
+			>
+		</field>
+		<field
+			name="tagfilt"
+			type="tag"
+			label="JOPTION_FILTER_TAG"
+			description="JOPTION_FILTER_TAG_DESC"
+			multiple="true"
+			class="multipleTags"
+			mode="nested"
+			onchange="this.form.submit();"
+		/>
+		<field name="taglogic"
+			type="radio"
+			default="0"
+			label="XBJOURNALS_MULTITAG_LABEL"
+			description="XBJOURNALS_MULTITAG_DESC"
+  			class="btn-group btn-small radiotop"
+		>
+			<option value="1" onchange="this.form.submit();">XBJOURNALS_ALL</option>
+			<option value="0" onchange="this.form.submit();">XBJOURNALS_ANY</option>
+			<option value="2" onchange="this.form.submit();">XBJOURNALS_EXCLUDE</option>
+		</field>	
 	</fields>
 	<fields name="list">
   		<field name="fullordering" type="hidden" default="" />

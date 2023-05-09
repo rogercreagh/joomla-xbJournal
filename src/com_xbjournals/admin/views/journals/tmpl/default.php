@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/journals/tmpl/default.php
- * @version 0.0.3.2 8th May 2023
+ * @version 0.0.3.3 9th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -185,6 +185,7 @@ $tagviewlink='';
 						<?php else : ?>
 							<?php echo $this->escape($item->title); ?>
 						<?php endif; ?>
+						<br /><span class="xb09">alias:<?php echo $item->alias; ?></span>
 						</p>
 					</td>
 					<td>
@@ -194,7 +195,7 @@ $tagviewlink='';
 						
 					</td>
 					<td>
-						
+						<?php echo $item->atts;?>
 					</td>
 					<td>
 						<?php if($item->catid) : ?>
