@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
  use Joomla\CMS\Factory;
  use Joomla\CMS\Filter\OutputFilter;
+ use Joomla\Utilities\ArrayHelper;
  // use Joomla\CMS\Component\ComponentHelper;
 // use Joomla\CMS\Toolbar\Toolbar;
 // use Joomla\CMS\Toolbar\ToolbarHelper;
@@ -19,9 +20,20 @@ defined('_JEXEC') or die;
 
 class XbjournalsModelJournals extends JModelList {
     
-    public function __construct() {
-        
-        parent::__construct();
+    public function __construct($config = array()) {
+        if (empty($config['filter_fields'])) {
+            $config['filter_fields'] = array(
+                'id', 'a.id', 'title', 'a.title',
+                'cal.title', 'cal_title', 'a.dtstart', 'dtstart', 'a.dtstamp', 'dtstamp',
+                'ordering','a.ordering', 'category_title', 'cat.title',
+                'catid', 'a.catid', 'category_id', 
+                'published','a.state');
+        }
+        parent::__construct($config);
+    }
+    
+    protected function populateState($ordering = 'id', $direction = 'desc') {
+        parent::populateState($ordering, $direction);
     }
     
     protected function getListQuery() {

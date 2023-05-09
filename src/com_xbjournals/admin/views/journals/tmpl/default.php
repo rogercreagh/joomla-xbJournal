@@ -16,8 +16,12 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Uri\Uri;
+
 
 HTMLHelper::_('behavior.multiselect');
+HTMLHelper::_('formbehavior.chosen', '.multipleTags', null, array('placeholder_text_multiple' => Text::_('XBJOURNALS_SELECT_TAGS')));
+HTMLHelper::_('formbehavior.chosen', '.multipleCats', null, array('placeholder_text_multiple' => Text::_('XBJOURNALS_SELECT_CATS')));
 HTMLHelper::_('formbehavior.chosen', 'select');
 
 $user = Factory::getUser();
@@ -26,7 +30,7 @@ $userId = $user->get('id');
 $listOrder     = $this->escape($this->state->get('list.ordering'));
 $listDirn      = $this->escape(strtolower($this->state->get('list.direction')));
 if (!$listOrder) {
-    $listOrder='title';
+    $listOrder=' title';
     $listDirn = 'ascending';
 }
 
@@ -50,26 +54,24 @@ $tagviewlink='';
 	</div>
 	<div id="j-main-container" >
 		<h3><?php echo Text::_( 'XBJOURNALS_JOURNAL_ENTRIES' ); ?></h3>
-	<div class="pull-right span2">
-		<p style="text-align:right;">
-			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. Text::_(($fnd==1) ? 'XBJOURNALS_ENTRY':'XBJOURNALS_ENTRIES').' '.Text::_('XBJOURNALS_FOUND_IN');
-			echo ' '.$this->jcnt. Text::_(($this->jcnt==1) ? 'XBJOURNALS_JOURNAL':'XBJOURNALS_JOURNALS');
-            ?>
-		</p>
-	</div>
-	<div class="clearfix"></div>
-	
-	<div class="pagination">
-		<?php  echo $this->pagination->getPagesLinks(); ?>
-		<br />
-	    <?php //echo 'sorted by '.$orderNames[$listOrder].' '.$listDirn ; ?>
-	</div>
-	<?php // Search tools bar
-//        echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
-    ?>
-	<div class="clearfix"></div>
 
+		<?php // Search tools bar
+            echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
+        ?>	
+        <div class="pull-right pagination xbm0">
+    		<?php  echo $this->pagination->getPagesLinks(); ?>
+    	</div>
+    
+    	<div class="pull-left">
+    		<?php  echo $this->pagination->getResultsCounter(); ?> 
+          <?php if($this->pagination->pagesTotal > 1) echo ' on '.$this->pagination->getPagesCounter(); ?>
+    		<p>
+              
+                <?php echo 'Sorted by '.$listOrder.' '.$listDirn ; ?>
+    		</p>
+    	</div>
+              
+              
 	<?php if (empty($this->items)) : ?>
 		<div class="alert alert-no-items">
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
@@ -126,11 +128,11 @@ $tagviewlink='';
 			<tbody>
 			<?php
 			foreach ($this->items as $i => $item) :
-                $canEdit    = $user->authorise('core.edit', 'com_xbfilms.film.'.$item->id);
+                $canEdit    = $user->authorise('core.edit', 'com_xbjournals.journal.'.$item->id);
                 $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                         || $item->checked_out==$userId || $item->checked_out==0;
-				$canEditOwn = $user->authorise('core.edit.own', 'com_xbfilms.film.'.$item->id) && $item->created_by == $userId;
-                $canChange  = $user->authorise('core.edit.state', 'com_xbfilms.film.'.$item->id) && $canCheckin;
+				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.journal.'.$item->id) && $item->created_by == $userId;
+                $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.journal.'.$item->id) && $canCheckin;
                 
 			?>
 				<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
@@ -155,9 +157,9 @@ $tagviewlink='';
 					</td>
 					<td class="center">
 						<div class="btn-group">
-							<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'film.', $canChange, 'cb'); ?>
+							<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'journal.', $canChange, 'cb'); ?>
 							<?php if ($item->note!=""){ ?>
-								<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.Text::_( 'XBCULTURE_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
+								<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.Text::_( 'XBJOURNALS_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
 									<i class="icon-info xbinfo"></i>
 								</span>
 							<?php } else {?>

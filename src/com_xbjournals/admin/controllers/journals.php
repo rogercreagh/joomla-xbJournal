@@ -13,9 +13,10 @@ use Joomla\CMS\Factory;
 
 class XbjournalsControllerJournals extends JControllerAdmin {
 	
-	public function getModel($name = 'Journal', $prefix = 'XbjournalsModel', $config = array('ignore_request' => true)) {
-				$model = parent::getModel($name, $prefix, $config );
-				return $model;
+	public function getModel($name = 'Journal', $prefix = 'XbjournalsModel', 
+	       $config = array('ignore_request' => true)) {
+		$model = parent::getModel($name, $prefix, $config );
+		return $model;
 	}
 		
 }
