@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/filter_journals.xml v0.0.3.2 9th May 2023 -->
+<!-- xbJournals admin/models/forms/filter_notes.xml v0.0.4.0 10th May 2023 -->
 <form>
 	<fields name="filter" addfieldpath="administrator/components/com_xbjournals/models/fields">
 		<field
@@ -11,13 +11,13 @@
 			class="js-stools-search-string"
 		/>
 		<field
-			name="journal"
-			type="journals"
-			label="XBJOURNALS_JOURNAL"
-			description="XBJOURNALS_JOURNAL_FILTER_DESC"
+			name="notebook"
+			type="notebooks"
+			label="XBJOURNALS_NOTEBOOK"
+			description="XBJOURNALS_NOTEBOOK_FILTER_DESC"
 			onchange="this.form.submit();"
 			>
-			<option value="">XBJOURNALS_SELECT_JOURNAL</option>
+			<option value="">XBJOURNALS_SELECT_NOTEBOOK</option>
 		</field>
 		<field
 			name="published"
@@ -39,7 +39,8 @@
 			onchange="this.form.submit();"
 			>
 		</field>
-		<field name="spacer" type="spacer"
+		<field
+			name="spacer" type="spacer"
 		/>
 		<field
 			name="tagfilt"

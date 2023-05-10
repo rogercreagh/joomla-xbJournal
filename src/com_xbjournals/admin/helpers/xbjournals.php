@@ -69,8 +69,8 @@ class XbjournalsHelper extends ContentHelper
 		    );
 		JHtmlSidebar::addEntry(
 		    Text::_('XBJOURNALS_ICONMENU_NOTEBOOKS'),
-		    'index.php?option=com_xbjournals&view=notebooks',
-		    $vName == 'notebooks'
+		    'index.php?option=com_xbjournals&view=notes',
+		    $vName == 'notes'
 		    );
 	}
     

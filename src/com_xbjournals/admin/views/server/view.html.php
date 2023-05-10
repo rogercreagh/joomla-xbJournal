@@ -51,13 +51,13 @@ class XbjournalsViewServer extends JViewLegacy {
         $isNew = ($this->item->id == 0);
         
         if ($isNew) {
-            $title = Text::_('XBJOURNALS_ADMIN_NEWSERVER');
+            $title = Text::_('XBJOURNALS_ADMIN_NEWSERVER_TITLE');
         } elseif ($checkedOut) {
-            $title = Text::_('XBJOURNALS_ADMIN_VIEWSERVER');
+            $title = Text::_('XBJOURNALS_ADMIN_VIEWSERVER_TITLE');
         } else {
-            $title = Text::_('XBJOURNALS_ADMIN_EDITSERVER');
+            $title = Text::_('XBJOURNALS_ADMIN_EDITSERVER_TITLE');
         }
-        ToolBarHelper::title($title, '');
+        ToolBarHelper::title($title, 'icon-database');
         
         ToolbarHelper::apply('server.apply');
         ToolbarHelper::save('server.save');
@@ -75,7 +75,7 @@ class XbjournalsViewServer extends JViewLegacy {
     protected function setDocument()
     {
         $document = Factory::getDocument();
-        $document->setTitle(strip_tags(($this->item->id == 0) ? Text::_('XBJOURNALS_ADMIN_NEWSERVER') : Text::_('XBJOURNALS_ADMIN_EDITSERVER')));
+        $document->setTitle(strip_tags(($this->item->id == 0) ? Text::_('XBJOURNALS_ADMIN_NEWSERVER_TITLE') : Text::_('XBJOURNALS_ADMIN_EDITSERVER_TITLE')));
     }
     
 }

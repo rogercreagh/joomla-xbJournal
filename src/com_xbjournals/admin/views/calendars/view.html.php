@@ -47,7 +47,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
     protected function addToolbar() {
         $canDo = XbjournalsHelper::getActions();
         
-        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_CALENDARS' ), 'screen' );
+        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_CALENDARS_TITLE' ), 'screen' );
         
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
@@ -87,7 +87,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
     
     protected function setDocument() {
         $document = Factory::getDocument();
-        $document->setTitle(Text::_('XBJOURNALS_ADMIN_CALENDARS'));
+        $document->setTitle(Text::_('XBJOURNALS_ADMIN_CALENDARS_TITLE'));
     }
     
     

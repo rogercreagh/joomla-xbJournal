@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbJournals Compnent
- * @filesource admin/views/journals/tmpl/default.php
- * @version 0.0.3.3 9th May 2023
+ * @filesource admin/views/notes/tmpl/default.php
+ * @version 0.0.4.0 10th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -37,23 +37,23 @@ if (!$listOrder) {
 $saveOrder      = $listOrder == 'ordering';
 $canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
 if ($saveOrder) {
-    $saveOrderingUrl = 'index.php?option=com_xbjournals&task=journals.saveOrderAjax&tmpl=component';
-    HTMLHelper::_('sortablelist.sortable', 'xbjournalsJournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
+    $saveOrderingUrl = 'index.php?option=com_xbjournals&task=notes.saveOrderAjax&tmpl=component';
+    HTMLHelper::_('sortablelist.sortable', 'xbjournalsNotesList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 
-$itemeditlink='index.php?option=com_xbjournals&view=journal&task=journal.edit&id=';
+$itemeditlink='index.php?option=com_xbjournals&view=note&task=note.edit&id=';
 $caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&id=';
 $catviewlink='';
 $tagviewlink='';
 
 ?>
-<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=journals'); ?>" method="post" name="adminForm" id="adminForm">
+<form action="<?php echo Route::_('index.php?option=com_xbjournals&view=notes'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
 	<div id="j-sidebar-container">
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h3><?php echo Text::_( 'XBJOURNALS_JOURNAL_ENTRIES' ); ?></h3>
+		<h3><?php echo Text::_( 'XBJOURNALS_NOTEBOOK_ENTRIES' ); ?></h3>
 
 		<?php // Search tools bar
             echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
@@ -77,7 +77,7 @@ $tagviewlink='';
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
-		<table class="table table-striped table-hover" id="xbjournalsJournalsList">	
+		<table class="table table-striped table-hover" id="xbjournalsNotesList">	
 			<colgroup>
 				<col class="hidden-phone" style="width:25px;"><!-- ordering -->
 				<col class="hidden-phone" style="width:25px;"><!-- checkbox -->
@@ -109,7 +109,7 @@ $tagviewlink='';
 						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_TITLE', 'title', $listDirn, $listOrder); ?>
 					</th>
 					<th>
-						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_DATE','dtstart',$listDirn,$listOrder); ?>
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_CREATED','created',$listDirn,$listOrder); ?>
 					</th>
 					<th>
 						<?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?>
@@ -168,7 +168,7 @@ $tagviewlink='';
 						</div>
 					</td>
 					<td>
-						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title.' - '.Text::_('XBJOURNALS_JOURNAL'); ?></a>
+						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title.' - '.Text::_('XBJOURNALS_NOTEBOOK'); ?></a>
 						</p> 
 					</td>
 					<td>
@@ -189,8 +189,8 @@ $tagviewlink='';
 						</p>
 					</td>
 					<td>
-						<?php if($item->dtstart) {
-						  echo HtmlHelper::date($item->dtstart,'D jS M Y');                      
+						<?php if($item->created) {
+						  echo HtmlHelper::date($item->created,'D jS M Y');                      
                         } ?>
 						
 					</td>

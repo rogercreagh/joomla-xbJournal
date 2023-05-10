@@ -95,7 +95,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
     protected function addToolbar() {
         $canDo = XbjournalsHelper::getActions();
         
-        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_DASHBOARD' ), 'screen' );
+        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_DASHBOARD_TITLE' ), 'info-2' );
         
         if ($canDo->get('core.create') > 0) {
             ToolbarHelper::addNew('server.add','New Server');
@@ -133,7 +133,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
     
     protected function setDocument() {
         $document = Factory::getDocument();
-        $document->setTitle(Text::_('XBJOURNALS_ADMIN_DASHBOARD'));
+        $document->setTitle(Text::_('XBJOURNALS_ADMIN_DASHBOARD_TITLE'));
     }
     
     
