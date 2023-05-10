@@ -57,7 +57,7 @@ class XbjournalsViewServer extends JViewLegacy {
         } else {
             $title = Text::_('XBJOURNALS_ADMIN_EDITSERVER_TITLE');
         }
-        ToolBarHelper::title($title, 'icon-database');
+        ToolBarHelper::title($title, 'database');
         
         ToolbarHelper::apply('server.apply');
         ToolbarHelper::save('server.save');

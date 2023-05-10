@@ -47,7 +47,7 @@ class XbjournalsViewServers extends JViewLegacy {
     protected function addToolbar() {
         $canDo = XbjournalsHelper::getActions();
         
-        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_SERVERS_TITLE' ), 'icon-database' );
+        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_SERVERS_TITLE' ), 'database' );
         
         if ($canDo->get('core.create') > 0) {
             ToolbarHelper::addNew('server.add','New Server');

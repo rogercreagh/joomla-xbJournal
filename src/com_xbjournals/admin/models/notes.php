@@ -76,7 +76,7 @@ class XbjournalsModelNotes extends JModelList {
         $query = $db->getQuery(true);
         
         $query->select('a.id AS id, a.title AS title, a.alias AS alias, a.calendar_id AS calendar_id,'
-            .'a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp,'
+            .'a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp, a.uid AS uid,'
             .'a.description AS description, a.state AS published, a.access AS access, a.catid AS catid,'
 			.'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
 			.'a.state AS published, a.modified AS modified, a.modified_by AS modified_by,'
@@ -229,6 +229,31 @@ class XbjournalsModelNotes extends JModelList {
                     $item->atts = $list;
                 } else {
                     $item->atts = '';
+                }
+                //get parents
+                $item->relpar = '';
+                $query->clear();
+                $query->select('otherprops')
+                ->from($db->qn('#__xbjournals_vjournal_entries'))
+                ->where('id = '. $item->id);
+                $db->setQuery($query);
+                $props = $db->loadObjectList();
+                if ($props) {
+                    $parentuid = '';
+                    foreach ($props as $p) {
+                        $prop = $p->otherprops;                        
+                        $parr = json_decode($prop);
+                        foreach ($parr as $pobj)
+                            if ((isset($pobj->property)) && ($pobj->property == 'related-to')){
+                                $parentuid = $pobj->value;
+                                //TODO should also check RELTYPE parameter
+                        }
+                    }
+                    if ($parentuid != '') {
+                        $parent = XbjournalsHelper::getObjFromCol('#__xbjournals_vjournal_entries','uid',$parentuid);
+                        $item->relpar = '<a href="index.php?option=xbjournals$view=vjournal&id='.$parent->id.'">'.$parent->title.' ('.$parent->id.')</a>'; //title might not be unique                    
+                    }
+                    
                 }
                 
                 $item->tags = $tagsHelper->getItemTags('com_journals.note' , $item->id);               

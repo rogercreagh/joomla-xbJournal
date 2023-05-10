@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.3.0 8th May 2023
+ * @version 0.0.4.1 10th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -607,13 +607,13 @@ class XbjournalsHelper extends ContentHelper
 	 * @param string $desc - optional description
 	 * @return integer - id of new or existing category, or false if error. Error message is enqueued
 	 */
-	public static function createCategory($name, $alias='',$parentid = 1,  $ext='com_xbpeople', $desc='' ) {
+	public static function createCategory($name, $alias='',$parentid = 1,  $ext='com_xbjournals', $desc='' ) {
 	    if ($alias=='') {
 	        //create alias from name
 	        $alias = OutputFilter::stringURLSafe(strtolower($name));
 	    }
 	    //check category doesn't already exist
-	    $catid = self::getIdFromAlias('#__categories',$alias, $ext);
+	    $catid = self::getCatIdFromAlias('#__categories',$alias, $ext);
 	    if ($catid>0) {
 	        return $catid;
 	    } else {
@@ -645,25 +645,43 @@ class XbjournalsHelper extends ContentHelper
 	}
 	
 	/**
-	 * @name getIdFromALias()
+	 * @name getCatIdFromAlias()
 	 * @desc given a table name and an alias string returns the id of the corresponding item
 	 * @param (string) $table
 	 * @param (string) $alias
 	 * @param string $ext
 	 * @return mixed|void|NULL
 	 */
-	public static function getIdFromAlias($table,$alias, $ext = 'com_xbpeople') {
+	public static function getCatIdFromAlias($table,$alias, $ext = 'com_xbjournals') {
 	    $alias = trim($alias,"' ");
 	    $table = trim($table,"' ");
 	    $db = Factory::getDBO();
 	    $query = $db->getQuery(true);
-	    $query->select('id')->from($db->quoteName($table))->where($db->quoteName('alias')." = ".$db->quote($alias));
-	    if ($table === '#__categories') {
-	        $query->where($db->quoteName('extension')." = ".$db->quote($ext));
-	    }
+	    $query->select('id')->from($db->quoteName($table))
+	       ->where($db->quoteName('alias')." = ".$db->quote($alias))
+	       ->where($db->quoteName('extension')." = ".$db->quote($ext));
 	    $db->setQuery($query);
 	    $res =0;
 	    $res = $db->loadResult();
+	    return $res;
+	}
+	
+    /**
+     * @name getIdFromCol()
+     * @desc returns an object of the first item in the table having the column value
+     * Intended for use with a column with unique values
+     * NB parameter values are assumed to be clean and trimmed.
+     * @param string $table - the table to search
+     * @param string $col - the colun to search in
+     * @param unknown $value - the value to search for. If a string escape any quotes
+     * @return mixed|void|mixed[]
+     */
+	public static function getObjFromCol(string $table, string $col, $value) {
+	    $db = Factory::getDBO();
+	    $query = $db->getQuery(true);
+	    $query->select('*')->from($db->quoteName($table))->where($db->quoteName($col)." = ".$db->quote($value));
+	    $db->setQuery($query);
+	    $res = $db->loadObject();
 	    return $res;
 	}
 	

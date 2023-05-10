@@ -112,7 +112,7 @@ $tagviewlink='';
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_CREATED','created',$listDirn,$listOrder); ?>
 					</th>
 					<th>
-						<?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?>
+						<?php echo Text::_('XBJOURNALS_PARENT'). ' &amp; '.Text::_('XBJOURNALS_ATTACHMENTS'); ?>
 					</th>
 					<th>
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_JOOMLA_CATEGORY','category_title',$listDirn,$listOrder ).' &amp; ';						
@@ -195,7 +195,16 @@ $tagviewlink='';
 						
 					</td>
 					<td>
-						<?php echo $item->atts;?>
+						<?php if ($item->relpar) : ?>
+						<p><span class="xbnit"><?php echo Text::_('XBJOURNALS_PARENT'); ?></span>: 
+							<?php echo $item->relpar; ?>
+						</p>
+						<?php endif; ?>
+						<?php if ($item->atts) : ?>
+						<p><span class="xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTs'); ?></span>: 
+							<?php echo $item->atts; ?>
+						</p>
+						<?php endif; ?>
 					</td>
 					<td>
 						<?php if($item->catid) : ?>
