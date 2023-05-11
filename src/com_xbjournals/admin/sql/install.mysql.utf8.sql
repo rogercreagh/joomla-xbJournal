@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals v0.0.2.0 6th May 2023
+# sql installation file for component xbJournals v0.0.4.2 11th May 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -138,18 +138,22 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
   `href` varchar(510) NOT NULL,
   `dtstamp` datetime,  
   `uid` varchar(190) NOT NULL COMMENT 'indexed',
+  `dtstart` datetime COMMENT 'null if note',
   `sequence`int(10) NOT NULL DEFAULT '1',
   `summary` varchar(1022) NOT NULL DEFAULT '' COMMENT 'used for title',
-  `description` text DEFAULT '',
+  `url` varchar(254),
   `geo` varchar(30) COMMENT 'lat,long floats',
   `location` varchar(510),
-  `url` varchar(254),
-  `dtstart` datetime COMMENT 'null if note',
-  `categories` text COMMENT 'used as joomla tags', 
-  `comments` text COMMENT 'json encoded array',
-  `attendees` text COMMENT 'json encoded array',
-  `itemparams` text COMMENT 'json encoded array',
-  `otherprops` text COMMENT 'json encoded array',
+  `description` text DEFAULT '',
+  `class` text COMMENT 'opt->access', 
+  `status` text COMMENT 'opt->catid', 
+  `x-status` text COMMENT 'opt->catid', 
+  `categories` text COMMENT 'opt->tags', 
+  `parentuid` varchar(190),
+  `comments` text COMMENT 'json',
+  `attendees` text COMMENT 'json',
+  `itemparams` text COMMENT 'json',
+  `otherprops` text COMMENT 'json',
   `title` varchar(254) NOT NULL DEFAULT '' COMMENT 'summary truncated to 254 chars',
   `alias` varchar(254) NOT NULL DEFAULT '' COMMENT 'unique indexed', 
   `catid` int(10) NOT NULL DEFAULT '0',
@@ -175,6 +179,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_entries` (
 CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_attachments` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
   `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to entry',
+  `atthash` varchar(100) NOT NULL DEFAULT '0',
   `inline_data` BLOB,
   `uri` text,
   `encoding` varchar(20),

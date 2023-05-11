@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.1.4 27th April 2023
+ * @version 0.0.4.2 11th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
  use Joomla\CMS\Factory;
  use Joomla\CMS\Filter\OutputFilter;
- // use Joomla\CMS\Component\ComponentHelper;
+ use Joomla\CMS\Component\ComponentHelper;
 // use Joomla\CMS\Toolbar\Toolbar;
 // use Joomla\CMS\Toolbar\ToolbarHelper;
 // use Joomla\CMS\Language\Text;
@@ -184,6 +184,7 @@ class XbjournalsModelCalendars extends JModelList {
     }
     
     function addNewItem(array $item, int $calid) {
+        $params = ComponentHelper::getParams('com_xbjournals');
         $newid = false;
         $db = Factory::getDbo();
         $insertarr = array();
@@ -194,11 +195,16 @@ class XbjournalsModelCalendars extends JModelList {
         $otherprops = array();
         $categories = '';
         $title = '';
+        $descdone = false;
+        $statdone = false;
+        $cat = '';
+        $uid = '';
         foreach ($item as $prop) {
             switch ($prop['property']) {
+                case 'uid':
+                    $uid = $prop['value'];
                 case 'etag':
                 case 'href':
-                case 'uid':
                 case 'sequence':
                 case 'description':
                 case 'location':
@@ -207,6 +213,18 @@ class XbjournalsModelCalendars extends JModelList {
                     $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($prop['value']));
                     if (!empty($prop['params'])) {
                         $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
+                    break;
+                case 'description':
+                    //check if we already have a description
+                    if ($descdone) {
+                        $otherprops[] = $prop;
+                    } else {
+                        $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($prop['value']));
+                        if (!empty($prop['params'])) {
+                            $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                        }
+                        $descdone = true;
                     }
                     break;
                 case 'summary':
@@ -219,17 +237,20 @@ class XbjournalsModelCalendars extends JModelList {
                     //make alias unique
                     while (XbjournalsHelper::checkValueExists($test,'#__xbjournals_vjournal_entries','alias')) {
                         $cycle ++;
-                        $test = $alias.'-'.sprintf("%08d", $cycle);
+                        $test = $alias.'-'.sprintf("%02d", $cycle);
                     }
                     $alias = $test;
                     $insertarr[] = array('col'=>$db->qn('title'),'val'=>$db->q($title));
                     $insertarr[] = array('col'=>$db->qn('alias'),'val'=>$db->q($alias));
+                    if (!empty($prop['params'])) {
+                        $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
                     break;
                 case 'categories':
-                    $categories .= $prop['value'].','; 
+                    $categories .= $prop.','; //ignoring params
                     break;
                 case 'comment':
-                    $comments[] = $prop['value']; //ignoring params
+                    $comments[] = $prop;
                     break;
                 case 'attendee':
                     $attendees[] = $prop; 
@@ -244,6 +265,60 @@ class XbjournalsModelCalendars extends JModelList {
                 case 'created':
                     $datestr = $this->vCalDate2SqlDate($prop['value']);
                     $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($datestr));
+                    if (!empty($prop['params'])) {
+                        $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
+                    break;
+                case 'related-to':
+                    $paramstr = strtolower(implode(',',$prop['params']));
+                    if ((strpos($paramstr,'reltype') === false) || (strpos($paramstr,'parent') !== false)) {
+                        $insertarr[] = array('col'=>$db->qn('parentuid'),'val'=>$db->q($prop['value']));
+                    }
+                    $otherprops[] = $prop;
+                    break;
+                case 'class':
+                    //test for param and map to access if required
+                    if ($params->get('jclass',0)==1) {
+                        switch (strtolower($prop['value'])) {
+                            case 'private':
+                                $insertarr[] = array('col'=>$db->qn('access'), 'val'=>$db->q(3));
+                                break;
+                            case 'confidential':
+                                $insertarr[] = array('col'=>$db->qn('access'), 'val'=>$db->q(4));
+                                break;                               
+                            default:
+                                $insertarr[] = array('col'=>$db->qn('access'), 'val'=>$db->q(1));
+                                break;
+                        }
+                    }
+                    $otherprops[] = $prop;                   
+                    break;
+                case 'status':
+                    if ($params->get('jstatus',0)==1) {
+                        if ($statdone == false) {
+                            //todo get journal root cat param
+                            $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');
+                            $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
+                        }
+                    }
+                    $insertarr[] = array('col'=>$db->qn('status'), 'val'=>$db->q($prop['value']));
+                    if (!empty($prop['params'])) {
+                        $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
+                    break;
+                case 'x-status':
+                    //test for param an map to category id if required, creating category if it doesn't exist
+                    //if x-status take it, if status check for existing status vlaue first and only take if none
+                    if ($params->get('jstatus',0)==1) {
+                        //todo get journal root cat param
+                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');                        
+                        $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
+                        $statdone = true;
+                    }
+                    $insertarr[] = array('col'=>$db->qn('x-status'), 'val'=>$db->q($prop['value']));
+                    if (!empty($prop['params'])) {
+                        $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
                     break;
                 default:
                     //add any properties we don't use to a single json encoded column
@@ -254,6 +329,13 @@ class XbjournalsModelCalendars extends JModelList {
         
         $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
+        if (!$statdone) {
+            $catid = XbjournalsHelper::createCategory('Uncategorised');
+            $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
+        }
+        if ($cat) {
+            $insertarr[] = $cat;
+        }
         if ($categories) 
             $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q($categories));
         if (!empty($attendees)) 
@@ -265,7 +347,7 @@ class XbjournalsModelCalendars extends JModelList {
         if (!empty($itemparams)) 
             $insertarr[] = array('col'=>$db->qn('itemparams'),'val'=>$db->q(json_encode($itemparams)));
 
-            $insertarr[] = array('col'=>$db->qn('catid'),'val'=>$db->q('0'));
+//            $insertarr[] = array('col'=>$db->qn('catid'),'val'=>$db->q('0'));
             $insertarr[] = array('col'=>$db->qn('state'),'val'=>$db->q('1'));
             $insertarr[] = array('col'=>$db->qn('created_by'),'val'=>$db->q(Factory::getUser()->id));
             $insertarr[] = array('col'=>$db->qn('note'),'val'=>$db->q('imported '.date('d M Y')));
@@ -282,7 +364,7 @@ class XbjournalsModelCalendars extends JModelList {
        }
         //TODO add tags using $newid
        if (!empty( $attachments)) {
-           $this->insertAttachments($newid, $attachments);
+           $this->insertAttachments($newid, $uid, $attachments);
        }
        
        return $newid;
@@ -295,23 +377,33 @@ class XbjournalsModelCalendars extends JModelList {
      * @param array $attachments - array of ('params'=>string from the 
      * @return mixed[]
      */
-    function insertAttachments(int $itemid, array $attachments) {
+    function insertAttachments(int $itemid, string $uid, array $attachments) {
         $db = Factory::getDbo();
         $attpath = '/images/xbjournals/'; //TODO get component param for this
         $attids = array();
+        $query = $db->getQuery(true);
+        $query->select('atthash')->from($db->qn('#__xbjournals_vjournal_attachments'));
+        $query->where($db->qn('entry_id').' = '.$db->q($itemid));
+        $db->setQuery($query);
+        $hashes = $db->loadColumn();
+        $hashes = array_flip($hashes);
         foreach ($attachments as $attach) {
+            //nedd to check if attachment already exists
             $insertarr = array();
             $insertarr[] = array('col'=>$db->qn('entry_id'),'val'=>$db->q($itemid));
             $otherparams = array();
             $hasblob = false;
             $fname = '';
+            $hashstr = '';
             foreach ($attach['params'] as $param) {
+                //need to handle situation if embedded file has same filename as another
                 $pname = strtolower(substr($param,0,strpos($param,'=')));
                 $pvalue = substr($param,strpos($param,'=')+1);
                 $fname = ''; $xlabel = ''; $labelok = false;
                 switch ($pname) {
                     case 'filename':
                         $fname = $pvalue;
+                        $hashstr .= $pvalue;
                         break;
                     case 'x-label':
                         $xlabel = $pvalue;
@@ -323,12 +415,15 @@ class XbjournalsModelCalendars extends JModelList {
                             $hasblob = true;
                             $insertarr[] = array('col'=>$db->qn('inline_data'),'val'=>$db->q($attach['value']));
                         }
+                        $hashstr .= $pvalue;
                         break;
                     case 'fmttype':
                         $insertarr[] = array('col'=>$db->qn($pname),'val'=>$db->q($pvalue));
+                        $hashstr .= $pvalue;
                         break;
                     case 'encoding':
                         $insertarr[] = array('col'=>$db->qn($pname),'val'=>$db->q($pvalue));
+                        $hashstr .= $pvalue;
                         break;
                     case 'label':
                         $labelok = true;
@@ -349,6 +444,12 @@ class XbjournalsModelCalendars extends JModelList {
                 }
             }
             if ($fname != '') {
+                //make filename unique
+                $cnt = 0;
+                while (file_exists($attpath.$fname.($cnt>0) ? sprintf("%02d", $cnt) : '')) {
+                    $cnt++;
+                }
+                if ($cnt>0) $fname = $fname.'-'.sprintf("%02d", $cnt);                
                 $insertarr[] = array('col'=>$db->qn('filename'),'val'=>$db->q($fname));
             }
             if (!$labelok) {
@@ -356,59 +457,64 @@ class XbjournalsModelCalendars extends JModelList {
             }
             if ((!$hasblob) && ($attach['value'] != '')) {
                 $insertarr[] = array('col'=>$db->qn('uri'),'val'=>$db->q($attach['value']));   
+                $hashstr .= $pvalue;
             }
             if (!empty($otherparams)) {
                 $insertarr[] = array('col'=>$db->qn('otherparams'),'val'=>$db->q(json_encode($otherparams)));
             }
-            $query = $db->getQuery(true);
-            $query->insert('#__xbjournals_vjournal_attachments')
-            ->columns(array_column($insertarr,'col'))->values(implode(',',array_column($insertarr,'val')));
-            $db->setQuery($query);
-            try {
-                $db->execute();
-                $attid = $db->insertid();
-                $attids[] = $attid;
-            } catch (Exception $e) {
-                $this->doError('Error inserting to database',$e);
-            }
-            //now save file attachment if there is one
-            $localpath = '';
-            if ($hasblob) {
-                try {
-                    $data = base64_decode( $attach['value'] );                    
-                    $bcnt = file_put_contents(JPATH_ROOT.$attpath.$fname, $data);
-                } catch (Exception $e) {
-                    $this->doError('Error saving attachment '.$attpath.$fname,$e);
-                }
-                if ($bcnt) {
-                    Factory::getApplication()->enqueueMessage('Attachment saved '.$attpath.$fname.'&nbsp;&nbsp;Size:'.$bcnt.' bytes');
-                    $localpath = $attpath.$fname;
-                } else {
-                    Factory::getApplication()->enqueueMessage('Error; attachment not saved '.$attpath.$fname,'Warning');
-                }
-            } else {
-                //TODO provide component parameter to allow this
-                //if we have a uri and we have a filename and the destination doesn't exist
-                if ((filter_var($attach['value'], FILTER_VALIDATE_URL)) && ($fname) && (!file_exists($fname))) {
-                    $res = copy($attach['value'], JPATH_ROOT.$attpath.$fname);
-                }
-                if ($res) {
-                    Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$fname); 
-                    $localpath = $attpath.$fname;
-                } else {
-                    Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
-                }
-            }
-            if ($localpath != '') {
+            $atthash = hash("sha256",$hashstr);
+            if (!array_key_exists($atthash,$hashes)) {
+                $insertarr[] = array('col'=>$db->qn('atthash'),'val'=>$db->q($atthash));                
                 $query = $db->getQuery(true);
-                $query->update('#__xbjournals_vjournal_attachments')
-                ->set($db->qn('localpath').' = '.$db->q($localpath))
-                    ->where($db->qn('id').' = '.$db->q($attid));
+                $query->insert('#__xbjournals_vjournal_attachments')
+                ->columns(array_column($insertarr,'col'))->values(implode(',',array_column($insertarr,'val')));
                 $db->setQuery($query);
                 try {
                     $db->execute();
+                    $attid = $db->insertid();
+                    $attids[] = $attid;
                 } catch (Exception $e) {
-                    $this->doError('Error updating localpath in database',$e);
+                    $this->doError('Error inserting to database',$e);
+                }
+                //now save file attachment if there is one. make sure its a unique name
+                $localpath = '';
+                if ($hasblob) {
+                    try {
+                        $data = base64_decode( $attach['value'] );                    
+                        $bcnt = file_put_contents(JPATH_ROOT.$attpath.$fname, $data);
+                    } catch (Exception $e) {
+                        $this->doError('Error saving attachment '.$attpath.$fname,$e);
+                    }
+                    if ($bcnt) {
+                        Factory::getApplication()->enqueueMessage('Attachment saved '.$attpath.$fname.'&nbsp;&nbsp;Size:'.$bcnt.' bytes');
+                        $localpath = $attpath.$fname;
+                    } else {
+                        Factory::getApplication()->enqueueMessage('Error; attachment not saved '.$attpath.$fname,'Warning');
+                    }
+                } else {
+                    //TODO provide component parameter to allow this
+                    //if we have a uri and we have a filename and the destination doesn't exist
+                    if ((filter_var($attach['value'], FILTER_VALIDATE_URL)) && ($fname) && (!file_exists($fname))) {
+                        $res = copy($attach['value'], JPATH_ROOT.$attpath.$fname);
+                    }
+                    if ($res) {
+                        Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$fname); 
+                        $localpath = $attpath.$fname;
+                    } else {
+                        Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
+                    }
+                }
+                if ($localpath != '') {
+                    $query = $db->getQuery(true);
+                    $query->update('#__xbjournals_vjournal_attachments')
+                    ->set($db->qn('localpath').' = '.$db->q($localpath))
+                        ->where($db->qn('id').' = '.$db->q($attid));
+                    $db->setQuery($query);
+                    try {
+                        $db->execute();
+                    } catch (Exception $e) {
+                        $this->doError('Error updating localpath in database',$e);
+                    }
                 }
             }
         } //endforeach attach
