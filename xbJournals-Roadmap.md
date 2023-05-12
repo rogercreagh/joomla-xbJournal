@@ -7,13 +7,15 @@
 - **DONE** v0.0.1 Import Journals and Notes from Calendars
 - **DONE** v0.0.2 Dashboard view - summary info
 - **DONE** v0.0.3 Journals view - display list of entries per calendar
-- v0.0.4 Notes view - display list of notes per calendar **database change**
-- v0.0.5 Categories and Tags views
+- **DONE** v0.0.4 Notes view - display list of notes per calendar **database changes**
+- v0.0.5 Attachments view
+- v0.0.6 Categories and Tags views and filtering on admin views
 - v0.1.0 all above completed
 - v0.1.1 Calendar view
 - v0.1.2 Journal view 
 - v0.1.3 Note view 
-- v0.1.4 Item preview views for lists
+- v0.1.4 Attachment view
+- v0.1.5 Item preview views for lists
 - v0.2.0 all above completed
 - v0.2.1 Calendar Edit view & batch for list
   - batch to include assign cat,tags,export/import ics, copy/move calendar, change type

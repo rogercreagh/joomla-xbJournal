@@ -456,7 +456,8 @@ class XbjournalsModelCalendars extends JModelList {
                 $insertarr[] = array('col'=>$db->qn('filename'),'val'=>$db->q($fname));
             }
             if (!$labelok) {
-                $insertarr[] = array('col'=>$db->qn('label'),'val'=>$db->q('Attachment for item #'.$itemid));                
+                $label = $fname;
+                $insertarr[] = array('col'=>$db->qn('label'),'val'=>$db->q($label));                
             }
             if ((!$hasblob) && ($attach['value'] != '')) {
                 $insertarr[] = array('col'=>$db->qn('uri'),'val'=>$db->q($attach['value']));   

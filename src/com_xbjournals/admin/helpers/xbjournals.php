@@ -270,15 +270,16 @@ class XbjournalsHelper extends ContentHelper
 	   $db = Factory::getDbo();
 	   $query = $db->getQuery(true);
 	   $query->select('id, title')->from($db->qn('#__xbjournals_vjournal_entries'))
-	       ->where($db->qn('parentuid').' = '.$db->q('$itemuid'));
+	       ->where($db->qn('parentuid').' = '.$db->q($itemuid));
 	   $db->setQuery($query);
 	   $kids = $db->loadObjectList();
 	   if ($kids) {
 	       $list = '<ul>';
 	       foreach ($kids as $kid) {
+	           if ($kid->title == '') $kid->title = '(untitled)';
 	           $list .= '<li><a href="index.php?option=xbjournals&view=journal&id='.$kid->id.'">'.$kid->title.'</a></li>';
 	       }
-	       $list = '</ul>';
+	       $list .= '</ul>';
 	   }	   
 	   return $list;
 	}

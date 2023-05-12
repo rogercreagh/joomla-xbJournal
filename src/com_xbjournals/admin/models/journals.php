@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journals.php
- * @version 0.0.3.3 9th May 2023
+ * @version 0.0.4.3 12th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -184,9 +184,10 @@ class XbjournalsModelJournals extends JModelList {
             } //end switch
         } //end if $tagfilt
         
-        $orderCol       = $this->state->get('list.ordering', 'title');
+//        $orderCol       = $this->state->get('list.ordering', 'title');
         $orderDirn      = $this->state->get('list.direction', 'ASC');
         
+        $query->order('parentuid ASC'); //always put subitems at the bottomo f the list
         $query->order($db->escape($orderCol.' '.$orderDirn));
         
         return $query;
@@ -203,7 +204,8 @@ class XbjournalsModelJournals extends JModelList {
         if ($items) {
             foreach ($items as $item) {
                 $item->atts = XbjournalsHelper::getVjournalAttachments($item->id);
-                $item->parent = ($item->parentuid) ? XbjournalsHelper::getVjournalParent($item->uid) : '';
+                $item->parent = '';
+                if (!is_null($item->parentuid)) $item->parent =  XbjournalsHelper::getVjournalParent($item->parentuid);
                 $item->subs = XbjournalsHelper::getVjournalSubitems($item->uid);
                 $item->tags = $tagsHelper->getItemTags('com_journals.journal' , $item->id);               
             }

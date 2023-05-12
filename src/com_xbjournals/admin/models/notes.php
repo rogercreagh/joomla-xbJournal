@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/notes.php
- * @version 0.0.4.2 12th May 2023
+ * @version 0.0.4.4 12th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -184,9 +184,10 @@ class XbjournalsModelNotes extends JModelList {
             } //end switch
         } //end if $tagfilt
         
-        $orderCol       = $this->state->get('list.ordering', 'title');
+//        $orderCol       = $this->state->get('list.ordering', 'title');
         $orderDirn      = $this->state->get('list.direction', 'ASC');
         
+        $query->order('parentuid ASC'); //always put subitems at the bottomof the list
         $query->order($db->escape($orderCol.' '.$orderDirn));
         
         return $query;
@@ -197,70 +198,15 @@ class XbjournalsModelNotes extends JModelList {
 
         $items  = parent::getItems();
         $tagsHelper = new TagsHelper;
-        $db = Factory::getDbo();
-        $query = $db->getQuery(true);
+//        $db = Factory::getDbo();
+//        $query = $db->getQuery(true);
         
         if ($items) {
             foreach ($items as $item) {
                 $item->atts = XbjournalsHelper::getVjournalAttachments($item->id);
-                $item->parent = ($item->parentuid) ? XbjournalsHelper::getVjournalParent($item->uid) : '';
+                $item->parent = '';
+                if (!is_null($item->parentuid)) $item->parent =  XbjournalsHelper::getVjournalParent($item->parentuid);
                 $item->subs = XbjournalsHelper::getVjournalSubitems($item->uid);
-                /******************
-                $query->clear();
-                $query->select('id, entry_id, uri, value, filename, label, localpath')
-                    ->from($db->qn('#__xbjournals_vjournal_attachments'))
-                    ->where('entry_id = '. $item->id);
-                $db->setQuery($query);
-                $atts = $db->loadObjectList();
-                if ($atts) {
-                    $list = '<ul>';
-                    foreach ($atts as $at) {
-                        $path = '';
-                        $list .= '<li>';
-                        if ($at->localpath) {
-                            $path = $at->localpath;
-                        } elseif ($at->uri) {
-                            $path = $at->uri;
-                        }
-                        if ($path) {
-                            $list .= '<a href="'.$path.'" target="_blank">'.$at->filename.'</a>';
-                        } else {
-                            $list .= $at->filename;
-                        }
-                        $list .= ' </li>';  
-                    }
-                    $list .= '</ul>';
-                    $item->atts = $list;
-                } else {
-                    $item->atts = '';
-                }
-                //get parents
-                $item->relpar = '';
-                $query->clear();
-                $query->select('otherprops')
-                ->from($db->qn('#__xbjournals_vjournal_entries'))
-                ->where('id = '. $item->id);
-                $db->setQuery($query);
-                $props = $db->loadObjectList();
-                if ($props) {
-                    $parentuid = '';
-                    foreach ($props as $p) {
-                        $prop = $p->otherprops;                        
-                        $parr = json_decode($prop);
-                        foreach ($parr as $pobj)
-                            if ((isset($pobj->property)) && ($pobj->property == 'related-to')){
-                                $parentuid = $pobj->value;
-                                //TODO should also check RELTYPE parameter
-                        }
-                    }
-                    if ($parentuid != '') {
-                        $parent = XbjournalsHelper::getObjFromCol('#__xbjournals_vjournal_entries','uid',$parentuid);
-                        $item->relpar = '<a href="index.php?option=xbjournals&view=vjournal&id='.$parent->id.'">'.$parent->title.' ('.$parent->id.')</a>'; //title might not be unique                    
-                    }
-                    
-                }
-                *******************/
-                
                 $item->tags = $tagsHelper->getItemTags('com_journals.note' , $item->id);               
             }
         }
