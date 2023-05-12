@@ -198,6 +198,7 @@ class XbjournalsModelCalendars extends JModelList {
         $descdone = false;
         $statdone = false;
         $cat = '';
+        $catid= 0;
         $uid = '';
         foreach ($item as $prop) {
             switch ($prop['property']) {
@@ -329,7 +330,7 @@ class XbjournalsModelCalendars extends JModelList {
         
         $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
-        if (!$statdone) {
+        if ($catid == 0) {
             $catid = XbjournalsHelper::createCategory('Uncategorised');
             $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
         }
@@ -446,10 +447,12 @@ class XbjournalsModelCalendars extends JModelList {
             if ($fname != '') {
                 //make filename unique
                 $cnt = 0;
-                while (file_exists($attpath.$fname.($cnt>0) ? sprintf("%02d", $cnt) : '')) {
+                $tname = $fname;
+                while (file_exists(JPATH_ROOT.$attpath.$tname)) {
                     $cnt++;
+                    $tname = pathinfo($fname, PATHINFO_FILENAME).'-'.sprintf("%02d", $cnt).'.'.pathinfo($fname, PATHINFO_EXTENSION);
                 }
-                if ($cnt>0) $fname = $fname.'-'.sprintf("%02d", $cnt);                
+                $fname = $tname;                
                 $insertarr[] = array('col'=>$db->qn('filename'),'val'=>$db->q($fname));
             }
             if (!$labelok) {

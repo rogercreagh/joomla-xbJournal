@@ -76,7 +76,7 @@ class XbjournalsModelJournals extends JModelList {
         $query = $db->getQuery(true);
         
         $query->select('a.id AS id, a.title AS title, a.alias AS alias, a.calendar_id AS calendar_id,'
-            .'a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp,'
+            .'a.uid AS uid, a.parentuid AS parentuid, a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp,'
             .'a.description AS description, a.state AS published, a.access AS access, a.catid AS catid,'
 			.'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
 			.'a.state AS published, a.modified AS modified, a.modified_by AS modified_by,'
@@ -202,35 +202,9 @@ class XbjournalsModelJournals extends JModelList {
         
         if ($items) {
             foreach ($items as $item) {
-                $query->clear();
-                $query->select('id, entry_id, uri, value, filename, label, localpath')
-                    ->from($db->qn('#__xbjournals_vjournal_attachments'))
-                    ->where('entry_id = '. $item->id);
-                $db->setQuery($query);
-                $atts = $db->loadObjectList();
-                if ($atts) {
-                    $list = '<ul>';
-                    foreach ($atts as $at) {
-                        $path = '';
-                        $list .= '<li>';
-                        if ($at->localpath) {
-                            $path = $at->localpath;
-                        } elseif ($at->uri) {
-                            $path = $at->uri;
-                        }
-                        if ($path) {
-                            $list .= '<a href="'.$path.'" target="_blank">'.$at->filename.'</a>';
-                        } else {
-                            $list .= $at->filename;
-                        }
-                        $list .= ' </li>';  
-                    }
-                    $list .= '</ul>';
-                    $item->atts = $list;
-                } else {
-                    $item->atts = '';
-                }
-                
+                $item->atts = XbjournalsHelper::getVjournalAttachments($item->id);
+                $item->parent = ($item->parentuid) ? XbjournalsHelper::getVjournalParent($item->uid) : '';
+                $item->subs = XbjournalsHelper::getVjournalSubitems($item->uid);
                 $item->tags = $tagsHelper->getItemTags('com_journals.journal' , $item->id);               
             }
         }

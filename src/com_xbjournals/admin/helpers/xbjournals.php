@@ -260,6 +260,61 @@ class XbjournalsHelper extends ContentHelper
 	    
 	}
 
+	public static function getVjournalParent(string $parentuid) {
+        $parent = self::getObjFromCol('#__xbjournals_vjournal_entries','uid',$parentuid);
+	    return '<a href="index.php?option=xbjournals&view=vjournal&id='.$parent->id.'">'.$parent->title.' (#'.$parent->id.')</a>'; //title might not be unique
+	}
+	
+	public static function getVjournalSubitems(string $itemuid) {
+	   $list = '';
+	   $db = Factory::getDbo();
+	   $query = $db->getQuery(true);
+	   $query->select('id, title')->from($db->qn('#__xbjournals_vjournal_entries'))
+	       ->where($db->qn('parentuid').' = '.$db->q('$itemuid'));
+	   $db->setQuery($query);
+	   $kids = $db->loadObjectList();
+	   if ($kids) {
+	       $list = '<ul>';
+	       foreach ($kids as $kid) {
+	           $list .= '<li><a href="index.php?option=xbjournals&view=journal&id='.$kid->id.'">'.$kid->title.'</a></li>';
+	       }
+	       $list = '</ul>';
+	   }	   
+	   return $list;
+	}
+	
+	public static function getVjournalAttachments(int $itemid) {
+	    $list = '';
+	    $db = Factory::getDbo();
+	    $query = $db->getQuery(true);
+	    $query->select('uri, filename, label, localpath')
+	       ->from($db->qn('#__xbjournals_vjournal_attachments'))
+	       ->where('entry_id = '. $itemid);
+	    $db->setQuery($query);
+	    $atts = $db->loadObjectList();
+	    if ($atts) {
+	        $list = '<ul>';
+	        foreach ($atts as $at) {
+	            $path = '';
+	            $list .= '<li>';
+	            if ($at->localpath) {
+	                $path = $at->localpath;
+	            } elseif ($at->uri) {
+	                $path = $at->uri;
+	            }
+	            $name =  ($at->label) ? $at->label : $at->filename;
+	            if ($path) {
+	                $list .= '<a href="'.$path.'" target="_blank">'.$name.'</a>';
+	            } else {
+	                $list .= $name;
+	            }
+	            $list .= ' </li>';
+	        }
+	        $list .= '</ul>';
+	    }
+	    return $list;	        
+	}
+	
 /***************** functions that could move to xbLibrary *******************************/	
 	
 	/**

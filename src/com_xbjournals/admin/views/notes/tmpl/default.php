@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/notes/tmpl/default.php
- * @version 0.0.4.0 10th May 2023
+ * @version 0.0.4.2 12th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -112,7 +112,7 @@ $tagviewlink='';
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_CREATED','created',$listDirn,$listOrder); ?>
 					</th>
 					<th>
-						<?php echo Text::_('XBJOURNALS_PARENT'). ' &amp; '.Text::_('XBJOURNALS_ATTACHMENTS'); ?>
+						<?php echo Text::_('XBJOURNALS_PARENT'). ', '.Text::_('XBJOURNALS_SUB_ITEMS').' &amp; '.Text::_('XBJOURNALS_ATTACHMENTS'); ?>
 					</th>
 					<th>
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_JOOMLA_CATEGORY','category_title',$listDirn,$listOrder ).' &amp; ';						
@@ -195,15 +195,18 @@ $tagviewlink='';
 						
 					</td>
 					<td>
-						<?php if ($item->relpar) : ?>
-						<p><span class="xbnit"><?php echo Text::_('XBJOURNALS_PARENT'); ?></span>: 
-							<?php echo $item->relpar; ?>
-						</p>
+						<?php if ($item->parent) : ?>
+							<p><span class="xbnit"><?php echo Text::_('XBJOURNALS_PARENT'); ?></span>: 
+								<?php echo $item->parent; ?>
+							</p>
+						<?php endif; ?>
+						<?php if ($item->subs) : ?>
+							<p class="xbm0 xbnit"><?php echo Text::_('XBJOURNALS_SUB_ITEMS'); ?>:</p>
+							<?php echo $item->subs; ?>
 						<?php endif; ?>
 						<?php if ($item->atts) : ?>
-						<p><span class="xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTs'); ?></span>: 
+							<p class="xbm0 xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTs'); ?>:</p> 
 							<?php echo $item->atts; ?>
-						</p>
 						<?php endif; ?>
 					</td>
 					<td>
