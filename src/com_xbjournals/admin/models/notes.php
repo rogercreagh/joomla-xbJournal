@@ -184,7 +184,7 @@ class XbjournalsModelNotes extends JModelList {
             } //end switch
         } //end if $tagfilt
         
-//        $orderCol       = $this->state->get('list.ordering', 'title');
+        $orderCol       = $this->state->get('list.ordering', 'title');
         $orderDirn      = $this->state->get('list.direction', 'ASC');
         
         $query->order('parentuid ASC'); //always put subitems at the bottomof the list

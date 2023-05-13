@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/journals/tmpl/default.php
- * @version 0.0.4.2 12th May 2023
+ * @version 0.0.4.4 12th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -70,13 +70,14 @@ $tagviewlink='';
                 <?php echo 'Sorted by '.$listOrder.' '.$listDirn ; ?>
     		</p>
     	</div>
-              
+        <div class="clearfix"></div>      
               
 	<?php if (empty($this->items)) : ?>
 		<div class="alert alert-no-items">
 			<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 		</div>
 	<?php else : ?>
+		<?php $subitembreakdone = false; ?>
 		<table class="table table-striped table-hover" id="xbjournalsJournalsList">	
 			<colgroup>
 				<col class="hidden-phone" style="width:25px;"><!-- ordering -->
@@ -84,8 +85,8 @@ $tagviewlink='';
 				<col style="width:55px;"><!-- status -->
 				<col ><!-- calendar -->
 				<col ><!-- title, -->
-				<col ><!-- dtstart -->
-				<col class="hidden-phone" style="width:230px;" ><!-- attach -->
+				<col style="width:140px;" ><!-- dtstart -->
+				<col class="hidden-phone"><!-- attach -->
 				<col class="hidden-tablet hidden-phone" style="width:230px;"><!-- cats & tags -->
 				<col class="" style="width:100px;" ><!-- syncdate -->
 				<col class="hidden-phone" style="width:45px;"><!-- id -->
@@ -133,9 +134,11 @@ $tagviewlink='';
                                         || $item->checked_out==$userId || $item->checked_out==0;
 				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.journal.'.$item->id) && $item->created_by == $userId;
                 $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.journal.'.$item->id) && $canCheckin;
-                
-			?>
-				<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
+                if ((!$subitembreakdone) && ($item->parentuid != '') ) :?>
+     				<tr><td colspan="3" style="background-color:#ffe;"></td><td class="xbnit" colspan="7" style="background-color:#ffe;"><?php echo Text::_('XBJOURNALS_SUB_ITEMS_HEADER')?></td><tr>
+     				<?php $subitembreakdone = true; ?>
+				<?php endif; ?>
+                <tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
 					<td class="order nowrap center hidden-phone">
                         <?php
                             $iconClass = '';
@@ -201,12 +204,18 @@ $tagviewlink='';
 							</p>
 						<?php endif; ?>
 						<?php if ($item->subs) : ?>
-							<p class="xbm0 xbnit"><?php echo Text::_('XBJOURNALS_SUB_ITEMS'); ?>:</p>
-							<?php echo $item->subs; ?>
+							<details><summary>
+    								<span class="xbm0 xbnit"><?php echo Text::_('XBJOURNALS_SUB_ITEMS'); ?>:</span>
+								</summary>
+    							<?php echo $item->subs; ?>
+							</details>
 						<?php endif; ?>
 						<?php if ($item->atts) : ?>
-							<p class="xbm0 xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTs'); ?>:</p>
-							<?php echo $item->atts; ?>
+							<details><summary>
+        							<span class="xbm0 xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?>:</span>
+								</summary>
+    							<?php echo $item->atts; ?>
+							</details>
 						<?php endif; ?>
 					</td>
 					<td>

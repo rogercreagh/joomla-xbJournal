@@ -22,13 +22,16 @@
 
 - v0.2.2 Journal Edit view & batch for list
 - v0.2.3 Note edit view & batch for list
-- v0.2.2 Sync items back to server
-- v0.3.0 rc1 admin side completed
-- v0.3.1 Site Journals list view
-- v0.3.2 Site Notebook list view
-- v0.3.3 Site Journal and Note item views
-- v0.4.0 rc2 Site side initial completion
-- v0.5.0 code check for j4 compatibility
+- v0.3.0 all above completed
+- v0.3.1 Sync changed and new items back to server
+- v0.3.2 Sync locally deleted item to server
+- v0.3.0 Handle items deleted from server
+- v0.4.0 rc1 admin side completed
+- v0.4.1 Site Journals list view
+- v0.4.2 Site Notebook list view
+- v0.4.3 Site Journal and Note item views
+- v0.5.0 rc2 Site side initial completion
+- v0.6.0 code check for j4 compatibility
 - v1.0.0 Release
 
 Subsequent releases (order not yet specified)
