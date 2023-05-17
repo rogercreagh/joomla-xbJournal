@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- xbJournals admin/models/forms/filter_attachments.xml v0.0.5.0 14th May 2023 -->
+<form>
+	<fields name="filter" addfieldpath="administrator/components/com_xbjournals/models/fields">
+		<field
+			name="search"
+			type="text"
+			label="COM_CONTENT_FILTER_SEARCH_DESC"
+			description="XBJOURNALS_SEARCH_ITEMS_DESC"
+			hint="JSEARCH_FILTER"
+			class="js-stools-search-string"
+		/>
+	</fields>
+	<fields name="list">
+  		<field name="fullordering" type="hidden" default="" />
+  		
+		<field name="limit"
+			type="limitbox"
+			class="inputbox input-mini"
+			default="5"
+			label="COM_CONTENT_LIST_LIMIT"
+			description="COM_CONTENT_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

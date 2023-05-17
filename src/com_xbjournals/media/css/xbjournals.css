@@ -1,7 +1,7 @@
 /*******
  * @package xbJournals Component
  * @filesource media/css/xbjournals.css
- * @version 0.0.2.0 6th April 2023
+ * @version 0.0.5.3 17th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -255,6 +255,7 @@ some common combinations are also defined (eg xbnit - normal weight,italic, 5px 
 .xbmb12 { margin-bottom:12px; }
 
 /* padding */
+.xbpl10 {padding-left:10px;}
 .xbpr5, .xbnit { padding-right:5px; }
 .xbpr10 { padding-right:10px;}
 .xbpt17 { padding-top:17px;}

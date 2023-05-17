@@ -80,27 +80,27 @@ $tagviewlink='';
 		<?php $subitembreakdone = false; ?>
 		<table class="table table-striped table-hover" id="xbjournalsNotesList">	
 			<colgroup>
-				<col class="hidden-phone" style="width:25px;"><!-- ordering -->
-				<col class="hidden-phone" style="width:25px;"><!-- checkbox -->
-				<col style="width:55px;"><!-- status -->
+				<col class="nowrap center hidden-phone" style="width:25px;"><!-- ordering -->
+				<col class="center hidden-phone" style="width:25px;"><!-- checkbox -->
+				<col class="nowrap center" style="width:55px;"><!-- status -->
 				<col ><!-- calendar -->
 				<col ><!-- title, -->
 				<col style="width:140px;" ><!-- dtstart -->
 				<col class="hidden-phone" ><!-- attach -->
 				<col class="hidden-tablet hidden-phone" style="width:230px;"><!-- cats & tags -->
 				<col class="" style="width:100px;" ><!-- syncdate -->
-				<col class="hidden-phone" style="width:45px;"><!-- id -->
+				<col class="center nowrap hidden-phone" style="width:45px;"><!-- id -->
 			</colgroup>	
 			<thead>
 				<tr>
-					<th class="nowrap center" >
+					<th>
 						<?php echo HTMLHelper::_('searchtools.sort', '', 'a.ordering', 
 						    $listDirn, $listOrder, null, 'asc', 'XBCULTURE_HEADING_ORDERING_DESC', 'icon-menu-2'); ?>
 					</th>
-					<th class="center">
+					<th>
 						<?php echo HTMLHelper::_('grid.checkall'); ?>
 					</th>
-					<th class="nowrap center">
+					<th>
 						<?php echo HTMLHelper::_('searchtools.sort', 'JSTATUS', 'published', $listDirn, $listOrder); ?>
 					</th>
 					<th>
@@ -122,7 +122,7 @@ $tagviewlink='';
 					<th>
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_SYNC_DATE','dtstamp',$listDirn,$listOrder); ?>
 					</th>
-					<th class="nowrap">
+					<th>
 						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
 					</th>
 			</thead>
@@ -139,7 +139,7 @@ $tagviewlink='';
      				<?php $subitembreakdone = true; ?>
 				<?php endif;  ?>
 				<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
-					<td class="order nowrap center hidden-phone">
+					<td class="order">
                         <?php
                             $iconClass = '';
                             if (!$canChange) {
@@ -155,10 +155,10 @@ $tagviewlink='';
 							<input type="text" style="display:none" name="order[]" size="5" value="<?php echo $item->ordering; ?>" class="width-20 text-area-order " />
                         <?php endif; ?>
 					</td>
-					<td class="center hidden-phone">
+					<td>
 						<?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
 					</td>
-					<td class="center">
+					<td>
 						<div class="btn-group">
 							<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'journal.', $canChange, 'cb'); ?>
 							<?php if ($item->note!=""){ ?>
@@ -241,7 +241,7 @@ $tagviewlink='';
 						  echo HtmlHelper::date($item->dtstamp , 'd M Y H:i');                      
                         } ?>
 					</td>
-					<td class="center hidden-phone">
+					<td>
 						<?php echo $item->id; ?>
 					</td>					
 				</tr>

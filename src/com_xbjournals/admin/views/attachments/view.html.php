@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbJournals Component
- * @filesource admin/views/journals/view.html.php
- * @version 0.0.3.0 8th May 2023
+ * @filesource admin/views/attachments/view.html.php
+ * @version 0.0.5.3 17th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -16,7 +16,7 @@ use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\FileLayout;
 
-class XbjournalsViewNotes extends JViewLegacy {
+class XbjournalsViewAttachments extends JViewLegacy {
     
     public function display($tpl = null) {    
  
@@ -26,16 +26,13 @@ class XbjournalsViewNotes extends JViewLegacy {
         $this->filterForm = $this->get('FilterForm');
         $this->activeFilters = $this->get('ActiveFilters');
         
-//        $this->searchTitle = $this->state->get('filter.search');
-        
-        
         // Check for errors.
         if (count($errors = $this->get('Errors'))) {
             throw new Exception(implode("\n", $errors), 500);
         }
         
         $this->addToolbar();
-        XbjournalsHelper::addSubmenu('notes');
+        XbjournalsHelper::addSubmenu('attachments');
         $this->sidebar = JHtmlSidebar::render();
         
         parent::display($tpl);
@@ -47,13 +44,13 @@ class XbjournalsViewNotes extends JViewLegacy {
     protected function addToolbar() {
         $canDo = XbjournalsHelper::getActions();
         
-        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_NOTES_TITLE' ), 'briefcase' );
+        ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_ATTACH_TITLE' ), 'file' );
         
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
-//        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
-//        ToolbarHelper::custom('calendars.getJournalItems', 'file-plus', '', 'Get Items from Server', true) ;
+        ToolbarHelper::custom('attachments.getRemote', 'file-plus', '', 'Copy to Local', true) ;
+        ToolbarHelper::custom('attachments.removeLocal', 'file-remove', '', 'Delete local copy', true) ;
         //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }
@@ -82,12 +79,12 @@ class XbjournalsViewNotes extends JViewLegacy {
         if ($canDo->get('core.admin')) {
             ToolbarHelper::preferences('com_xbjournals');
         }
-        ToolbarHelper::help( '', false,'https://crosborne.uk/xbjournals/doc?tmpl=component#admin-calendars' );
+        ToolbarHelper::help( '', false,'https://crosborne.uk/xbjournals/doc?tmpl=component#admin-attachments' );
     }
     
     protected function setDocument() {
         $document = Factory::getDocument();
-        $document->setTitle(Text::_('XBJOURNALS_ADMIN_NOTES_TITLE'));
+        $document->setTitle(Text::_('XBJOURNALS_ADMIN_ATTACH_TITLE'));
     }
     
     

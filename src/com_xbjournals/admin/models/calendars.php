@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.4.2 11th May 2023
+ * @version 0.0.5.1 11th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -401,10 +401,11 @@ class XbjournalsModelCalendars extends JModelList {
                 $pname = strtolower(substr($param,0,strpos($param,'=')));
                 $pvalue = substr($param,strpos($param,'=')+1);
                 $fname = ''; $xlabel = ''; $labelok = false;
+                $fmttype = '';
                 switch ($pname) {
                     case 'filename':
                         $fname = $pvalue;
-                        $hashstr .= $pvalue;
+//                        $hashstr .= $pvalue;
                         break;
                     case 'x-label':
                         $xlabel = $pvalue;
@@ -419,7 +420,8 @@ class XbjournalsModelCalendars extends JModelList {
                         $hashstr .= $pvalue;
                         break;
                     case 'fmttype':
-                        $insertarr[] = array('col'=>$db->qn($pname),'val'=>$db->q($pvalue));
+                        $fmttype = $pvalue;
+ //                       $insertarr[] = array('col'=>$db->qn($pname),'val'=>$db->q($pvalue));
                         $hashstr .= $pvalue;
                         break;
                     case 'encoding':
@@ -444,19 +446,21 @@ class XbjournalsModelCalendars extends JModelList {
                     $fname = basename(parse_url($attach['value'],PHP_URL_PATH));
                 }
             }
+            //check if remote file that it is a file! Look for extension as simple test,also guess mime type if fmttype not present
             if ($fname != '') {
                 //make filename unique
                 $cnt = 0;
-                $tname = $fname;
-                while (file_exists(JPATH_ROOT.$attpath.$tname)) {
+                $lname = $fname;
+                while (file_exists(JPATH_ROOT.$attpath.$lname)) {
                     $cnt++;
-                    $tname = pathinfo($fname, PATHINFO_FILENAME).'-'.sprintf("%02d", $cnt).'.'.pathinfo($fname, PATHINFO_EXTENSION);
+                    $lname = pathinfo($fname, PATHINFO_FILENAME).'-'.sprintf("%02d", $cnt).'.'.pathinfo($fname, PATHINFO_EXTENSION);
                 }
-                $fname = $tname;                
+//                $fname = $tname;                
                 $insertarr[] = array('col'=>$db->qn('filename'),'val'=>$db->q($fname));
             }
             if (!$labelok) {
                 $label = $fname;
+                $label .= ($cnt>0) ? ' ('.sprintf("%02d", $cnt).')' : '';
                 $insertarr[] = array('col'=>$db->qn('label'),'val'=>$db->q($label));                
             }
             if ((!$hasblob) && ($attach['value'] != '')) {
@@ -485,25 +489,30 @@ class XbjournalsModelCalendars extends JModelList {
                 if ($hasblob) {
                     try {
                         $data = base64_decode( $attach['value'] );                    
-                        $bcnt = file_put_contents(JPATH_ROOT.$attpath.$fname, $data);
+                        $bcnt = file_put_contents(JPATH_ROOT.$attpath.$lname, $data);
                     } catch (Exception $e) {
-                        $this->doError('Error saving attachment '.$attpath.$fname,$e);
+                        $this->doError('Error saving attachment '.$attpath.$lname,$e);
                     }
                     if ($bcnt) {
-                        Factory::getApplication()->enqueueMessage('Attachment saved '.$attpath.$fname.'&nbsp;&nbsp;Size:'.$bcnt.' bytes');
-                        $localpath = $attpath.$fname;
+                        Factory::getApplication()->enqueueMessage('Embedded attachment '.$fname.' saved as '.$attpath.$lname.'&nbsp;&nbsp;Size:'.$bcnt.' bytes');
+                        $localpath = $attpath.$lname;
+                        $info = system("file -b '".JPATH_ROOT.$attpath.$lname."'");
+                        if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
                     } else {
                         Factory::getApplication()->enqueueMessage('Error; attachment not saved '.$attpath.$fname,'Warning');
                     }
                 } else {
                     //TODO provide component parameter to allow this
-                    //if we have a uri and we have a filename and the destination doesn't exist
-                    if ((filter_var($attach['value'], FILTER_VALIDATE_URL)) && ($fname) && (!file_exists($fname))) {
-                        $res = copy($attach['value'], JPATH_ROOT.$attpath.$fname);
+                    //if we have a uri and we have a filename and the destination doesn't exist and the source has a mime type
+                    if ((filter_var($attach['value'], FILTER_VALIDATE_URL)) // is valid url
+                        && (fclose(fopen($attach['value'],"r")))            //is a filewe can open
+                    ) {                        
+                        $res = copy($attach['value'], JPATH_ROOT.$attpath.$lname);
+                        if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
                     }
                     if ($res) {
-                        Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$fname); 
-                        $localpath = $attpath.$fname;
+                        Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$lname); 
+                        $localpath = $attpath.$lname;
                     } else {
                         Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
                     }
@@ -512,7 +521,9 @@ class XbjournalsModelCalendars extends JModelList {
                     $query = $db->getQuery(true);
                     $query->update('#__xbjournals_vjournal_attachments')
                     ->set($db->qn('localpath').' = '.$db->q($localpath))
-                        ->where($db->qn('id').' = '.$db->q($attid));
+                    ->set($db->qn('info').' = '.$db->q($info))
+                    ->set($db->qn('fmttype').' = '.$db->q($fmttype))
+                    ->where($db->qn('id').' = '.$db->q($attid));
                     $db->setQuery($query);
                     try {
                         $db->execute();

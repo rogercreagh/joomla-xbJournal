@@ -9,11 +9,16 @@
 - **DONE** v0.0.3 Journals view - display list of entries per calendar
 - **DONE** v0.0.4 Notes view - display list of notes per calendar **database changes**
 - v0.0.5 Attachments view
-- v0.0.6 Categories and Tags views and filtering on admin views
+- v0.0.6 Categories views (including filters on admin views)
+  - categories used list view
+  - single category items count
+  - com_categories view
+
+- v0.0.7 Tag view (and filters and sub-views as per categories)
 - v0.1.0 all above completed
 - v0.1.1 Calendar view
 - v0.1.2 Journal view 
-- v0.1.3 Note view 
+- v0.1.3 Note view (possible combined with notes)
 - v0.1.4 Attachment view
 - v0.1.5 Item preview views for lists
 - v0.2.0 all above completed
@@ -26,6 +31,7 @@
 - v0.3.1 Sync changed and new items back to server
 - v0.3.2 Sync locally deleted item to server
 - v0.3.0 Handle items deleted from server
+- v0.3.1 copy item to article and create from article
 - v0.4.0 rc1 admin side completed
 - v0.4.1 Site Journals list view
 - v0.4.2 Site Notebook list view
@@ -36,7 +42,10 @@
 
 Subsequent releases (order not yet specified)
 
-- vJournal to Joomla Article and vice versa
+- plugin to insert item in article
+- module list recent journal items
+- module calendar display (month to view) of journal items
+- module list notes per category
 - move common code to xbLibrary
 - Tidy and clean xbCalDav code
 - 

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.4.4 12th May 2023
+ * @version 0.0.5.0 14th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -71,6 +71,11 @@ class XbjournalsHelper extends ContentHelper
 		    Text::_('XBJOURNALS_ICONMENU_NOTEBOOKS'),
 		    'index.php?option=com_xbjournals&view=notes',
 		    $vName == 'notes'
+		    );
+		JHtmlSidebar::addEntry(
+		    Text::_('XBJOURNALS_ICONMENU_ATTACHMENTS'),
+		    'index.php?option=com_xbjournals&view=attachments',
+		    $vName == 'attachments'
 		    );
 	}
     

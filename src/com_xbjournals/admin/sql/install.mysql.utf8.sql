@@ -188,6 +188,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_attachments` (
   `filename` varchar(1022),
   `label` varchar(1022),
   `otherparams` text COMMENT 'json encoded array',
+  `info` varchar(1022),
   `localpath` varchar(254),
    PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
