@@ -8,7 +8,7 @@
 - **DONE** v0.0.2 Dashboard view - summary info
 - **DONE** v0.0.3 Journals view - display list of entries per calendar
 - **DONE** v0.0.4 Notes view - display list of notes per calendar **database changes**
-- v0.0.5 Attachments view
+- **DONE** v0.0.5 Attachments view **database changes**
 - v0.0.6 Categories views (including filters on admin views)
   - categories used list view
   - single category items count
