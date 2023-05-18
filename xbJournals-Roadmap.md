@@ -13,25 +13,24 @@
   - categories used list view
   - single category items count
   - com_categories view
-
-- v0.0.7 Tag view (and filters and sub-views as per categories)
 - v0.1.0 all above completed
-- v0.1.1 Calendar view
-- v0.1.2 Journal view 
-- v0.1.3 Note view (possible combined with notes)
-- v0.1.4 Attachment view
-- v0.1.5 Item preview views for lists
-- v0.2.0 all above completed
-- v0.2.1 Calendar Edit view & batch for list
+- v0.1.1 Calendar Edit
+- v0.1.2 Journal Edit 
+- v0.1.3 Note Edit
+- v0.1.4 Attachment Edit
+- v0.1.5 Tags views
+  - tags used view (counts)
+  - single tag view
+
+- v0.1.6 Item preview views for lists
+- v0.1.7 batch processing for lists
   - batch to include assign cat,tags,export/import ics, copy/move calendar, change type
 
-- v0.2.2 Journal Edit view & batch for list
-- v0.2.3 Note edit view & batch for list
-- v0.3.0 all above completed
+- v0.2.0 all above completed
 - v0.3.1 Sync changed and new items back to server
 - v0.3.2 Sync locally deleted item to server
-- v0.3.0 Handle items deleted from server
-- v0.3.1 copy item to article and create from article
+- v0.3.3 Handle items deleted from server
+- v0.3.4 copy item to article and create item from article
 - v0.4.0 rc1 admin side completed
 - v0.4.1 Site Journals list view
 - v0.4.2 Site Notebook list view
