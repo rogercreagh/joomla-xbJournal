@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/dashboard/view.html.php
- * @version 0.0.2.0 4th May 2023
+ * @version 0.0.5.4 18th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -36,6 +36,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
         $this->calendars = $this->get('Calendars');
         $this->journalStates = $this->get('JournalStates');
         $this->notebookStates = $this->get('NotebookStates');
+        $this->attachmentCounts = $this->get('AttachmentCounts');
         $this->catStates = $this->get('JournalStates');
         $this->tags = $this->get('TagCnts');
         

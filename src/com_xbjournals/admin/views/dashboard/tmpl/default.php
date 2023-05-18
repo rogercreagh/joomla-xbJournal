@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.2.1 7th May 2023
+ * @version 0.0.5.4 18th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -195,6 +195,42 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         								<div class="span6">
         									<span class="badge <?php echo $this->notebookStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->notebookStates['trashed']; ?></span>
         									<?php echo ucfirst(Text::_('XBJOURNALS_TRASHED')); ?>
+        								</div>
+        							</div>
+        						</div>
+        					</div>
+            			</div>
+            		</div>
+            		<div class="row-fluid">
+            			<div class="span12">
+        					<div class="xbbox gradgrey">
+        						<p>
+         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->attachmentCounts['total']; ?></span> 
+        							<b><?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?></b>
+        						</p>
+        						<p class="xbml20"><?php echo 'from'.' '.$this->attachmentCounts['calendars'].' '.Text::_('XBJOURNALS_CALENDARS').' '.'on'.' '
+                                    .$this->attachmentCounts['servers'].' '.Text::_('XBJOURNALS_SERVERS'); ?>
+        						<div class="row-striped">
+        							<div class="row-fluid">
+        								<div class="span6">
+        									<span class="badge <?php echo $this->attachmentCounts['journals']>0 ?'badge-success' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['journals']; ?></span>
+        									<?php echo Text::_('XBJOURNALS_JOURNAL_ENTRIES'); ?>
+        								</div>
+        								<div class="span6">
+        									<span class="badge <?php echo $this->attachmentCounts['notes']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['notes']; ?></span>
+        									<?php echo Text::_('XBJOURNALS_NOTEBOOK_ENTRIES'); ?>
+        								</div>
+        							</div>
+        							<div class="row-fluid">
+        								<div class="span5">
+        									<span class="badge <?php echo $this->attachmentCounts['embed']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['embed']; ?></span>
+        									<?php echo Text::_('XBJOURNALS_EMBEDDED'); ?>
+        								</div>
+        								<div class="span7">
+        									<span class="badge <?php echo $this->attachmentCounts['remote']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['remote']; ?></span>
+        									<?php echo Text::_('XBJOURNALS_REMOTE').' '.Text::_('XBJOURNALS_WITH').' '; ?>
+        									<span class="badge <?php echo $this->attachmentCounts['rem2local']>0 ?'badge-important' : ''; ?> xbmr10 xbml10"><?php echo $this->attachmentCounts['rem2local']; ?></span>
+        									<?php echo Text::_('XBJOURNALS_COPIED_LOCAL'); ?>
         								</div>
         							</div>
         						</div>
