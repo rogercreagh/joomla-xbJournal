@@ -35,6 +35,7 @@ class XbjournalsViewDashboard extends JViewLegacy {
         $this->servers = $this->get('Servers');
         $this->calendars = $this->get('Calendars');
         $this->journalStates = $this->get('JournalStates');
+//        $this->journalStates = $this->EntryCounts('Journal');
         $this->notebookStates = $this->get('NotebookStates');
         $this->attachmentCounts = $this->get('AttachmentCounts');
         $this->catStates = $this->get('JournalStates');

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.5.4 18th May 2023
+ * @version 0.0.5.6 19th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -141,28 +141,40 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             			<div class="span12">
         					<div class="xbbox gradcyan">
         						<p>
-        							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->journalStates['total']; ?></span> 
+        							<span class="pull-right"><span class="badge badge-info"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->journalStates['total']; ?></span>
+										<?php echo 'from'.' <span class="badge badge-pink">'.$this->journalStates['calendars'].'</span> '.Text::_('XBJOURNALS_CALENDARS').' '
+                                            .'on'.' <span class="badge badge-ltmag">'.$this->journalStates['servers'].'</span> '.Text::_('XBJOURNALS_SERVERS'); ?></span>
         							<b><?php echo Text::_('XBJOURNALS_JOURNAL_ENTRIES'); ?></b>
         						</p>
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
+        									<span class="badge badge-cyan xbmr10""><?php echo $this->journalStates['parents']; ?></span>
+        									<?php echo Text::_('have sub-entries'); ?>
+        								</div>
+        								<div class="span6">
+        									<span class="badge badge-ltblue xbmr10""><?php echo $this->journalStates['children']; ?></span>
+        									<?php echo Text::_('are sub-entries'); ?>
+        								</div>
+        							</div>
+        							<div class="row-fluid">
+        								<div class="span6">
         									<span class="badge badge-success xbmr10"><?php echo $this->journalStates['published']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_PUBLISHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_PUBLISHED'); ?>
         								</div>
         								<div class="span6">
         									<span class="badge <?php echo $this->journalStates['unpublished']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->journalStates['unpublished']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_UNPUBLISHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_UNPUBLISHED'); ?>
         								</div>
         							</div>
         							<div class="row-fluid">
         								<div class="span6">
         									<span class="badge <?php echo $this->journalStates['archived']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->journalStates['archived']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_ARCHIVED')); ?>
+        									<?php echo Text::_('XBJOURNALS_ARCHIVED'); ?>
         								</div>
         								<div class="span6">
         									<span class="badge <?php echo $this->journalStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->journalStates['trashed']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_TRASHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_TRASHED'); ?>
         								</div>
         							</div>
         						</div>
@@ -173,28 +185,40 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             			<div class="span12">
         					<div class="xbbox gradyellow">
         						<p>
-         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->notebookStates['total']; ?></span> 
-        							<b><?php echo ucfirst(Text::_('XBJOURNALS_NOTEBOOK_ENTRIES')); ?></b>
+         							<span class="pull-right"><span class="badge badge-info"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->notebookStates['total']; ?></span> 
+										<?php echo 'from'.' <span class="badge badge-pink">'.$this->notebookStates['calendars'].'</span> '.Text::_('XBJOURNALS_CALENDARS').' '
+                                            .'on'.' <span class="badge badge-ltmag">'.$this->notebookStates['servers'].'</span> '.Text::_('XBJOURNALS_SERVERS'); ?></span>
+        							<b><?php echo Text::_('XBJOURNALS_NOTEBOOK_ENTRIES'); ?></b>
         						</p>
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
+        									<span class="badge badge-yellow xbmr10""><?php echo $this->notebookStates['parents']; ?></span>
+        									<?php echo Text::_('have sub-entries'); ?>
+        								</div>
+        								<div class="span6">
+        									<span class="badge badge-ltgreen xbmr10""><?php echo $this->notebookStates['children']; ?></span>
+        									<?php echo Text::_('are sub-entries'); ?>
+        								</div>
+        							</div>
+        							<div class="row-fluid">
+        								<div class="span6">
         									<span class="badge badge-success xbmr10"><?php echo $this->notebookStates['published']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_PUBLISHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_PUBLISHED'); ?>
         								</div>
         								<div class="span6">
         									<span class="badge <?php echo $this->notebookStates['unpublished']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->notebookStates['unpublished']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_UNPUBLISHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_UNPUBLISHED'); ?>
         								</div>
         							</div>
         							<div class="row-fluid">
         								<div class="span6">
         									<span class="badge <?php echo $this->notebookStates['archived']>0 ?'badge-warning' : ''; ?> xbmr10"><?php echo $this->notebookStates['archived']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_ARCHIVED')); ?>
+        									<?php echo Text::_('XBJOURNALS_ARCHIVED'); ?>
         								</div>
         								<div class="span6">
         									<span class="badge <?php echo $this->notebookStates['trashed']>0 ?'badge-important' : ''; ?> xbmr10"><?php echo $this->notebookStates['trashed']; ?></span>
-        									<?php echo ucfirst(Text::_('XBJOURNALS_TRASHED')); ?>
+        									<?php echo Text::_('XBJOURNALS_TRASHED'); ?>
         								</div>
         							</div>
         						</div>
@@ -205,20 +229,20 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
             			<div class="span12">
         					<div class="xbbox gradgrey">
         						<p>
-         							<span class="badge badge-info pull-right"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->attachmentCounts['total']; ?></span> 
+         							<span class="pull-right"><span class="badge badge-info"><?php echo Text::_('XBJOURNALS_TOTAL').' '. $this->attachmentCounts['total']; ?></span> 
+										<?php echo 'from'.' <span class="badge badge-pink">'.$this->attachmentCounts['calendars'].'</span> '.Text::_('XBJOURNALS_CALENDARS').' '
+                                            .'on'.' <span class="badge badge-ltmag">'.$this->attachmentCounts['servers'].'</span> '.Text::_('XBJOURNALS_SERVERS'); ?></span>
         							<b><?php echo Text::_('XBJOURNALS_ATTACHMENTS'); ?></b>
         						</p>
-        						<p class="xbml20"><?php echo 'from'.' '.$this->attachmentCounts['calendars'].' '.Text::_('XBJOURNALS_CALENDARS').' '.'on'.' '
-                                    .$this->attachmentCounts['servers'].' '.Text::_('XBJOURNALS_SERVERS'); ?>
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
         									<span class="badge <?php echo $this->attachmentCounts['journals']>0 ?'badge-success' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['journals']; ?></span>
-        									<?php echo Text::_('XBJOURNALS_JOURNAL_ENTRIES'); ?>
+        									<?php echo Text::_('attached to').' '.Text::_('XBJOURNALS_JOURNAL_ENTRIES'); ?>
         								</div>
         								<div class="span6">
         									<span class="badge <?php echo $this->attachmentCounts['notes']>0 ?'badge-yellow' : ''; ?> xbmr10"><?php echo $this->attachmentCounts['notes']; ?></span>
-        									<?php echo Text::_('XBJOURNALS_NOTEBOOK_ENTRIES'); ?>
+        									<?php echo Text::_('attached to').' '.Text::_('XBJOURNALS_NOTEBOOK_ENTRIES'); ?>
         								</div>
         							</div>
         							<div class="row-fluid">

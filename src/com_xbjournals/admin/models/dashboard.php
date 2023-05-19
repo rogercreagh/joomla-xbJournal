@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/dashboard.php
- * @version 0.0.5.4 18th May 2023
+ * @version 0.0.5.6 19th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -76,19 +76,37 @@ class XbjournalsModelDashboard extends JModelList {
     }
     
     public function getJournalStates() {
-        $cnts = array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0);
-        $db = Factory::getDbo();
-        $query = $db->getQuery(true);
-        
-        return $cnts;
+        return $this->EntryCounts('Journal');
     }
 
-    public function getNotebookStates() {
-        $cnts = array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0);
+    public function EntryCounts($type = 'Journal') {
+        $cnts = array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0,'calendars'=>0, 'servers'=>0,'children'=>0);
         $db = Factory::getDbo();
         $query = $db->getQuery(true);
-        
-        return $cnts;
+        $query->select('a.calendar_id AS calid, c.server_id AS serverid, a.parentuid AS puid, a.state AS pub')
+        ->from($db->qn('#__xbjournals_vjournal_entries').' AS a');
+        $query->leftJoin($db->qn('#__xbjournals_calendars').' AS c ON c.id = a.calendar_id');
+        $query->where($db->qn('entry_type').' = '.$db->q($type));
+        $db->setQuery($query);
+        $res = $db->loadObjectList();
+        if ($res) {
+            $cnts['total'] = count($res);
+            $cnts['calendars'] = count(array_column($res, null, 'calid'));
+            $cnts['servers'] = count(array_column($res, null, 'serverid'));
+            $cnts['children'] = count(array_filter(array_column($res, 'puid')));
+//            $cnts['children'] = $cnts['total']-count(array_intersect(array_column($res, 'puid'),[null]));
+            $cnts['parents'] = count(array_unique(array_filter(array_column($res,'puid'))));
+            $vals = array_count_values(array_column($res,'pub'));
+            $cnts['published'] = key_exists('1',$vals) ? $vals['1'] : 0;
+            $cnts['unpublished'] = key_exists('0',$vals) ? $vals['0'] : 0;
+            $cnts['archived'] = key_exists('2',$vals) ? $vals['2'] : 0;
+            $cnts['trashed'] = key_exists('-2',$vals) ? $vals['-2'] : 0;
+        }
+        return $cnts;        
+    }
+    
+    public function getNotebookStates() {
+        return $this->EntryCounts('Note');
     }
     
     public function getAttachmentCounts() {
@@ -134,5 +152,26 @@ class XbjournalsModelDashboard extends JModelList {
         return $result;
         
     }
+    
+    private function stateCnts(string $type) {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('DISTINCT a.state, a.id')
+        ->from($db->quoteName('#__xbjournals_vjournal_entries').' AS a');
+ //       if ($table == '#__categories') {
+ //           $query->where('extension = '.$db->quote('com_xbjournals'));
+ //       }
+        $query->where($db->qn('entry_type').' = '.$db->q($type));
+        $db->setQuery($query);
+        $col = $db->loadColumn();
+        $vals = array_count_values($col);
+        $result['total'] = count($col);
+        $result['published'] = key_exists('1',$vals) ? $vals['1'] : 0;
+        $result['unpublished'] = key_exists('0',$vals) ? $vals['0'] : 0;
+        $result['archived'] = key_exists('2',$vals) ? $vals['2'] : 0;
+        $result['trashed'] = key_exists('-2',$vals) ? $vals['-2'] : 0;
+        return $result;
+    }
+    
     
 }
