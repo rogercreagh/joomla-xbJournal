@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.5.0 14th May 2023
+ * @version 0.0.6.0 20th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -237,14 +237,14 @@ class XbjournalsHelper extends ContentHelper
 	 * @param int $calid
 	 * @return array[]
 	 */
-	public static function getCalendarJournalEntries(int $calid) {
+	public static function getCalendarJournalEntries(int $calid, $start = null, $end = null) {
 	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
 	    $client = new xbVjournalHelper();
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    $client->setCalendarByUrl($cal['cal_url']);
-	    $calitems = $client->getJournals();
+	    $calitems = $client->getJournals($start, $end);
 	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
 	        $journalentry = $client->parseVjournalObject($calitem);
@@ -319,6 +319,40 @@ class XbjournalsHelper extends ContentHelper
 	        $list .= '</ul>';
 	    }
 	    return $list;	        
+	}
+	
+	/** 
+	 * @name vCalDate2SqlDate()
+	 * @desc converts a Vcal date string to an sql compatible string with time set to zeroes if not in input
+	 * @param string $datestr -should be YYYYMMDD or YYYYMMDDTHHMMSS or YYYYMMDDTHHMMSSZ
+	 * @return string - Y-m-d H:i:s
+	 */
+	public static function vCalDate2SqlDate (string $datestr) {
+	    //input 
+	    //output should be Y-m-d H:i:s (always datetime, with 00:00:00 if date only)
+	    //TODO timezones
+	    $datestr = str_replace('T',' ',$datestr);
+	    // $datestr = str_replace(array('T','Z'), ' ', $datestr);
+	    if (strlen($datestr) < 14) $datestr .= '000000';
+	    //convert string to sql date format
+	    $datestr = trim($datestr,' Z');
+	    $date = DateTime::createFromFormat('Ymd His',$datestr);
+	    $datestr = $date->format('Y-m-d H:i:s');
+	    return $datestr;
+	}
+	
+	/** 
+	 * @name date2VcalDate()
+	 * @desc conversts any valid date to a Vcal compatible date or datetie string
+	 * @param string $datestr - the input string
+	 * @param boolean $time - true to include time in output, false for date only
+	 * @return string
+	 */
+	public static function date2VcalDate (string $datestr, $time = true) {
+        $format =  $time ? 'Ymd\THis\Z' : 'Ymd';
+	    $utime = strtotime($datestr);
+	    $vcalDate = date($format,$utime);
+	    return $vcalDate;
 	}
 	
 /***************** functions that could move to xbLibrary *******************************/	
@@ -800,7 +834,7 @@ class XbjournalsHelper extends ContentHelper
 	 * @param string $message
 	 * @param Exception $e
 	 */
-	function doError(string $message, Exception $e) {
+	public static function doError(string $message, Exception $e) {
 	    Factory::getApplication()->enqueueMessage($message.'<br />' .$e->getMessage().' ('.$e->getCode().')','Error');
 	}
 	

@@ -344,7 +344,7 @@ class xbVjournalHelper {
         { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
         
         // Get it!
-        $results = $this->client->GetJournals( $start, $end );
+        $results = $this->client->GetVjournals( $start, $end );
         
         // GET-request successfull?
         if ( $this->client->GetHttpResultCode() != '207' )

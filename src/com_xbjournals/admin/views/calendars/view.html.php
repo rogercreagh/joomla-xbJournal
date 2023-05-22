@@ -53,7 +53,9 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
 //        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
-        ToolbarHelper::custom('calendars.getJournalItems', 'file-plus', '', 'Get Items from Server', true) ;
+        ToolbarHelper::custom('calendars.getAllItems', 'file-plus', '', 'Get All Items', true) ;
+        ToolbarHelper::custom('calendars.getChangedItems', 'new', '', 'Get New Items', true) ;
+        ToolbarHelper::custom('calendars.syncItems', 'refresh', '', 'Sync Items', true) ;
         //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }

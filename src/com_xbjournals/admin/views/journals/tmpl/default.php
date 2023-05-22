@@ -193,8 +193,10 @@ $tagviewlink='';
 					</td>
 					<td>
 						<?php if($item->dtstart) {
-						  echo HtmlHelper::date($item->dtstart,'D jS M Y');                      
+						  echo HtmlHelper::date($item->dtstart,'D jS M Y').'<br />';                      
                         } ?>
+                        <?php echo HtmlHelper::date($item->created,'D jS M Y').'<br />'; ?>
+                        <?php echo HtmlHelper::date($item->created,'D jS M Y'); ?>
 						
 					</td>
 					<td>

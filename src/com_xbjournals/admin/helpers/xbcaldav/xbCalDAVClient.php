@@ -1039,27 +1039,65 @@ EOFILTER;
 
   
   /**
-   * @name GetJournals();
-   * @desc gets all vJournal entries between start and end datetimes
-   * if start or end is set will only get Jounal items
-   * if start and end both null will get journals and notes
-   * if start = '' will get only notes
+   * @name GetJournalsOnly();
+   * @desc gets only Journal entries (ie with DTSTART set) 
    * @param string $start - yyyymmddThhmmssZ
    * @param string $finish - yyyymmddThhmmssZ
    * @param string $relative_url
    * @return array|array[]
    */
-    function GetJournals(string $start = null, string $finish = null, string $relative_url = null ) {
+  function GetJournals(string $start = '19700101T000001Z', string $finish = null, $dateprop = '', string $relative_url = null ) {
+      $this->SetDepth('1');
+      $filterstr = "";
+      if ( ($start !='') && isset($finish) ) {
+          $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
+      } elseif ( ($start!='') && ! isset($finish) ) {
+          $range = "<C:time-range start=\"$start\"/>";
+      } elseif ( ($start!='') && isset($finish) ) {
+          $range = "<C:time-range end=\"$finish\"/>";
+      } else {
+          $range = '';
+      }
+      if ($dateprop != '') {
+          $range = '<C:prop-filter name="'.strtoupper($dateprop).'">\n'.$range.'\n</C:prop-filter>';
+      }
+      $filterstr = <<<EOFILTER
+<C:filter>
+<C:comp-filter name="VCALENDAR">
+<C:comp-filter name="VJOURNAL">
+$range
+</C:comp-filter>
+</C:comp-filter>
+</C:filter>
+EOFILTER;
+
+return $this->DoCalendarQuery($filterstr, $relative_url);
+  }
+  
+    /**
+   * @name GetVjournals();
+   * @desc gets all vJournal entries, optionally with date property between start and end datetimes
+   * if $dateprop not set and $start or $end is set then defaults to using DTSTART and will only get Journal items
+   * to get both journal and notes in date range use $dateprop = DTSTAMP | CREATED | LAST-MODIFIED
+   * to get only items changed or added since calendar last_checked use $dateprop and $start = last_checked
+   * @param string $start - yyyymmddThhmmssZ
+   * @param string $finish - yyyymmddThhmmssZ
+   * @param string $relative_url
+   * @return array|array[]
+   */
+    function GetVjournals(string $start = null, string $finish = null, $dateprop = '', string $relative_url = null ) {
         $this->SetDepth('1');
         $filterstr = "";
+        $range = '';
         if ( ($start !='') && isset($finish) ) {
             $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
         } elseif ( ($start!='') && ! isset($finish) ) {
             $range = "<C:time-range start=\"$start\"/>"; 
         } elseif ( ($start!='') && isset($finish) ) {
             $range = "<C:time-range end=\"$finish\"/>";
-        } else {
-            $range = '';
+        }
+        if (($range != '') && ($dateprop != '')) {
+            $range = '<C:prop-filter name="'.strtoupper($dateprop).'">\n'.$range.'\n</C:prop-filter>';
         }
         $filterstr = <<<EOFILTER
 <C:filter>
@@ -1070,32 +1108,37 @@ $range
 </C:comp-filter>
 </C:filter>
 EOFILTER;
-
         return $this->DoCalendarQuery($filterstr, $relative_url);
     }
     
-    /**
-    * @name GetNotes()
+/**
+    * @name GetNotesOnly()
     * @param CalDAVFilter $filter - an 
     * @param string $relative_url
     * @return array|array[]
     */ 
-    function GetNotes(CalDAVFilter $filterobj = null, string $relative_url = null ) {
-        $this->SetDepth('1');
-        if (isset($filterobj)) {
-            $filterstr = $filterobj->toXML();
-        } else {
-            $filterstr = <<<EOFILTER
+    function GetNotes( string $start = null, string $finish = null, $dateprop = 'dtstamp', string $relative_url = null ) {
+        $range = '';
+        if ( ($start !='') && isset($finish) ) {
+            $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
+        } elseif ( ($start!='') && ! isset($finish) ) {
+            $range = "<C:time-range start=\"$start\"/>";
+        } elseif ( ($start!='') && isset($finish) ) {
+            $range = "<C:time-range end=\"$finish\"/>";
+        }
+        if ($range != '') {
+            $range = '<C:prop-filter name="'.strtoupper($dateprop).'">\n'.$range.'\n</C:prop-filter>';
+        }
+        $filterstr = <<<EOFILTER
 <C:filter>
 <C:comp-filter name="VCALENDAR">
 <C:comp-filter name="VJOURNAL">
 <C:prop-filter name="dtstart"><C:is-not-defined/></C:prop-filter>
-$filterstr
+$range
 </C:comp-filter>
 </C:comp-filter>
 </C:filter>
 EOFILTER;          
-        }
         return $this->DoCalendarQuery($filterstr, $relative_url);
     }
   

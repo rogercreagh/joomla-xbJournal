@@ -21,22 +21,21 @@
 - v0.1.5 Tags views
   - tags used view (counts)
   - single tag view
-
 - v0.1.6 Item preview views for lists
 - v0.1.7 batch processing for lists
   - batch to include assign cat,tags,export/import ics, copy/move calendar, change type
-
 - v0.2.0 all above completed
 - v0.3.1 Sync changed and new items back to server
 - v0.3.2 Sync locally deleted item to server
 - v0.3.3 Handle items deleted from server
-- v0.3.4 copy item to article and create item from article
-- v0.4.0 rc1 admin side completed
-- v0.4.1 Site Journals list view
-- v0.4.2 Site Notebook list view
-- v0.4.3 Site Journal and Note item views
-- v0.5.0 rc2 Site side initial completion
-- v0.6.0 code check for j4 compatibility
+- v0.4.0 copy item to article
+ -v0.4.1 create item from article
+- v0.5.0 rc1 admin side completed
+- v0.5.1 Site Journals list view
+- v0.5.2 Site Notebook list view
+- v0.5.3 Site Journal and Note item views
+- v0.6.0 rc2 Site side initial completion
+- v0.7.0 code check for j4 compatibility
 - v1.0.0 Release
 
 Subsequent releases (order not yet specified)

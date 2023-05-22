@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.5.1 11th May 2023
+ * @version 0.0.6.0 20th May 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -76,6 +76,28 @@ class XbjournalsModelCalendars extends JModelList {
         return $items;
     }
     
+    public function getLocalItems(int $calid, $entrytype ='') {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('id, entry_type, etag, uid, dtstamp')
+            ->from($db->qn('#__xbjournals_vjournal_entries'))
+            ->where($db->qn('calendar_id').' = '.$db->q($calid));
+        if ($entrytype != '') $query->andWhere($db->qn('entry_type').' = '.$db->q($entry_type));
+        $db->setQuery($query);
+        $localitems = $db->loadAssocList('id');
+        return $localitems;
+    }
+    
+    public function importNewItems(int $calid) {
+        $db = Factory::getDbo();
+        $query = $db->getQuery(true);
+        $query->select('last_checked')->from($db->qn('#__xbjournals_calendars'))
+            ->where($db->qn('id').' = '.$db->q($calid));
+        $db->setQuery($query);
+        $last = $db->loadResult();
+        return $this->importJournalItems($calid, $last);
+    }
+     
     /**
      * @name importJournalItems()
      * @desc imports items for calendar from server
@@ -85,25 +107,21 @@ class XbjournalsModelCalendars extends JModelList {
      * @param int $calid - the joomla id of the calendar
      * @return array with counts of items, new, changed, same, deleted
      */
-    public function importJournalItems(int $calid) {
+    public function importJournalItems(int $calid, $startstr = '', $endstr = '') {
         $cnts = array('local'=>0,'server'=>0,'new'=>0,'same'=>0,'updated'=>0,'missing'=>0,'archived'=>0);
         $res = false;
         $db = Factory::getDbo();
-        $query = $db->getQuery(true);
-        $query->select('id, entry_type, etag, uid, dtstamp')
-            ->from($db->qn('#__xbjournals_vjournal_entries'))
-            ->where($db->qn('calendar_id').' = '.$db->q($calid));
-//                .' AND '.$db->qn('entry_type').' = '.$db->q('Journal'));
-        $db->setQuery($query);
-        $localitems = $db->loadAssocList('id'); 
+        $localitems = $this->getLocalItems($calid);
         if ($localitems) {
             $cnts['local'] = count($localitems);
         }
-        $serveritems = XbjournalsHelper::getCalendarJournalEntries($calid);
+        $start = ($startstr) ? XbjournalsHelper::date2VcalDate($datestr) : null;
+        $end = ($endstr) ? XbjournalsHelper::date2VcalDate($datestr) : null;
+        $serveritems = XbjournalsHelper::getCalendarJournalEntries($calid, $start, $end);
         if ($serveritems) {
             $cnts['server'] = count($serveritems);
         }
-        $uidarr = array();
+//        $uidarr = array();
         if ($cnts['server']>0){
             foreach ($serveritems as $serveritem) {
                 $serveritem['calid'] = $calid;
@@ -115,13 +133,7 @@ class XbjournalsModelCalendars extends JModelList {
                     //get the uid and etag      
                     $etag = $serveritem['etag']['value'];
                     $uid = $serveritem['uid']['value'];
-                    $uidarr[] = $uid;
-//                     foreach ($sitem as $line) {
-//                         if ($line['property']=='uid') {
-//                             $uid = $line['value'];
-//                         }
-//                         if ($line['property']=='etag') $etag = $line['value'];
-//                     }                       
+//                    $uidarr[] = $uid;
                     $key = array_search($uid,array_column($localitems,'uid','id'));
                     if ($key===false) {
                         //new item
@@ -142,7 +154,7 @@ class XbjournalsModelCalendars extends JModelList {
                                 try {
                                     $res = $db->execute();                                   
                                 } catch (Exception $e) {
-                                    $this->doError('Error deleting item #'.$key.' from database',$e);
+                                    XbjournalsHelper::doError('Error deleting item #'.$key.' from database',$e);
                                 }
                                 if ($res) $res = $this->addNewItem($serveritem, $calid);
                                 if ($res) $cnts['updated']++;
@@ -151,33 +163,16 @@ class XbjournalsModelCalendars extends JModelList {
                     } //endif item found                   
                } //endif local items>0
             } //endforeach server item
-//             // now check for missing items (array_diff on array of uids)
-//             if ($cnts['local'] > 0 ) {
-//                 //we should only do thisifwe have allof the items from the server or are using the same filter to check local
-//                 $missing = array_diff(array_column($localitems,'uid','id'), $uidarr);
-//                 //set status archived
-//                 $cnts['missing'] = count($missing);
-//                 foreach ($missing as $key) {
-//                     $query = $db->getQuery(true);
-//                     $query->select('`state`')->from($db->qn('#__xbjournals_vjournal_entries'))->where($db->qn('uid').' = '. $db->q($key));
-//                     $db->setQuery($query);
-//                     $res = $db->loadResult();
-//                     if ($res != 2) {
-//                         $query->clear();
-//                         $query->update($db->qn('#__xbjournals_vjournal_entries'))->set($db->qn('state').' = '.$db->q('2'))
-//                             ->where($db->qn('uid').' = '. $db->q($key).' AND '.$db->qn('state').' = '.$db->q('1'));  
-//                         $db->setQuery($query);
-//                         try {
-//                             $res = $db->execute();
-//                         } catch (Exception $e) {
-//                             $this->doError('Error archiving item #'.$key,$e);
-//                         }
-//                         //TODO move archiveditems to local calendar by setting calid ot local cal
-//                         if ($res) $cnts['archived'] ++; //= count($missing);                                      
-//                     }
-//                 }
-//             }
         } //endif server items>0
+        $query = $db->getQuery(true);
+        $query->update($db->qn('#__xbjournals_calendars'))->set('last_checked = '.$db->q(date("Y-m-d H:i:s")))
+            ->where($db->qn('id').' = '.$db->q($calid));
+        $db->setQuery($query);
+        try {
+            $res = $db->execute();    
+        } catch (Exception $e) {
+            XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
+        }
         Factory::getApplication()->enqueueMessage($cnts['local'].' local, '.$cnts['server'].' server, '
             .$cnts['new'].' new, '.$cnts['same'].' same, '.$cnts['updated'].' updated, '.$cnts['missing'].'missing, '.$cnts['archived'].' archived, ');
         return $cnts;
@@ -550,7 +545,7 @@ class XbjournalsModelCalendars extends JModelList {
         return $datestr;
     }
     
-    function doError(string $message, Exception $e) {
-        Factory::getApplication()->enqueueMessage($message.'<br />' .$e->getMessage().' ('.$e->getCode().')','Error');
-    }
+//     function doError(string $message, Exception $e) {
+//         Factory::getApplication()->enqueueMessage($message.'<br />' .$e->getMessage().' ('.$e->getCode().')','Error');
+//     }
 }
