@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- xbBooks admin/models/forms/filter_categories.xml  v0.0.6.0 12th June 2023 -->
+<form>
+	<fields name="filter" addfieldpath="administrator/components/com_xbjournals/models/fields">
+		<field
+			name="search"
+			type="text"
+			label="XBJOURNALS_SEARCH_ITEMS_DESC"
+			description="XBJOURNALS_SEARCH_ITEMS_DESC"
+			hint="JSEARCH_FILTER"
+		/>
+		<field
+			name="published"
+			type="status"
+			label="COM_CONTENT_FILTER_PUBLISHED"
+			description="COM_CONTENT_FILTER_PUBLISHED_DESC"
+			onchange="this.form.submit();"
+			>
+			<option value="">JOPTION_SELECT_PUBLISHED</option>
+		</field>
+		<field
+			name="branch"
+			type="sql"
+			label="XBJOURNALS_BRANCH_LABEL"
+			description="XBJOURNALS_BRANCH_DESC"
+			query="SELECT DISTINCT t.id, t.path, t.alias AS alias, t.title AS title FROM `#__categories` AS t WHERE t.extension = 'com_xbjournals' ORDER BY t.title"
+  			key_field="id"
+  			value_field="title"
+			onchange="this.form.submit();"
+			>
+			<option value="">XBJOURNALS_ENTIRE_TREE</option>
+		</field>
+	</fields>
+	<fields name="list">
+  		<field name="fullordering" type="hidden" default="" />
+		<field
+			name="limit"
+			type="limitbox"
+			class="inputbox input-mini"
+			default="20"
+			label="COM_CONTENT_LIST_LIMIT"
+			description="COM_CONTENT_LIST_LIMIT_DESC"
+			onchange="this.form.submit();"
+		/>
+	</fields>
+</form>

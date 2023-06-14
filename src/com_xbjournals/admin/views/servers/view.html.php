@@ -23,16 +23,16 @@ class XbjournalsViewServers extends JViewLegacy {
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
-//        $this->filterForm = $this->get('FilterForm');
-//        $this->activeFilters = $this->get('ActiveFilters');
+        $this->filterForm = $this->get('FilterForm');
+        $this->activeFilters = $this->get('ActiveFilters');
         
-//        $this->searchTitle = $this->state->get('filter.search');
+        $this->searchTitle = $this->state->get('filter.search');
         
         
         // Check for errors.
-//        if (count($errors = $this->get('Errors'))) {
-//            throw new Exception(implode("\n", $errors), 500);
-//        }
+        if (count($errors = $this->get('Errors'))) {
+            throw new Exception(implode("\n", $errors), 500);
+        }
         
         $this->addToolbar();
         XbjournalsHelper::addSubmenu('servers');

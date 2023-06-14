@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.6.0 20th May 2023
+ * @version 0.0.6.0 12th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -42,41 +42,60 @@ class XbjournalsHelper extends ContentHelper
 	}
 	
 	public static function addSubmenu($vName = 'dashboard') {
-		JHtmlSidebar::addEntry(
-            Text::_('XBJOURNALS_ICONMENU_DASHBOARD'),
-            'index.php?option=com_xbjournals&view=dashboard',
-            $vName == 'dashboard'
-	        );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_SERVERS'),
-		    'index.php?option=com_xbjournals&view=servers',
-		    $vName == 'servers'
-		    );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_NEWSERVER'),
-		    'index.php?option=com_xbjournals&view=server&layout=edit',
-		    $vName == 'server'
-		    );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_CALENDARS'),
-		    'index.php?option=com_xbjournals&view=calendars',
-		    $vName == 'calendars'
-		    );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_JOURNALS'),
-		    'index.php?option=com_xbjournals&view=journals',
-		    $vName == 'journals'
-		    );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_NOTEBOOKS'),
-		    'index.php?option=com_xbjournals&view=notes',
-		    $vName == 'notes'
-		    );
-		JHtmlSidebar::addEntry(
-		    Text::_('XBJOURNALS_ICONMENU_ATTACHMENTS'),
-		    'index.php?option=com_xbjournals&view=attachments',
-		    $vName == 'attachments'
-		    );
+//	    if ($vName != 'categories') {
+	        JHtmlSidebar::addEntry(
+                Text::_('XBJOURNALS_ICONMENU_DASHBOARD'),
+                'index.php?option=com_xbjournals&view=dashboard',
+                $vName == 'dashboard'
+    	        );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_SERVERS'),
+    		    'index.php?option=com_xbjournals&view=servers',
+    		    $vName == 'servers'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_NEWSERVER'),
+    		    'index.php?option=com_xbjournals&view=server&layout=edit',
+    		    $vName == 'server'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_CALENDARS'),
+    		    'index.php?option=com_xbjournals&view=calendars',
+    		    $vName == 'calendars'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_JOURNALS'),
+    		    'index.php?option=com_xbjournals&view=journals',
+    		    $vName == 'journals'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_NOTEBOOKS'),
+    		    'index.php?option=com_xbjournals&view=notes',
+    		    $vName == 'notes'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_ATTACHMENTS'),
+    		    'index.php?option=com_xbjournals&view=attachments',
+    		    $vName == 'attachments'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_CATEGORIES'),
+    		    'index.php?option=com_xbjournals&view=jcategories',
+    		    $vName == 'jcategories'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_NEWCAT'),
+    		    'index.php?option=com_categories&view=category&task=category.edit&extension=com_xbjournals',
+    		    $vName == 'category'
+    		    );
+    		JHtmlSidebar::addEntry(
+    		    Text::_('XBJOURNALS_ICONMENU_EDITCATS'),
+    		    'index.php?option=com_categories&view=categories&extension=com_xbjournals',
+    		    $vName == 'categories'
+    		    );
+//	    } else {
+	        
+//	    }
 	}
     
 	/**
@@ -119,6 +138,7 @@ class XbjournalsHelper extends ContentHelper
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    
 	    $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
+	    //TODO filter to get only calendars with VJOURNAL enabled according to user status 
 	    
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
@@ -237,17 +257,28 @@ class XbjournalsHelper extends ContentHelper
 	 * @param int $calid
 	 * @return array[]
 	 */
-	public static function getCalendarJournalEntries(int $calid, $start = null, $end = null) {
+	public static function getCalendarJournalEntries(int $calid, $start = null, $end = null, $type = '') {
 	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
-	    $client = new xbVjournalHelper();
-	    $client->connect($conn['url'],$conn['username'],$conn['password']);
-	    $client->setCalendarByUrl($cal['cal_url']);
-	    $calitems = $client->getJournals($start, $end);
+	    $calhelper = new xbVjournalHelper();
+	    $calhelper->connect($conn['url'],$conn['username'],$conn['password']);
+	    $calhelper->setCalendarByUrl($cal['cal_url']);
+	    switch ($type) {
+   	        case 'journals':
+	            $calitems = $calhelper->getJournalEntries($start, $end);
+    	        break;
+   	        case 'journals':
+   	            $calitems = $calhelper->getNotes($start, $end);
+   	            break;
+	        default:
+	            ;
+	        break;
+	    }
+	    $calitems = $calhelper->getAllVjounals($start, $end);
 	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
-	        $journalentry = $client->parseVjournalObject($calitem);
+	        $journalentry = $calhelper->parseVjournalObject($calitem);
 	        
 	        if (!empty($journalentry)) $journalentries[] = $journalentry;
 	    }
@@ -343,7 +374,9 @@ class XbjournalsHelper extends ContentHelper
 	
 	/** 
 	 * @name date2VcalDate()
-	 * @desc conversts any valid date to a Vcal compatible date or datetie string
+	 * @desc converts any valid date to a Vcal compatible date or datetie string
+	 * BEWARE ambiguous date strings (eg using unexpected day-month ordering) may produce unexpected results
+	 * BEWARE this function uses unix timstamp for conversion and will fail with dates before 01/01/1970
 	 * @param string $datestr - the input string
 	 * @param boolean $time - true to include time in output, false for date only
 	 * @return string

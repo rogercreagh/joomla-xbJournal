@@ -37,6 +37,7 @@
 		/>	
         
 	</fieldset>
+<!-- MAPPING TAB -->
 	<fieldset name ="mapping"
 		label="XBJOURNALS_PROPERTY_MAPPING"
 		description="XBJOURNALS_PROPERTY_MAPPING_DESC"
@@ -45,7 +46,7 @@
 				label="XBJOURNALS_CATS_TAGS_MAPPING_LABEL"
 				description="XBJOURNALS_CATS_TAGS_MAPPING_DESC"
 			/>
-			<field name="jclass" type="list"
+			<field name="map_vjclass_access" type="list"
 				label="XBJOURNALS_CLASS_MAP"
 				description="XBJOURNALS_CLASS_MAP_DESC"
 				default="0"
@@ -53,21 +54,32 @@
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
 				<option value="1">XBJOURNALS_CLASS_ACCESS</option>
 			</field>
-			<field name="jstatus" type="list"
+			<field name="map_vjstatus_cat" type="list"
 				label="XBJOURNALS_STATUS_MAP"
 				description="XBJOURNALS_STATUS_MAP_DESC"
 				default="0"
 			>
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
 				<option value="1">XBJOURNALS_STATUS_CAT</option>
+				<option value="2">XBJOURNALS_XSTATUS_CAT</option>
 			</field>
-			<field name="jcategories" type="list"
+			<field name="map_vjcategories_tags" type="list"
 				label="XBJOURNALS_CATEGORES_MAP"
 				description="XBJOURNALS_CATEGORES_MAP_DESC"
 				default="0"
 			>
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
 				<option value="1">XBJOURNALS_CATS_TAGS</option>
+			</field>
+			<field name="parenttag" type="tag"
+				label="Parent tag"
+				description="Set optional parent tag under which to create imported Vjournal categories as Joomla tags"
+				mode="nested" published="1"
+				multiple="false"
+				showon="map_vjcategories_tags:1" 
+				default=""
+			>
+				<option value="">XBJOURNALS_NO_PARENT</option>
 			</field>
 		</fieldset>
 <!-- BEER TAB -->
@@ -85,8 +97,9 @@
 			default=""
 		/>	
 		<field name="beernote2" type="note"
-			label="XBJOURNALS_BEER_TALK"
+			label="XBJOURNALS_PAY_AT_THE_BAR"
 			description="XBJOURNALS_BEER_FORM"
+			class="center"
 		/>
 		<field name="penpont" type="hidden"
 			default="$2y$10$DeCwB16giLjgL7HgM1RDSeHROFs7QQef2dBQ9jEKehiTGj05jbonK" 

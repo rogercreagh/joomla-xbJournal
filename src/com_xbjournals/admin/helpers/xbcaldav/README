@@ -28,7 +28,7 @@ It contains the following functions:
   - change()
   - delete()
   - getEvents()
-  - getJournals() - added RCO
+  - getJournalEntries() - added RCO
   - getNotes() - added RCO
   - getTODOs()
   - getCustomReport()

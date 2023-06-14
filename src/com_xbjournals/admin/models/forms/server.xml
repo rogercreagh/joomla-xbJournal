@@ -50,6 +50,14 @@
 			<option value="-2">JTRASHED</option>
 		</field>
 		
+		<field name="access" type="accesslevel"
+			label="JFIELD_ACCESS_LABEL"
+			description="JFIELD_ACCESS_DESC"
+			id="access"
+			class="inputbox"
+			size="1"
+		/>
+
 		<field name="note" type="textarea" rows="3" cols="50"
 			label="XBJOURNALS_ADMIN_NOTE" description="XBJOURNALS_ADMIN_NOTE_DESC"
 		/>

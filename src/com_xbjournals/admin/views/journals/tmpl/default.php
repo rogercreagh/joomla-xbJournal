@@ -35,7 +35,7 @@ if (!$listOrder) {
 }
 
 $saveOrder      = $listOrder == 'ordering';
-$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
+$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.journal');
 if ($saveOrder) {
     $saveOrderingUrl = 'index.php?option=com_xbjournals&task=journals.saveOrderAjax&tmpl=component';
     HTMLHelper::_('sortablelist.sortable', 'xbjournalsJournalsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
@@ -43,7 +43,7 @@ if ($saveOrder) {
 
 $itemeditlink='index.php?option=com_xbjournals&view=journal&task=journal.edit&id=';
 $caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&id=';
-$catviewlink='';
+$catviewlink='index.php?option=com_xbjournals&view=jcategory&id=';
 $tagviewlink='';
 
 ?>

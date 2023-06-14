@@ -9,6 +9,8 @@
  * portions copyright (c) Michael Palm <palm.michael@gmx.de>, 2014
  * original source https://github.com/
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
+ * @desc class to encapsulate the CalDAV functions needed for VJournal operations
+ * 
  ******/
 
 // No direct access to this file
@@ -33,29 +35,22 @@ use Joomla\CMS\Factory;
 
 require_once 'xbCalDAVClient.php';
 require_once('CalDAVException.php');
-require_once('CalDAVFilter.php');
+// require_once('CalDAVFilter.php');
 require_once('CalDAVObject.php');
-
-
 
 class xbVjournalHelper {
     private $client;
     private $serverid;
     
     /**
-     * function connect()
-     * Connects to a CalDAV-Server.
-     *
-     * Arguments:
-     * @param $url URL to the CalDAV-server. E.g. http://exam.pl/baikal/cal.php/username/calendername/
-     * @param $user Username to login with
-     * @param $pass Password to login with
-     *
-     * Debugging:
+     * @name connect()
+     * @desc creates a new client object and opens connection to the server. 
+     * @param string $url - url for CalDAV server eg 'https://nextcloud.mydomain/remote.php/dav/principals/users/username/'
+     * @param string $user - username to login to server
+     * @param string $pass - password to login to server
      * @throws CalDAVException
-     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); }
      */
-    function connect ( $url, $user, $pass )
+    public function connect( $url, $user, $pass )
     {
         //  Connect to CalDAV-Server and log in
         $client = new xbCalDAVClient($url, $user, $pass);
@@ -99,22 +94,27 @@ class xbVjournalHelper {
     }
     
     /**
-     * function findCalendars()
-     *
-     * Requests a list of all accessible calendars on the server
-     *
-     * Return value:
-     * @return an array of CalDAVCalendar-Objects (see CalDAVCalendar.php), representing all calendars accessible by the current principal (user).
-     *
-     * Debugging:
-     * @throws CalDAVException
-     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
+     * @name findCalendars()
+     * @desc gets a list of all valid calendars on the server. Includes ones without VJOURNAL support
+     * check $calendar->Components to see if VJOURNAL included
+     * @throws Exception
+     * @return array of Calendar objects xbCalDAVCalendar[] accessible by the current principal (user)
      */
-    function findCalendars()
+    public function findCalendars($journalsOnly = false)
     {
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
         
-        return $this->client->FindCalendars(true);
+         $cals = $this->client->FindCalendars(true);
+         if ($journalsOnly) {
+             foreach ($cals as $cal) {
+                 $valcals = array();
+                 if (strpos($cal->Components,'VJOURNAL') !== false) {
+                     $valcals[]= $cal;
+                 }
+             }
+             $cals = $valcals;
+         }
+         return $cals;
     }
     
     /**
@@ -157,7 +157,7 @@ class xbVjournalHelper {
      *           	Notice: The iCalendar-data contains the unique ID which specifies where the event is being saved.
      *
      * Return value:
-     * @return An CalDAVObject-representation (see CalDAVObject.php) of your created resource
+     * @return CalDAVObject - representation (see CalDAVObject.php) of your created resource
      *
      * Debugging:
      * @throws CalDAVException
@@ -278,24 +278,17 @@ class xbVjournalHelper {
     }
     
     /**
-     * function getEvents()
-     * Gets a all events from the CalDAV-Server which lie in a defined time interval.
-     *
-     * Arguments:
-     * @param $start The starting point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *           		GMT. If omitted the value is set to -infinity.
-     * @param $end The end point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
-     *           		GMT. If omitted the value is set to +infinity.
-     *
-     * Return value:
-     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found events.
-     *
-     * Debugging:
+     * @name getAllVjournals()
+     * @desc returns all Vjournal items within the specifeid date range for specified date property
+     * NB defaults to using created date rather than dtstart to ensure notes get included 
+     * @param string $start
+     * @param string $end
+     * @param string $dateprop
+     * @throws Exception
      * @throws CalDAVException
-     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
+     * @return CalDAVObject[]
      */
-    function getEvents ( $start = null, $end = null )
-    {
+    function getAllVjournals($start = null, $end = null, $dateprop = ''){
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
         if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
@@ -306,7 +299,7 @@ class xbVjournalHelper {
         { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
         
         // Get it!
-        $results = $this->client->GetEvents( $start, $end );
+        $results = $this->client->GetVjournals( $start, $end, $dateprop );
         
         // GET-request successfull?
         if ( $this->client->GetHttpResultCode() != '207' )
@@ -316,23 +309,26 @@ class xbVjournalHelper {
         
         // Reformat
         $report = array();
-        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+        foreach($results as $item) $report[] = new CalDAVObject($this->url.$item['href'], $item['data'], $item['etag']);
         
         return $report;
     }
     
+    
+    }
+    
     /**
-     * function getJournals()
-     * @desc gets the VJOURNAL entries 
-     * sett start and/or end time to only get journal entries
-     * with no times will get ALL items including notes, use getNotes() for notes only.
-     * @param unknown $start
-     * @param unknown $end
+     * @name getJournalEntries()
+     * @desc gets only jounal entries ie Vjournal items with DTSTART set
+     * if start and finish both set then gets items with DTSTART in the range
+     * @param string $start
+     * @param string $end
+     * @param string $dateprop - option property to use to filter dates
      * @throws Exception
      * @throws CalDAVException
      * @return CalDAVObject[]
      */
-    function getJournals ( $start = null, $end = null )
+    function getJournalEntries( $start = '19520915T193000Z', $end = null, $dateprop = '' )
     {
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
@@ -344,7 +340,7 @@ class xbVjournalHelper {
         { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
         
         // Get it!
-        $results = $this->client->GetVjournals( $start, $end );
+        $results = $this->client->GetJournalsOnly( $start, $end, $dateprop );
         
         // GET-request successfull?
         if ( $this->client->GetHttpResultCode() != '207' )
@@ -366,11 +362,17 @@ class xbVjournalHelper {
      * @throws CalDAVException
      * @return CalDAVObject[]
      */
-    function getNotes (string $filter = '')
+    function getNotes($start = null, $end = null, $dateprop = '' )
     {
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
         if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+ 
+        // Are $start and $end in the correct format?
+        if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
+            or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
+        { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
+        
         
         // Get it!
         $results = $this->client->GetNotes();
@@ -387,50 +389,7 @@ class xbVjournalHelper {
         
         return $report;
     }
-    
-    function getEtags() {
-        // Connection and calendar set?
-        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
-        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
-        
-        // 	    // Get it!
-        // 	    $results = $this->client->GetNotes();
-        
-        // 	    // GET-request successfull?
-        // 	    if ( $this->client->GetHttpResultCode() != '207' )
-            // 	    {
-        // 	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
-        // 	    }
-        
-        // 	    // Reformat
-        // 	    $report = array();
-        // 	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
-        
-        // 	    return $report;
-    }
-    
-    
-    function getEntryByHref($href = null) {
-        // Connection and calendar set?
-        if(!isset($this->client)) throw new Exception('No connection. Try connect().');
-        if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
-        
-        // Get it!
-        $results = $this->client->GetEntryByHref();
-        
-        // GET-request successfull?
-        if ( $this->client->GetHttpResultCode() != '207' )
-        {
-            throw new CalDAVException('Recieved unknown HTTP status', $this->client);
-        }
-        
-        // Reformat
-        $report = array();
-        foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
-        
-        return $report;
-    }
-        
+
     /**
      * function getCustomReport()
      * Sends a custom request to the server
@@ -441,10 +400,10 @@ class xbVjournalHelper {
      * See http://www.rfcreader.com/#rfc4791_line1524 for more information about how to write filters on your own.
      *
      * Arguments:
-     * @param $filterXML The stuff, you want to send encapsulated in the <C:filter>-tag.
+     * @param string $filterXML  stuff, you want to send encapsulated in the <C:filter>-tag.
      *
      * Return value:
-     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found calendar resources.
+     * @return array of CalDAVObjects (See CalDAVObject.php), representing the found calendar resources.
      *
      * Debugging:
      * @throws CalDAVException
@@ -577,6 +536,99 @@ class xbVjournalHelper {
         return $cpos;
     }
     
+    /**
+     * function getEvents()
+     * Gets a all events from the CalDAV-Server which lie in a defined time interval.
+     *
+     * Arguments:
+     * @param $start The starting point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
+     *           		GMT. If omitted the value is set to -infinity.
+     * @param $end The end point of the time interval. Must be in the format yyyymmddThhmmssZ and should be in
+     *           		GMT. If omitted the value is set to +infinity.
+     *
+     * Return value:
+     * @return an array of CalDAVObjects (See CalDAVObject.php), representing the found events.
+     *
+     * Debugging:
+     * @throws CalDAVException
+     * For debugging purposes, just sorround everything with try { ... } catch (Exception $e) { echo $e->__toString(); exit(-1); }
+     */
+    /**** NOT USED
+     function getEvents ( $start = null, $end = null )
+     {
+     // Connection and calendar set?
+     if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+     if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+     
+     // Are $start and $end in the correct format?
+     if ( ( isset($start) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $start, $matches ) )
+     or ( isset($end) and ! preg_match( '#^\d\d\d\d\d\d\d\dT\d\d\d\d\d\dZ$#', $end, $matches ) ) )
+     { trigger_error('$start or $end are in the wrong format. They must have the format yyyymmddThhmmssZ and should be in GMT', E_USER_ERROR); }
+     
+     // Get it!
+     $results = $this->client->GetEvents( $start, $end );
+     
+     // GET-request successfull?
+     if ( $this->client->GetHttpResultCode() != '207' )
+     {
+     throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+     }
+     
+     // Reformat
+     $report = array();
+     foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+     
+     return $report;
+     }
+     ****/
+    
+    /**** NOT USED
+     function getEtags() {
+     // Connection and calendar set?
+     if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+     if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+     
+     // 	    // Get it!
+     // 	    $results = $this->client->GetNotes();
+     
+     // 	    // GET-request successfull?
+     // 	    if ( $this->client->GetHttpResultCode() != '207' )
+     // 	    {
+     // 	        throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+     // 	    }
+     
+     // 	    // Reformat
+     // 	    $report = array();
+     // 	    foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+     
+     // 	    return $report;
+     }
+     ****/
+     
+     /**** NOT USED
+      function getEntryByHref($href = null) {
+      // Connection and calendar set?
+      if(!isset($this->client)) throw new Exception('No connection. Try connect().');
+      if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
+      
+      // Get it!
+      $results = $this->client->GetEntryByHref();
+      
+      // GET-request successfull?
+      if ( $this->client->GetHttpResultCode() != '207' )
+      {
+      throw new CalDAVException('Recieved unknown HTTP status', $this->client);
+      }
+      
+      // Reformat
+      $report = array();
+      foreach($results as $event) $report[] = new CalDAVObject($this->url.$event['href'], $event['data'], $event['etag']);
+      
+      return $report;
+      }
+      ****/
+     
+     
 }
 
     

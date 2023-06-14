@@ -242,6 +242,7 @@ some common combinations are also defined (eg xbnit - normal weight,italic, 5px 
 .xbml10, .xbsubtitle { margin-left:10px; }
 .xbml15 { margin-left:15px; }
 .xbml20 { margin-left:20px; }
+.xbml100 { margin-left:100px; }
 
 .xbmr10 { margin-right:10px; }
 .xbmr20 { margin-right:20px; }

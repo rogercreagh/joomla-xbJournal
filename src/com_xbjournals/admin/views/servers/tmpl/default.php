@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/servers/tmpl/default.php
- * @version 0.0.0.8 12th April 2023
+ * @version 0.0.6.3 14th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -46,27 +46,22 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
-		<h4><?php echo Text::_( 'XBJOURNALS_SERVERS' ); ?></h4>
-	<div class="pull-right span2">
-		<p style="text-align:right;">
-			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. JText::_(($fnd==1)?'XBJOURNALS_SERVER':'XBJOURNALS_SERVERS').' '.JText::_('XBJOURNALS_FOUND');
-            ?>
-		</p>
-	</div>
-	<div class="clearfix"></div>
-	
-	<?php
-        // Search tools bar
-//        echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
-    ?>
-	<div class="clearfix"></div>
-	
-	<div class="pagination">
-		<?php  echo $this->pagination->getPagesLinks(); ?>
-		<br />
-	    <?php //echo 'sorted by '.$orderNames[$listOrder].' '.$listDirn ; ?>
-	</div>
+		<h3><?php echo Text::_( 'XBJOURNALS_SERVERS_USER' ); ?></h4>
+		<p><?php echo Text::_('XBJOURNALS_SERVERS_USER_SUBTITLE'); ?></p>
+		<?php // Search tools bar
+            echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
+        ?>	
+        <div class="pull-right pagination xbm0">
+    		<?php  echo $this->pagination->getPagesLinks(); ?>
+    	</div>
+    	<div class="pull-left">
+    		<?php  echo $this->pagination->getResultsCounter(); ?> 
+            <?php if($this->pagination->pagesTotal > 1) echo ' on '.$this->pagination->getPagesCounter(); ?>
+    		<p>              
+                <?php echo 'Sorted by '.$listOrder.' '.$listDirn ; ?>
+    		</p>
+    	</div>
+        <div class="clearfix"></div>      
 
 	<?php if (empty($this->items)) : ?>
 		<div class="alert alert-no-items">
@@ -90,7 +85,9 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_TITLE','title',$listDirn,$listOrder); ?>
 					</th>					
 					<th>
-						<?php echo Text::_('XBJOURNALS_CONNECTION');?>
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_USERNAME','username',$listDirn,$listOrder); ?>
+						 &amp;
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_CONNECTION','url',$listDirn,$listOrder); ?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >
 						<?php echo (Text::_('XBJOURNALS_DESCRIPTION'));?>
@@ -113,8 +110,8 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
                 $canEdit    = $user->authorise('core.edit', 'com_xbjournals.server.'.$item->id);
                 $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                         || $item->checked_out==$userId || $item->checked_out==0;
-				$canEditOwn = $user->authorise('core.edit.own', 'com_xbmaps.map.'.$item->id) && $item->created_by == $userId;
-                $canChange  = $user->authorise('core.edit.state', 'com_xbmaps.map.'.$item->id) && $canCheckin;
+				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.server.'.$item->id) && $item->created_by == $userId;
+                $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.server.'.$item->id) && $canCheckin;
 			?>
 			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
 				<td class="order nowrap center hidden-phone">
@@ -138,10 +135,10 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 				</td>
 				<td class="center">
 					<div class="btn-group">
-						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'map.', $canChange, 'cb'); ?>
+						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'server.', $canChange, 'cb'); ?>
 						<?php if ($item->note!=""){ ?>
-							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.JText::_( 'XBMAPS_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
-								<i class="icon- xbinfo"></i>
+							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.JText::_( 'XBJOURNALS_ADMIN_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
+								<i class="icon-info xbinfo"></i>
 							</span>
 						<?php } else {?>
 							<span class="btn btn-micro inactive" style="visibility:hidden;" title=""><i class="icon-info"></i></span>
@@ -152,7 +149,7 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 					<p class="xb12 xbbold xbmb8">
 					<?php if ($item->checked_out) {
 					    $couname = Factory::getUser($item->checked_out)->username;
-					    echo HTMLHelper::_('jgrid.checkedout', $i, JText::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'map.', $canCheckin);
+					    echo HTMLHelper::_('jgrid.checkedout', $i, JText::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'server.', $canCheckin);
 					} ?>
 					<?php if ($canEdit || $canEditOwn) : ?>
 						<a href="<?php echo Route::_($servereditlink.$item->id);?>"
@@ -167,9 +164,13 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 					</p>
 				</td>
 				<td>
-					<?php echo $item->url;?>
-					<br /><?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_USERNAME').'</span>: '.$item->username; ?>
-					<br /><?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_PASSWORD').'</span>: '.$item->password; ?>
+					<?php if ($item->url == '') : ?>
+						<p class="xbnit"><?php echo Text::_('XBJOURNALS_LOCAL_STORAGE'); ?>
+					<?php else : ?>
+						<?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_USERNAME').'</span>: <b>'.$item->username.'</b>'; ?>
+						<br /><?php echo $item->url;?>
+						<?php //echo '<span class="xbnit">'.Text::_('XBJOURNALS_PASSWORD').'</span>: '.$item->password; ?>
+					<?php endif; ?>
 				</td>
 				<td>
 					<?php echo $item->description; ?>
@@ -183,7 +184,9 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 							<ul>
 								<?php foreach ($item->calendars as $i=>$cal) : ?>
 								    <li><a href="index.php?option=com_xbjournals&view=calendar&id=<?php echo $cal['id'];?>">
+								    	<?php if (!$cal['vjok']) echo '<span class="xbdim">'; ?>
 								    	<?php echo $cal['title']; ?>
+								    	<?php if (!$cal['vjok']) echo'</span>'; ?>
 								    </a></li>
 								<?php  endforeach; ?>
 							</ul>

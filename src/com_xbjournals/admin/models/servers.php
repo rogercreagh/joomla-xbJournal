@@ -18,9 +18,26 @@ defined('_JEXEC') or die;
 
 class XbjournalsModelServers extends JModelList {
     
-    public function __construct() {
+    public function __construct($config = array()) {
+        if (empty($config['filter_fields'])) {
+            $config['filter_fields'] = array(
+                'id', 'a.id', 'title', 'a.title',
+                'a.username','username','a.url','url',
+                'ordering','a.ordering', 'category_title', 'cat.title',
+                'published','a.state','modified','a.modified');
+        }
+        parent::__construct($config);
+    }
+    
+    protected function populateState($ordering = 'title', $direction = 'desc') {
         
-        parent::__construct();
+        $app = Factory::getApplication();
+        $filt = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+        $this->setState('filter.search', $filt);
+        $filt = $this->getUserStateFromRequest($this->context . '.filter.published', 'filter_published', '');
+        $this->setState('filter.published', $filt);
+        
+        parent::populateState($ordering, $direction);
     }
     
     protected function getListQuery() {
@@ -37,6 +54,30 @@ class XbjournalsModelServers extends JModelList {
             $query->select('(SELECT COUNT(*) FROM #__xbjournals_calendars AS c WHERE c.server_id=a.id) AS ccnt' );
             $query->from('#__xbjournals_servers AS a');
             
+            // Filter by published state
+            $published = $this->getState('filter.published');
+            if (is_numeric($published)) {
+                $query->where('a.state = ' . (int) $published);
+            }
+            
+            // Filter by search in title/id/synop
+            $search = $this->getState('filter.search');
+            
+            if (!empty($search)) {
+                if (stripos($search, 'i:') === 0) {
+                    $query->where($db->quoteName('a.id') . ' = ' . (int) substr($search, 2));
+                } elseif (stripos($search,'d:')===0) {
+                    $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim(substr($search,2)), true) . '%'));
+                    $query->where('(a.description LIKE ' . $search.')');
+                } elseif (stripos($search,'a:')===0) {
+                    $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim(substr($search,2)), true) . '%'));
+                    $query->where('(a.alias LIKE ' . $search.')');
+                } elseif (stripos($search,':')!= 1) {
+                    $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
+                    $query->where('(a.title LIKE ' . $search  . ')');
+                }
+            }
+            
             $orderCol       = $this->state->get('list.ordering', 'title');
             $orderDirn      = $this->state->get('list.direction', 'ASC');
             
@@ -45,7 +86,7 @@ class XbjournalsModelServers extends JModelList {
             return $query;
             
     }
-    
+
     public function getItems() {
         $items  = parent::getItems();
         
@@ -54,7 +95,7 @@ class XbjournalsModelServers extends JModelList {
         foreach ($items as $i=>$item) {
             if ($item->ccnt > 0) {
                 $query->clear();
-                $query->select('b.id, b.title')->from('#__xbjournals_calendars AS b')->where('b.server_id = '.$db->q($item->id));
+                $query->select('b.id, b.title,IF (b.cal_components LIKE '.$db->q('%VJOURNAL&').', 1, 0) AS vjok')->from('#__xbjournals_calendars AS b')->where('b.server_id = '.$db->q($item->id));
                 $db->setQuery($query);
                 $item->calendars = $db->loadAssocList();
             }

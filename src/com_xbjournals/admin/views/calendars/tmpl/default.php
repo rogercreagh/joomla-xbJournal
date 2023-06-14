@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.0.1.2 23rd April 2023
+ * @version 0.0.6.2 14th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -38,13 +38,17 @@ if ($saveOrder) {
 }
 
 $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
-
+Factory::getDocument()->addScriptDeclaration('function pleaseWait() {
+		document.getElementById("waiting").style.display = "block";
+	}');
 ?>
 <form action="<?php echo Route::_('index.php?option=com_xbjournals&view=calendars'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
 	<div id="j-sidebar-container">
 		<?php echo $this->sidebar; ?>
 	</div>
+	<div id="waiting" class="xbbox alert-info" style="display:none;">
+		<img src="/media/com_xbjournals/images/waiting.gif" height="200px" /> Waiting for reply from remote server...</div>
 	<div id="j-main-container" >
 		<h3><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h3>
 	<div class="pull-right span2">
@@ -141,7 +145,7 @@ $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
 						<?php echo HTMLHelper::_('jgrid.published', $item->published, $i, 'calendar.', $canChange, 'cb'); ?>
 						<?php if ($item->note!=""){ ?>
 							<span class="btn btn-micro active hasTooltip" title="" data-original-title="<?php echo '<b>'.Text::_( 'XBJOURNALS_ADMIN_NOTE' ) .'</b>: '. htmlentities($item->note); ?>">
-								<i class="icon- xbinfo"></i>
+								<i class="icon-info xbinfo"></i>
 							</span>
 						<?php } else {?>
 							<span class="btn btn-micro inactive" style="visibility:hidden;" title=""><i class="icon-info"></i></span>
