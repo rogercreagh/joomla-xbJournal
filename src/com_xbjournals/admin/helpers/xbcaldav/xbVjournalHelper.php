@@ -313,10 +313,7 @@ class xbVjournalHelper {
         
         return $report;
     }
-    
-    
-    }
-    
+        
     /**
      * @name getJournalEntries()
      * @desc gets only jounal entries ie Vjournal items with DTSTART set
@@ -535,7 +532,9 @@ class xbVjournalHelper {
         }
         return $cpos;
     }
-    
+  
+}
+
     /**
      * function getEvents()
      * Gets a all events from the CalDAV-Server which lie in a defined time interval.
@@ -629,7 +628,6 @@ class xbVjournalHelper {
       ****/
      
      
-}
 
     
 

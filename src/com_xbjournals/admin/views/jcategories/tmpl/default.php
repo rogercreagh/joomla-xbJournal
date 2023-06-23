@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/jcategories/tmpl/default.php
- * @version 0.0.6.1 12th June 2023
+ * @version 0.0.6.4 16th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2021
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -30,7 +30,7 @@ $calvlink = 'index.php?option=com_xbjournals&view=calendars&catid=';
 $prevext ='';
 
 ?>
-<form action="index.php?option=com_xbjournalss&view=jcategories" method="post" id="adminForm" name="adminForm">
+<form action="index.php?option=com_xbjournals&view=jcategories" method="post" id="adminForm" name="adminForm">
 	<?php if (!empty( $this->sidebar)) : ?>
         <div id="j-sidebar-container" class="span2">
 			<?php echo $this->sidebar; ?>

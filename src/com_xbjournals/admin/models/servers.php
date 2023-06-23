@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/servers.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.6.4 16th April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -95,7 +95,7 @@ class XbjournalsModelServers extends JModelList {
         foreach ($items as $i=>$item) {
             if ($item->ccnt > 0) {
                 $query->clear();
-                $query->select('b.id, b.title,IF (b.cal_components LIKE '.$db->q('%VJOURNAL&').', 1, 0) AS vjok')->from('#__xbjournals_calendars AS b')->where('b.server_id = '.$db->q($item->id));
+                $query->select('b.id, b.title,IF (b.cal_components LIKE '.$db->q('%VJOURNAL%').', 1, 0) AS vjok')->from('#__xbjournals_calendars AS b')->where('b.server_id = '.$db->q($item->id));
                 $db->setQuery($query);
                 $item->calendars = $db->loadAssocList();
             }

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/servers/tmpl/default.php
- * @version 0.0.6.3 14th June 2023
+ * @version 0.0.6.4 16th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -87,7 +87,8 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 					<th>
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_USERNAME','username',$listDirn,$listOrder); ?>
 						 &amp;
-						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_CONNECTION','url',$listDirn,$listOrder); ?>
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_DOMAIN','url',$listDirn,$listOrder); ?>
+						 &amp; <?php echo Text::_('XBJOURNALS_PATH'); ?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >
 						<?php echo (Text::_('XBJOURNALS_DESCRIPTION'));?>
@@ -168,7 +169,9 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 						<p class="xbnit"><?php echo Text::_('XBJOURNALS_LOCAL_STORAGE'); ?>
 					<?php else : ?>
 						<?php echo '<span class="xbnit">'.Text::_('XBJOURNALS_USERNAME').'</span>: <b>'.$item->username.'</b>'; ?>
-						<br /><?php echo $item->url;?>
+						<?php $urlarr = parse_url($item->url); ?>
+						<br /><?php echo $urlarr["scheme"].'://'.$urlarr["host"]; ?>
+						<br /><?php echo $urlarr["path"]; ?>
 						<?php //echo '<span class="xbnit">'.Text::_('XBJOURNALS_PASSWORD').'</span>: '.$item->password; ?>
 					<?php endif; ?>
 				</td>

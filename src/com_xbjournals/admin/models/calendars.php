@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.6.0 20th May 2023
+ * @version 0.0.6.3 16th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -107,7 +107,7 @@ class XbjournalsModelCalendars extends JModelList {
      * @param int $calid - the joomla id of the calendar
      * @return array with counts of items, new, changed, same, deleted
      */
-    public function importJournalItems(int $calid, $startstr = '', $endstr = '') {
+    public function importJournalItems(int $calid, $startstr = null, $endstr = null) {
         $cnts = array('local'=>0,'server'=>0,'new'=>0,'same'=>0,'updated'=>0,'missing'=>0,'archived'=>0);
         $res = false;
         $db = Factory::getDbo();
@@ -192,9 +192,7 @@ class XbjournalsModelCalendars extends JModelList {
         $categories = '';
         $title = '';
         $descdone = false;
-        $statdone = false;
-        $cat = '';
-        $catid= 0;
+        $catid = 0;
         $uid = '';
         foreach ($item as $prop) {
             switch ($prop['property']) {
@@ -275,7 +273,7 @@ class XbjournalsModelCalendars extends JModelList {
                     break;
                 case 'class':
                     //test for param and map to access if required
-                    if ($params->get('jclass',0)==1) {
+                    if ($params->get('map_vjclass_access',0)==1) {
                         switch (strtolower($prop['value'])) {
                             case 'private':
                                 $insertarr[] = array('col'=>$db->qn('access'), 'val'=>$db->q(3));
@@ -288,15 +286,15 @@ class XbjournalsModelCalendars extends JModelList {
                                 break;
                         }
                     }
-                    $otherprops[] = $prop;                   
+                    $insertarr[] = array('col'=>$db->qn('class'), 'val'=>$db->q($prop['value']));
+                    if (!empty($prop['params'])) {
+                        $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
+                    }
                     break;
                 case 'status':
-                    if ($params->get('jstatus',0)==1) {
-                        if ($statdone == false) {
-                            //todo get journal root cat param
-                            $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');
-                            $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
-                        }
+                    if ($params->get('map_vjstatus_cat',0)==1) {
+                        //todo get journal root cat param
+                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');
                     }
                     $insertarr[] = array('col'=>$db->qn('status'), 'val'=>$db->q($prop['value']));
                     if (!empty($prop['params'])) {
@@ -304,13 +302,9 @@ class XbjournalsModelCalendars extends JModelList {
                     }
                     break;
                 case 'x-status':
-                    //test for param an map to category id if required, creating category if it doesn't exist
-                    //if x-status take it, if status check for existing status vlaue first and only take if none
-                    if ($params->get('jstatus',0)==1) {
+                    if ($params->get('map_vjstatus_cat',0)==2) {
                         //todo get journal root cat param
-                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');                        
-                        $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
-                        $statdone = true;
+                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal x-status');                        
                     }
                     $insertarr[] = array('col'=>$db->qn('x-status'), 'val'=>$db->q($prop['value']));
                     if (!empty($prop['params'])) {
@@ -327,31 +321,35 @@ class XbjournalsModelCalendars extends JModelList {
         $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
         if ($catid == 0) {
-            $catid = XbjournalsHelper::createCategory('Uncategorised');
+            $catid = $params->get('def_cat',0);
+            if  ($catid ==0) $catid = XbjournalsHelper::createCategory('Uncategorised');
             $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
         }
-        if ($cat) {
-            $insertarr[] = $cat;
-        }
+        $insertarr[] = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
+        
+        //deal with properties that might have had multiple entries
         if ($categories) 
+            //todo convert to tags after saving as need item id
             $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q($categories));
         if (!empty($attendees)) 
+            //?todo check for local users
             $insertarr[] = array('col'=>$db->qn('attendees'),'val'=>$db->q(json_encode($attendees)));
         if (!empty($comments))
             $insertarr[] = array('col'=>$db->qn('comments'),'val'=>$db->q(json_encode($comments)));
         if (!empty($otherprops)) 
             $insertarr[] = array('col'=>$db->qn('otherprops'),'val'=>$db->q(json_encode($otherprops)));
+        
+        // save all ofthe propertyparameters for recovery when syncing back
         if (!empty($itemparams)) 
             $insertarr[] = array('col'=>$db->qn('itemparams'),'val'=>$db->q(json_encode($itemparams)));
 
-//            $insertarr[] = array('col'=>$db->qn('catid'),'val'=>$db->q('0'));
-            $insertarr[] = array('col'=>$db->qn('state'),'val'=>$db->q('1'));
-            $insertarr[] = array('col'=>$db->qn('created_by'),'val'=>$db->q(Factory::getUser()->id));
-            $insertarr[] = array('col'=>$db->qn('note'),'val'=>$db->q('imported '.date('d M Y')));
-            $insertarr[] = array('col'=>$db->qn('calendar_id'),'val'=>$db->q($item['calid']));
-            $query = $db->getQuery(true);
+        $insertarr[] = array('col'=>$db->qn('state'),'val'=>$db->q('1'));
+        $insertarr[] = array('col'=>$db->qn('created_by'),'val'=>$db->q(Factory::getUser()->id));
+        $insertarr[] = array('col'=>$db->qn('note'),'val'=>$db->q('imported '.date('d M Y')));
+        $insertarr[] = array('col'=>$db->qn('calendar_id'),'val'=>$db->q($item['calid']));
+        $query = $db->getQuery(true);
         $query->insert('#__xbjournals_vjournal_entries')
-        ->columns(array_column($insertarr,'col'))->values(implode(',',array_column($insertarr,'val')));
+            ->columns(array_column($insertarr,'col'))->values(implode(',',array_column($insertarr,'val')));
        $db->setQuery($query);
        try {
            $db->execute();

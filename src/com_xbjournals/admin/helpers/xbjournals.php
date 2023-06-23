@@ -275,7 +275,7 @@ class XbjournalsHelper extends ContentHelper
 	            ;
 	        break;
 	    }
-	    $calitems = $calhelper->getAllVjounals($start, $end);
+	    $calitems = $calhelper->getAllVjournals($start, $end);
 	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
 	        $journalentry = $calhelper->parseVjournalObject($calitem);

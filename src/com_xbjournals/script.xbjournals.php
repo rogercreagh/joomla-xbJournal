@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.2.1 7th May 2023
+ * @version 0.0.6.4 17th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -91,15 +91,12 @@ class com_xbjournalsInstallerScript
             $componentXML = Installer::parseXMLInstallFile(Path::clean(JPATH_ADMINISTRATOR . '/components/com_xbjournals/xbjournals.xml'));
             $message = '<b>xbJournals '.$componentXML['version'].' '.$componentXML['creationDate'].'</b><br />';
                         
-            //create xbjournals image folder
-            if (!file_exists(JPATH_ROOT.'/images/xbjournals')) {
-                mkdir(JPATH_ROOT.'/images/xbjournals',0775);
-                $message .= 'Journals images folder created (/images/xbjournals/).<br />';
-            } else{
-                $message .= '"/images/xbjournals/" already exists.<br />';
-            }
-            
-            // Recover categories if they exist assigned to extension !com_xbfilms!
+            //create xbjournals images folder
+            $message .= $this->createFolder('/images/xbjournals','Images');
+            //create xbjournals attachments folder
+            $message .= $this->createFolder('/xbjournals-attachments','Attachments');
+    
+            // Recover categories if they exist assigned to extension !com_xbjournals!
             $db = Factory::getDbo();
             $qry = $db->getQuery(true);
             $qry->update('#__categories')
@@ -112,7 +109,7 @@ class com_xbjournalsInstallerScript
             } catch (Exception $e) {
                 $app->enqueueMessage($e->getMessage(),'Error');
             }
-            $message .= $cnt.' existing xbJournals categories restored. ';
+            if ($cnt>0) $message .= $cnt.' existing xbJournals categories restored. ';
             // create default categories using category table
             $cats = array(
                 array("title"=>"Uncategorised","desc"=>"default fallback category for all xbJournal items"));
@@ -120,11 +117,11 @@ class com_xbjournalsInstallerScript
             //    array("title"=>"Local","desc"=>"category for locally created xbJournal entries"));
             $message .= $this->createCategories($cats);
             
-            $app->enqueueMessage($message,'Info');
+//            $app->enqueueMessage($message,'Info');
             
             //set up indicies for books and bookreviews tables - can't be done in install.sql as they may already exists
             //mysql doesn't support create index if not exists.
-            $message = 'Checking indicies... ';
+            $message .= '<br />Checking indicies : ';
             
             $prefix = $app->get('dbprefix');
             $querystr = 'ALTER TABLE '.$prefix.'xbjournals_servers ADD INDEX serveraliasindex (alias)';
@@ -201,7 +198,7 @@ class com_xbjournalsInstallerScript
             }
             
             $res = $this->createLocals();
-            $message .= $res;
+            $message .= '<br />'.$res;
             
             $app->enqueueMessage($message);
                         
@@ -237,7 +234,7 @@ class com_xbjournalsInstallerScript
  	}
  	
  	public function createCategories($cats) {
- 	    $message = 'Creating '.$this->extension.' categories. ';
+ 	    $message = 'Creating '.$this->extension.' categories : ';
  	    foreach ($cats as $cat) {
  	        $db = Factory::getDBO();
  	        $query = $db->getQuery(true);
@@ -265,7 +262,7 @@ class com_xbjournalsInstallerScript
  	                if ($category->store(true)) {
  	                    // Build the path for our category
  	                    $category->rebuildPath($category->id);
- 	                    $message .= $cat['title'].' id:'.$category->id.' created ok. ';
+ 	                    $message .= $cat['title'].' (id:'.$category->id.') created ok. ';
  	                    if  ($category->alias == 'uncategorised') $this->uncatid = $category->id;
  	                } else {
  	                    //throw new Exception(500, $category->getError());
@@ -280,31 +277,48 @@ class com_xbjournalsInstallerScript
  	    return $message;
  	}
  	
+ 	public function createFolder(string $folder, $title ='') {
+ 	    $message = 'Creating folders : ';
+ 	    if (!file_exists(JPATH_ROOT . $folder)) {
+ 	        if (mkdir(JPATH_ROOT . $folder, 0775)) {
+ 	            copy(JPATH_ROOT.'/media/com_xbjournals/index.html', JPATH_ROOT.$folder.'/index.html' );
+ 	            $message .= $title.' folder <code>'.$folder.'</code> created.<br />';
+ 	        } else {
+ 	            $message .= '<b>Problem</b> creating '.$title.' <code>'.$folder.'</code><br />';
+ 	        }
+ 	    } else{
+ 	        $message .= $title.' folder <code>'.$folder.'</code> already exists.<br />';
+ 	    }    
+ 	    return $message;
+ 	}
+ 	
  	public function createLocals() {
+ 	    $message = 'Creating local stores : ';
  	    $null = "null";
  	    $created = date("Y-m-d H:i:s");
  	    $db = Factory::getDbo();
  	    $query = $db->getQuery(true);
  	    $query->insert($db->qn('#__xbjournals_servers'))
- 	    ->columns(array('id', 'title', 'alias', 'description', 'access', 'state', 'created', 'created_by', 'created_by_alias',
+ 	    ->columns(array('title', 'alias', 'description', 'access', 'state', 'created', 'created_by', 'created_by_alias',
  	        'modified', 'modified_by', 'checked_out', 'checked_out_time', 'ordering', 'note'))
- 	        ->values(implode(',',array('0', $db->q('Local Storage'), $db->q('local-storage'), $db->q('For local storage in database, not a CalDAV server'), '1', '1', $db->q($created), '0', $db->q('auto'),
+ 	        ->values(implode(',',array( $db->q('Local Storage'), $db->q('local-storage'), $db->q('For local storage in database, not a CalDAV server'), '1', '1', $db->q($created), '0', $db->q('auto'),
  	            $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
  	        $db->setQuery($query);
  	        try {
  	            $db->execute();
  	            $localserver = $db->insertid();
+ 	            $meaasge .= 'server (id='.$localserver.') created ok';
  	        } catch (Exception $e) {
  	            Factory::getApplication()->enqueueMessage('Failed to create local storage<br />'.$query->dump().'<br />'.$e->getMessage(),'Warning');
- 	            return 'Error saving local server';;
+ 	            return $message .'Error saving local server';;
  	        }
  	        
  	        $query->clear();
  	        $query->insert($db->qn('#__xbjournals_calendars'))
- 	        ->columns(array('id', 'server_id', 'cal_displayname', 'cal_url', 'cal_ctag', 'cal_calendar_id', 'cal_rgb_color', 'cal_order', 'cal_components',
+ 	        ->columns(array('server_id', 'cal_displayname', 'cal_url', 'cal_ctag', 'cal_calendar_id', 'cal_rgb_color', 'cal_order', 'cal_components',
  	            'title', 'alias', 'description',
  	            'catid', 'access', 'state', 'created', 'created_by', 'created_by_alias', 'modified', 'modified_by', 'checked_out', 'checked_out_time', 'metadata', 'note'))
- 	            ->values(implode(',',array('0', $db->q($localserver), $db->q('Local Storage'), $db->q(''), $db->q('https://xbjournals/local/1'), $db->q('asdf'), $db->q('#ccc'), '0', $db->q('VJOURNAL'),
+ 	            ->values(implode(',',array( $db->q($localserver), $db->q('Local Storage'), $db->q(''), $db->q('https://xbjournals/local/1'), $db->q('asdf'), $db->q('#ccc'), '0', $db->q('VJOURNAL'),
  	                $db->q('Local'), $db->q('local-calendar'), $db->q('For local journals and notebooks. Not a CalDAV calendar'),
  	                '0', '1', '1', $db->q($created), '0', $db->q('auto'), $null, '0', '0', $null, '0', $db->q('Created by xbJournals install. Do not delete.'))));
  	                $db->setQuery($query);
@@ -315,7 +329,7 @@ class com_xbjournalsInstallerScript
  	                    Factory::getApplication()->enqueueMessage('Failed to create local calendar<br />'.$e->getMessage(),'Warning');
  	                    return 'Error saving local calendar';
  	                }
- 	                return 'Local calendar (id='.$localcal.' created ok';
+ 	                return 'calendar (id='.$localcal.') created ok';
  	}
  	//Failed to create local calendar entry
  	//You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near ''https://mydomain/1','asdf','#ccc',0,'VJOURNAL','Local Calendar','local-calen...' at line 3

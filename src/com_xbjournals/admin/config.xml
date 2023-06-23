@@ -17,13 +17,13 @@
 		</field>			
 		<field name="attach_path" type="folderlist" 
 			default="images/xbjournals" directory="images" 
-	        label="Attached files folder" 
-	        description="Default folder to save attached files. Embedded attachents will always be extracted and saved here. URL attachments may copied from the remote location to here according to the option below." 
+	        label="XBJOURNALS_ATTACHPATH_LABEL" 
+	        description="XBJOURNALS_ATTACHPATH_DESC"
 	        recursive="true" hide_none="true" 
         />
   		<field name="copy_remote" type="radio"
 			label="Save remote attachments"
-			description="If 'No' then only embedded attachments will be decoded and saved locally for access. If 'Yes' then remote url attachments will be copied here and the local copy used for display. The original url will be restored back to the server on sync."
+			description="XBJOURNALS_COPYREMOTE_DESC"
  			class="btn-group btn-group-yesno"
 			default="0"
 			>
@@ -71,6 +71,14 @@
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
 				<option value="1">XBJOURNALS_CATS_TAGS</option>
 			</field>
+			<field name="def_jcat" type="category"
+				extension="com_xbjournals"
+				label="Default Category"
+				description="Category to be assigned if status/x-status not being used or if status not set"
+				default=""
+			>
+				<option value="">unspecified</option>
+			</field>
 			<field name="parenttag" type="tag"
 				label="Parent tag"
 				description="Set optional parent tag under which to create imported Vjournal categories as Joomla tags"
@@ -89,7 +97,7 @@
 	>
   		<field name="beernote" type="note"
 			label="XBJOURNALS_BEER_NOTE"
-			description="XBJOURNALS_BEER_LINK"
+			description="XBJOURNALS_CONFIG_BEER_LINK"
 			class="info"
 		/>	
 		<field name="roger_beer" type="password"

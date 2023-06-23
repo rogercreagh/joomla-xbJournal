@@ -149,11 +149,11 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
-        									<span class="badge badge-cyan xbmr10""><?php echo $this->journalStates['parents']; ?></span>
+        									<span class="badge badge-cyan xbmr10"><?php echo $this->journalStates['parents']; ?></span>
         									<?php echo Text::_('have sub-entries'); ?>
         								</div>
         								<div class="span6">
-        									<span class="badge badge-ltblue xbmr10""><?php echo $this->journalStates['children']; ?></span>
+        									<span class="badge badge-ltblue xbmr10"><?php echo $this->journalStates['children']; ?></span>
         									<?php echo Text::_('are sub-entries'); ?>
         								</div>
         							</div>
@@ -193,11 +193,11 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
         						<div class="row-striped">
         							<div class="row-fluid">
         								<div class="span6">
-        									<span class="badge badge-yellow xbmr10""><?php echo $this->notebookStates['parents']; ?></span>
+        									<span class="badge badge-yellow xbmr10"><?php echo $this->notebookStates['parents']; ?></span>
         									<?php echo Text::_('have sub-entries'); ?>
         								</div>
         								<div class="span6">
-        									<span class="badge badge-ltgreen xbmr10""><?php echo $this->notebookStates['children']; ?></span>
+        									<span class="badge badge-ltgreen xbmr10"><?php echo $this->notebookStates['children']; ?></span>
         									<?php echo Text::_('are sub-entries'); ?>
         								</div>
         							</div>

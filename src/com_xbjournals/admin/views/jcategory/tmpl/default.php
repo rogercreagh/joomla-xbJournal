@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/fcategory/tmpl/edit.php
- * @version 0.0.6.1 13th June 2023
+ * @version 0.0.6.4 16th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2021
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -25,7 +25,7 @@ $xblink = 'index.php?option=com_xbjournals';
 <?php else : ?>
 	<div id="j-main-container" class="span12">
 <?php endif;?>
-		<form action="index.php?option=com_xbfilms&view=jcategory" method="post" id="adminForm" name="adminForm">
+		<form action="index.php?option=com_xbjoournals&view=jcategory" method="post" id="adminForm" name="adminForm">
 		<div class="row-fluid xbmb8">
 			<div class= "span3">
 				  <h3><?php echo Text::_('XBJOURNALS_ADMIN_CATEGORY_TITLE'); ?></h3>

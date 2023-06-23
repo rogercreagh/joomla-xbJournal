@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/dashboard.php
- * @version 0.0.5.6 19th May 2023
+ * @version 0.0.6.4 19th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -80,7 +80,7 @@ class XbjournalsModelDashboard extends JModelList {
     }
 
     public function EntryCounts($type = 'Journal') {
-        $cnts = array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0,'calendars'=>0, 'servers'=>0,'children'=>0);
+        $cnts = array('total'=>0,'published'=>0,'unpublished'=>0,'archived'=>0,'trashed'=>0,'calendars'=>0, 'servers'=>0,'children'=>0,'parents'=>0);
         $db = Factory::getDbo();
         $query = $db->getQuery(true);
         $query->select('a.calendar_id AS calid, c.server_id AS serverid, a.parentuid AS puid, a.state AS pub')
