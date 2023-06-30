@@ -10,6 +10,7 @@
 - **DONE** v0.0.4 Notes view - display list of notes per calendar **database changes**
 - **DONE** v0.0.5 Attachments view **database changes**
 - **DONE** v0.0.6 Categories views (including filters on admin views)
+- v0.0.7 date selector for getting items
 - v0.1.0 all above completed and bug fixed
 - v0.1.1 Calendar Edit
 - v0.1.2 Journal Edit 

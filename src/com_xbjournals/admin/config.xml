@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals config.xml v0.0.2.0 27th April 2023 -->
+<!-- xbJournals config.xml v0.0.7.0 30th June 2023 -->
 <config>
 <!-- GENERAL TAB -->				
 	<fieldset name="general"
@@ -65,7 +65,7 @@
 			</field>
 			<field name="map_vjcategories_tags" type="list"
 				label="XBJOURNALS_CATEGORES_MAP"
-				description="XBJOURNALS_CATEGORES_MAP_DESC"
+				description="XBJOURNALS_CATEGORIES_MAP_DESC"
 				default="0"
 			>
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
@@ -73,8 +73,8 @@
 			</field>
 			<field name="def_jcat" type="category"
 				extension="com_xbjournals"
-				label="Default Category"
-				description="Category to be assigned if status/x-status not being used or if status not set"
+				label="XBJOURNALS_DEFAULT_CATEGORY_LABEL"
+				description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
 				default=""
 			>
 				<option value="">unspecified</option>

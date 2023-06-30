@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/server/view.html.php
- * @version 0.0.0.2 3rd April 2023
+ * @version 0.0.7.0 30th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -61,6 +61,8 @@ class XbjournalsViewServer extends JViewLegacy {
         
         ToolbarHelper::apply('server.apply');
         ToolbarHelper::save('server.save');
+        ToolbarHelper::custom('servers.getall', 'file-plus', '', 'XBJOURNALS_GETALL', true) ;
+        ToolbarHelper::custom('servers.getdates', 'file-check', '', 'XBJOURNALS_GETDATES', true) ;
         ToolbarHelper::save2new('server.save2new');
         ToolbarHelper::save2copy('server.save2copy');
         if ($isNew) {
