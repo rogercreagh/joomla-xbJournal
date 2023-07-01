@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.0.6.2 14th June 2023
+ * @version 0.0.7.0 30th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -210,6 +210,13 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait() {
 	
 	<?php endif; ?>
 	</div>
+ 		<?php // load the modal for displaying the date options
+        echo HTMLHelper::_('bootstrap.renderModal', 'collapseModal',
+            array( 'title' => Text::_('Select Date Range to Fetch'),
+                'footer' => $this->loadTemplate('dates_footer')
+            ),
+            $this->loadTemplate('dates_body')
+        ); ?>
 	<?php echo $this->pagination->getListFooter(); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="boxchecked" value="0" />

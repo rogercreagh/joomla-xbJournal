@@ -73,6 +73,7 @@ class XbjournalsModelCalendars extends JModelList {
                 }
             }
         }
+        
         return $items;
     }
     

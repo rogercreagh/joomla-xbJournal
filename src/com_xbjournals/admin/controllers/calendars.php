@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/controllers/calendars.php
- * @version 0.0.1.1 21st April 2023
+ * @version 0.0.7.0 30th June 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -27,11 +27,23 @@ class XbjournalsControllerCalendars extends JControllerAdmin {
 // 	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
 // 	}
 	
-	public function getAllItems() {
+	public function fetchAllItems() {
 	    $jip =  Factory::getApplication()->input;
 	    $cid =  $jip->get('cid');
 	    $calid = $cid[0];
 	    $newcnts = $this->getModel('Calendars')->importJournalItems($calid);
+	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
+	    
+	}
+	
+	public function fetchDateItems() {
+	    $jip =  Factory::getApplication()->input;
+	    $cid =  $jip->get('cid');
+	    $calid = $cid[0];
+	    $start = $jip->get('startdate');
+	    $end = $jip->get('enddate');
+	    //	    Factory::getApplication()->enqueueMessage('<pre>'.print_r($jip,true).'</pre>');
+	    $newcnts = $this->getModel('Calendars')->importJournalItems($calid, $start, $end);
 	    $this->setRedirect('index.php?option=com_xbjournals&view=calendars');
 	    
 	}

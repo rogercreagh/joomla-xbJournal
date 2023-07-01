@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/calendars/view.html.php
- * @version 0.0.6.1 13th June 2023
+ * @version 0.0.7.0 1st July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -61,25 +61,32 @@ class XbjournalsViewCalendars extends JViewLegacy {
         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
         } else {
-            pleaseWait(); Joomla.submitbutton(\'calendars.getAllItems\');
-        }" class="btn btn-small"><span class="icon-file-plus"></span>Get All Items</button>';
+            pleaseWait(); Joomla.submitbutton(\'calendars.fetchAllItems\');
+        }" class="btn btn-small"><span class="icon-file-plus"></span>XBJOURNALS_FETCH_ALL</button>';
         $bar->appendButton('Custom', $btnHtml, 'getall');
-        $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
-            alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
-        } else {
-            pleaseWait(); Joomla.submitbutton(\'calendars.getChangedItems\');
-        }" class="btn btn-small"><span class="icon-new"></span>Get New Items</button>';
-        $bar->appendButton('Custom', $btnHtml, 'getnew');
-        $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
-            alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
-        } else {
-            pleaseWait(); Joomla.submitbutton(\'calendars.syncItems\');
-        }" class="btn btn-small"><span class="icon-refresh"></span>Sync Items</button>';
-        $bar->appendButton('Custom', $btnHtml, 'sync');
         
-        //        $layout = new FileLayout('joomla.toolbar.batch');
-//        $batchButtonHtml = $layout->render(array('title' => Text::_('XBJOURNALS_RANGE')));
-//        $bar->appendButton('Custom', $batchButtonHtml, 'batch');
+//         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
+//             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
+//         } else {
+//             pleaseWait(); Joomla.submitbutton(\'calendars.getDateItems\');
+//         }" class="btn btn-small"><span class="icon-file-checked"></span>Get New Items</button>';
+//         $bar->appendButton('Custom', $btnHtml, 'getnew');
+        
+//        $dhtml = '<a href="index.php?option=com_xbjournals&view=calenders&layout=datemodal&tmpl=component"
+//           	data-toggle="modal" data-target="#ajax-datemodal"
+//           	class="btn btn-small btn-primary"><i class="icon-file-checked"></i> '.Text::_('Get by Date').'</a>';
+//        $bar->appendButton('Custom', $dhtml);
+        
+//        $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
+//            alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
+//        } else {
+//            pleaseWait(); Joomla.submitbutton(\'calendars.syncItems\');
+//        }" class="btn btn-small"><span class="icon-refresh"></span>Sync Items</button>';
+//        $bar->appendButton('Custom', $btnHtml, 'sync');
+        
+          $layout = new FileLayout('selectdates');
+          $datesButtonHtml = $layout->render(array('title' => Text::_('XBJOURNALS_DATE_RANGE')));
+          $bar->appendButton('Custom', $datesButtonHtml, 'fetchDateItems');
         
         //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
