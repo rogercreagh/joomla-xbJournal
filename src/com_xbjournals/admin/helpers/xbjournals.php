@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.6.0 12th June 2023
+ * @version 0.0.7.1 3rd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -381,10 +381,12 @@ class XbjournalsHelper extends ContentHelper
 	 * @param boolean $time - true to include time in output, false for date only
 	 * @return string
 	 */
-	public static function date2VcalDate (string $datestr, $time = true) {
-        $format =  $time ? 'Ymd\THis\Z' : 'Ymd';
-	    $utime = strtotime($datestr);
-	    $vcalDate = date($format,$utime);
+	public static function date2VcalDate (string $datestr, $dotime = true) {
+	    $datearr = date_parse($datestr);
+	    $vcalDate = $datearr['year'].sprintf('%02d',$datearr['month']).sprintf('%02d',$datearr['day']);
+	    if ($dotime) {
+	        $vcalDate .= 'T'.sprintf('%02d',$datearr['hour']).sprintf('%02d',$datearr['minute']).sprintf('%02d',$datearr['second']).'Z';
+	    }
 	    return $vcalDate;
 	}
 	

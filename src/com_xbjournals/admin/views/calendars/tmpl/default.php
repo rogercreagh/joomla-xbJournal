@@ -210,13 +210,27 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait() {
 	
 	<?php endif; ?>
 	</div>
+
+<div class="modal hide fade" id="modal-fetchdates">
+  <div class="modal-header">
+    <button type="button" role="presentation" class="close" data-dismiss="modal">x</button>
+    <h3>Select date range to fetch</h3>
+  </div>
+  <div class="modal-body">
+    <?php echo $this->loadTemplate('dates_body'); ?>
+  </div>
+  <div class="modal-footer">
+    <?php echo $this->loadTemplate('dates_footer'); ?>
+  </div>
+</div>
  		<?php // load the modal for displaying the date options
-        echo HTMLHelper::_('bootstrap.renderModal', 'collapseModal',
-            array( 'title' => Text::_('Select Date Range to Fetch'),
-                'footer' => $this->loadTemplate('dates_footer')
-            ),
-            $this->loadTemplate('dates_body')
-        ); ?>
+//         echo HTMLHelper::_('bootstrap.renderModal', 'collapseModal',
+//             array( 'title' => Text::_('Select Date Range to Fetch'),
+//                 'footer' => $this->loadTemplate('dates_footer')
+//             ),
+//             $this->loadTemplate('dates_body')
+//         ); 
+?>
 	<?php echo $this->pagination->getListFooter(); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="boxchecked" value="0" />

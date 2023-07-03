@@ -58,6 +58,7 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //        ToolbarHelper::custom('calendars.syncItems', 'refresh', '', 'Sync Items', true) ;
 
         $bar = Toolbar::getInstance('toolbar');
+        
         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
         } else {
@@ -84,9 +85,15 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //        }" class="btn btn-small"><span class="icon-refresh"></span>Sync Items</button>';
 //        $bar->appendButton('Custom', $btnHtml, 'sync');
         
-          $layout = new FileLayout('selectdates');
-          $datesButtonHtml = $layout->render(array('title' => Text::_('XBJOURNALS_DATE_RANGE')));
-          $bar->appendButton('Custom', $datesButtonHtml, 'fetchDateItems');
+        $layout = new JLayoutFile('joomla.toolbar.popup');
+        
+        // Render the popup button
+        $dhtml = $layout->render(array('name' => 'fetchdates', 'text' => Text::_('XBJOURNALS_FETCH_DATES'), 'class' => 'icon-file-check', 'doTask' => ''));
+        $bar->appendButton('Custom', $dhtml);
+        
+//         $layout = new FileLayout('selectdates');
+//           $datesButtonHtml = $layout->render(array('title' => Text::_('XBJOURNALS_DATE_RANGE')));
+//           $bar->appendButton('Custom', $datesButtonHtml, 'selectdates');
         
         //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');

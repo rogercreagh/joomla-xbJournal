@@ -1021,7 +1021,7 @@ EOXML;
           $range = "<C:time-range end=\"$finish\"/>";
       }
       if ($range != ''){
-          $range = '<C:prop-filter name="'.strtoupper($dateprop).'">\n'.$range.'\n</C:prop-filter>';
+          $range = '<C:prop-filter name="'.strtoupper($dateprop).'">'.$range.'</C:prop-filter>';
       }
       $filterstr = <<<EOFILTER
 <C:filter>

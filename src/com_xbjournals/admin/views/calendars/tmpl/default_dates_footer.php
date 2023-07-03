@@ -16,6 +16,6 @@ use Joomla\CMS\Layout\LayoutHelper;
 <a class="btn" type="button" onclick="document.getElementById('startdate').value='';document.getElementById('enddate').value='';" data-dismiss="modal">
 	<?php echo JText::_('JCANCEL'); ?>
 </a>
-<button class="btn btn-success" type="submit" onclick="Joomla.submitbutton('calendars.getDates');">
+<button class="btn btn-success" type="submit" onclick="Joomla.submitbutton('calendars.fetchDateItems');">
 	<?php echo JText::_('JGLOBAL_BATCH_PROCESS'); ?>
 </button>
