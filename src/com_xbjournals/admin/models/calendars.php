@@ -117,8 +117,8 @@ class XbjournalsModelCalendars extends JModelList {
             $cnts['local'] = count($localitems);
         }
         //TODO check start and end dates are within Unix Timestamp range for date2VcalDate()
-        $start = ($startstr != '') ? XbjournalsHelper::date2VcalDate($datestr) : null;
-        $end = ($endstr != '') ? XbjournalsHelper::date2VcalDate($datestr) : null;
+        $start = ($startstr != '') ? XbjournalsHelper::date2VcalDate($startstr) : null;
+        $end = ($endstr != '') ? XbjournalsHelper::date2VcalDate($endstr) : null;
         $serveritems = XbjournalsHelper::getCalendarJournalEntries($calid, $start, $end);
         if ($serveritems) {
             $cnts['server'] = count($serveritems);
