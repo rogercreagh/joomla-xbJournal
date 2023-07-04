@@ -20,17 +20,33 @@ class XbjournalsControllerServer extends  FormController {
         //$this->registerTask('savepreview', 'save');
     }
     
-    protected function listcals() {
-        
+    public function listcals() {
+        $jip =  Factory::getApplication()->input;
+        $sid = $jip->get('id');
+        //   Factory::getApplication()->enqueueMessage('<pre>'.print_r($jip,true).'</pre>');
+        Factory::getApplication()->enqueueMessage('sid '.$sid);
+        $clist = XbjournalsHelper::listServerCalendars($sid);
+        Factory::getApplication()->enqueueMessage($clist);
+        $this->setRedirect('index.php?option=com_xbjournals&task=server.edit&id='.$sid);        
     }
     
-    protected function getcals() {
-        $item = $model->getItem();
-        $serverid = $item->get('id');
-        $newcnt = XbjournalsHelper::getServerCalendars($serverid);
+    public function getcals() {
+        $jip =  Factory::getApplication()->input;
+        $sid = $jip->get('id');
+        Factory::getApplication()->enqueueMessage('sid '.$sid);
+        $cnts = XbjournalsHelper::getServerCalendars($sid);
         Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
-        $this->setRedirect('index.php?option=com_xbjournals&view=server&id='.$serverid);        
+        $this->setRedirect('index.php?option=com_xbjournals&task=server.edit&id='.$sid);
+        
     }
+ 
+//     protected function xgetcals() {
+//         $item = $model->getItem();
+//         $serverid = $item->get('id');
+//         $newcnt = XbjournalsHelper::getServerCalendars($serverid);
+//         Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
+//         $this->setRedirect('index.php?option=com_xbjournals&view=server&id='.$serverid);        
+//     }
 //    protected function postSaveHook(JModelLegacy $model, $validData = array()) {
 //         $item = $model->getItem();
 //         $sid = $item->get('id');

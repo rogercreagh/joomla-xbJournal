@@ -61,15 +61,17 @@ class XbjournalsViewCalendars extends JViewLegacy {
         
         $text = Text::_('XBJOURNALS_FETCH_ALL');
         $btnHtml = "<button onclick=\"if (document.adminForm.boxchecked.value == 0) {
-            alert('Please first make a selection from the list.'));
+            alert('Please first make a selection from the list.');
         } else {
             pleaseWait('waiter'); Joomla.submitbutton('calendars.fetchAllItems');
         }\" class=\"btn btn-small\"><span class=\"icon-file-plus\"></span>$text</button>";
         $bar->appendButton('Custom', $btnHtml);
         
         $text = Text::_('XBJOURNALS_FETCH_DATES');
-        $dhtml = "<button type=\"button\" data-toggle=\"modal\" onclick=\"if (document.adminForm.boxchecked.value==0)
-        {alert('Please first make a selection from the list.');}else{jQuery( '#modal-fetchdates' ).modal('show'); return true;
+        $dhtml = "<button type=\"button\" data-toggle=\"modal\" onclick=\"if (document.adminForm.boxchecked.value==0) {
+            alert('Please first make a selection from the list.');
+        } else {
+            jQuery( '#modal-fetchdates' ).modal('show'); return true;
         }\" class=\"btn btn-small\"> <span class=\"icon-file-check\" aria-hidden=\"true\"></span>$text</button>";
         $bar->appendButton('Custom', $dhtml);
              

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.7.1 4th July 2023
+ * @version 0.0.7.2 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -138,11 +138,12 @@ class XbjournalsHelper extends ContentHelper
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    
 	    $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
-	    //TODO filter to get only calendars with VJOURNAL enabled according to user status 
+	    //TODO filter to get only calendars with VJOURNAL enabled according to user status
 	    
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
 	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0);
+	    $scalids = array();
 	    foreach ($arrayOfCalendars as $cal) {
 	        $calurl = $cal->getURL();
 	        $calid = $cal->getCalendarID();
@@ -152,9 +153,11 @@ class XbjournalsHelper extends ContentHelper
 	        $calorder = $cal->getOrder();
 	        $calrgb = $cal->getRBGcolor();
 	        $calcomps = $cal->getComponents();
-	        $pub = 0;
-	        if (strpos($calcomps,'VJOURNAL') !==false) {
-	            $pub = '1';
+	        $pub = 1;
+	        $desc = '';
+	        if (strpos($calcomps,'VJOURNAL') ===false) {
+	            $pub = 0;
+	            $desc = '<p class="xbit xbhlt">'.Text::_('VJOURNAL not enabled').'</p>';	            
 	        }
 	        
 	        $query->clear();
@@ -163,30 +166,110 @@ class XbjournalsHelper extends ContentHelper
 	        $db->setQuery($query);
 	        $res = $db->loadAssoc();
 	        if ($res['id']>0) {
-    	        //check if it has changed, if so update
+	            $scalids[] = $res['id'];
+	            //check if it has changed, if so update
 	            if ($res['cal_ctag'] != $calctag) {
 	                //TODO update here
+	                $query->clear;
+	                $query->update($db->qn('#__xbjournals_calendars'))
+	                ->set($db->qn('cal_displayname').' = '.$db->q($calname))
+	                ->set($db->qn('cal_url').' = '.$db->q($calurl))
+	                ->set($db->qn('cal_ctag').' = '.$db->q($calctag))
+	                ->set($db->qn('cal_calendar_id').' = '.$db->q($calid))
+	                ->set($db->qn('cal_rgb_color').' = '.$db->q($calrgb))
+	                ->set($db->qn('cal_order').' = '.$db->q($calorder))
+	                ->set($db->qn('cal_components').' = '.$db->q($calcomps))
+	                ->set($db->qn('title').' = '.$db->q($alias))
+	                ->set($db->qn('alias').' = '.$db->q($localpath))
+	                ->set($db->qn('descrption').' = '.$db->q($desc))
+	                ->set($db->qn('state').' = '.$db->q($pub))
+	                ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')));
+	                $query->where($db->qn('id').' = '.$db->q($res['id']));
+	                $db->setQuery($query);
+	                try {
+	                    $db->execute();
+	                } catch (Exception $e) {
+	                    $this->doError('Error updating calendar in database',$e);
+	                }	                	                
 	                $cnts['update']++;
 	            } else {
-    	            $cnts['same'] ++;
+	                $cnts['same'] ++;
 	            }
 	        } else { //we need to add it
 	            $query->clear();
 	            $query->insert($db->quoteName('#__xbjournals_calendars'));
 	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
-	                .'cal_rgb_color,cal_order,cal_components,title,alias,access,state,last_checked');
+	                .'cal_rgb_color,cal_order,cal_components,title,alias,descrption,access,state,last_checked');
 	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
 	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
-	                .$db->q($alias).','.$db->q('1').','.$db->q($pub).','.$db->q(date('Y-m-d H:i:s')));
+	                .$db->q($alias).','.$db->q($desc).','.$db->q('1').','.$db->q($pub).','.$db->q(date('Y-m-d H:i:s')));
 	            //try
 	            $db->setQuery($query);
 	            $db->execute();
+	            $scalids[] = $db->insertid();	            
 	            $cnts['new'] ++;
 	        }
-	        //TODO check if calendars have disappeared from server and unpublish them
-	        
 	    } //end foreach calendar
+	    // check if calendars have disappeared from server and unpublish them
+	    $query->clear();
+	    $query->select('id')->from($db->quoteName('#__xbjournals_calendars'));
+	    $db->setQuery($query);
+	    $lcalids = $db->loadColumn();
+	    if ((is_array($scalids)) && (is_array($lcalids))) {
+    	    $lostids = array_diff($lcalids, $scalids);
+    	    foreach ($lostids as $cal) {
+    	        $query->clear();
+    	        $query->update($db->qn('#__xbjournals_calendars'))
+    	        ->set($db->qn('state').' = '.$db->q('2'))
+    	        ->set($db->qn('description').' = '.$db->q(Text::_('Calendar no longer on server')))
+    	        ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')));
+    	        $query->where($db->qn('id').' = '.$db->q($cal));
+    	        $db->setQuery($query);
+    	        try {
+    	            $db->execute();
+    	        } catch (Exception $e) {
+    	            $this->doError('Error updating calendar state in database',$e);
+    	        }    	        
+    	    }
+	        
+	    }
 	    return $cnts;
+	}
+	
+	/**
+	 * @name listServerCalendars()
+	 * @desc Checks given server for a list of available calendars
+	 * @param $serverid
+	 * @return string html list with title
+	 */
+	public static function listServerCalendars($serverid) {
+	    
+	    $conn = self::getServerConnectionDetails($serverid);
+	    
+	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
+	    
+	    $client = new xbVjournalHelper();
+	    
+	    $client->connect($conn['url'],$conn['username'],$conn['password']);
+	    
+	    $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
+	    $clist = '<p>Calendars available on Server #'.$serverid.'</p><ul>';
+	    foreach ($arrayOfCalendars as $cal) {
+//	        $calurl = $cal->getURL();
+//	        $calid = $cal->getCalendarID();
+	        $clist .= '<li>'.$cal->getDisplayName();
+//	        $alias = OutputFilter::stringURLSafe(strtolower($calname));
+//	        $calctag = $cal->getCTag();
+//	        $calorder = $cal->getOrder();
+//	        $calrgb = $cal->getRBGcolor();
+	        $calcomps = $cal->getComponents();
+	        if (strpos($calcomps,'VJOURNAL') ===false ) {
+	            $clist .= ' <i>VJOURNAL not enabled</i>';
+	        }
+	        $clist.='</li>';	        
+	    } //end foreach calendar
+	    $clist .= '</ul>';
+	    return $clist;
 	}
 	
 	public static function getServerConnectionDetails($serverid) {
