@@ -20,14 +20,22 @@ class XbjournalsControllerServer extends  FormController {
         //$this->registerTask('savepreview', 'save');
     }
     
-    /**
-     * Before saving need to check connection and after need to get new calendars
-     */
-    protected function postSaveHook(JModelLegacy $model, $validData = array()) {
-        $item = $model->getItem();
-        $sid = $item->get('id');
-        $cnts = XbjournalsHelper::getServerCalendars($sid);
-        Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged for '.$validData['title']);
+    protected function listcals() {
         
     }
+    
+    protected function getcals() {
+        $item = $model->getItem();
+        $serverid = $item->get('id');
+        $newcnt = XbjournalsHelper::getServerCalendars($serverid);
+        Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
+        $this->setRedirect('index.php?option=com_xbjournals&view=server&id='.$serverid);        
+    }
+//    protected function postSaveHook(JModelLegacy $model, $validData = array()) {
+//         $item = $model->getItem();
+//         $sid = $item->get('id');
+//         $cnts = XbjournalsHelper::getServerCalendars($sid);
+//         Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged for '.$validData['title']); 
+//    }
+
 }

@@ -60,11 +60,13 @@ class XbjournalsViewServer extends JViewLegacy {
         ToolBarHelper::title($title, 'database');
         
         ToolbarHelper::apply('server.apply');
+        if (!$isNew) {
+            ToolbarHelper::custom('server.listcals', 'list-2', '', 'List Calendars', false) ;
+            ToolbarHelper::custom('server.getcals', 'folder-plus-2', '', 'Get Calendars', false) ;
+        }
         ToolbarHelper::save('server.save');
-        ToolbarHelper::custom('servers.getall', 'file-plus', '', 'XBJOURNALS_GETALL', true) ;
-        ToolbarHelper::custom('servers.getdates', 'file-check', '', 'XBJOURNALS_GETDATES', true) ;
-        ToolbarHelper::save2new('server.save2new');
-        ToolbarHelper::save2copy('server.save2copy');
+//        ToolbarHelper::save2new('server.save2new');
+//        ToolbarHelper::save2copy('server.save2copy');
         if ($isNew) {
             ToolbarHelper::cancel('server.cancel','JTOOLBAR_CANCEL');
         } else {

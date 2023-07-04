@@ -23,6 +23,7 @@
 - v0.1.7 batch processing for lists
   - batch to include assign cat,tags,export/import ics, copy/move calendar, change type
 - v0.2.0 all above completed
+- v0.2.1 local server & calendar save & get items
 - v0.3.1 Sync changed and new items back to server
 - v0.3.2 Sync locally deleted item to server
 - v0.3.3 Handle items deleted from server
