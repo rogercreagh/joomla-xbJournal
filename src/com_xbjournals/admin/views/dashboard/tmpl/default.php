@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/views/dashboard/tmpl/default.php
- * @version 0.0.5.6 19th May 2023
+ * @version 0.0.7.1 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -29,17 +29,7 @@ $calendareditlink ='index.php?option=com_xbjournals&view=calendar&task=calendar.
 <form action="<?php echo Route::_('index.php?option=com_xbjournals&view=dashboard'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
 	<div id="j-sidebar-container">
-		<?php echo $this->sidebar; ?>
-		<br />
-		    <div class="xbinfopane">
-      	<div class="row-fluid hidden-phone">
-        	<?php echo HtmlHelper::_('bootstrap.startAccordion', 'slide-dashboard', array('active' => 'sysinfo')); ?>
-        		<?php echo HtmlHelper::_('bootstrap.addSlide', 'slide-dashboard', Text::_('XBJOURNALS_SYSINFO'), 'sysinfo'); ?>
-                  <?php echo HtmlHelper::_('bootstrap.endSlide'); ?>
- 				<?php echo HTMLHelper::_('bootstrap.endAccordion'); ?>
-			</div>
-       	</div>
-		
+		<?php echo $this->sidebar; ?>		
 	</div>
 	<div id="j-main-container" >
 			<h3><?php echo Text::_('XBJOURNALS_STATUS_SUM'); ?></h3>

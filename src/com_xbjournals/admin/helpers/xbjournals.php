@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.7.1 3rd July 2023
+ * @version 0.0.7.1 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -252,12 +252,12 @@ class XbjournalsHelper extends ContentHelper
 	}
 	
 	/**
-	 * @name getCalendarJournalEntries()
+	 * @name getCalendarVJournalItems()
 	 * 
 	 * @param int $calid
 	 * @return array[]
 	 */
-	public static function getCalendarJournalEntries(int $calid, $start = null, $end = null, $type = '') {
+	public static function getCalendarVJournalItems(int $calid, $start = null, $end = null, $dateprop = '', $type = '') {
 	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
 	    $cal = self::getCalendarDetaisl($calid);
 	    $conn = self::getServerConnectionDetails($cal['server_id']);
@@ -266,16 +266,15 @@ class XbjournalsHelper extends ContentHelper
 	    $calhelper->setCalendarByUrl($cal['cal_url']);
 	    switch ($type) {
    	        case 'journals':
-	            $calitems = $calhelper->getJournalEntries($start, $end);
+	            $calitems = $calhelper->getJournals($start, $end);
     	        break;
-   	        case 'journals':
+   	        case 'notes':
    	            $calitems = $calhelper->getNotes($start, $end);
    	            break;
 	        default:
-	            ;
+        	    $calitems = $calhelper->getVjournals($start, $end, $dateprop);
 	        break;
 	    }
-	    $calitems = $calhelper->getAllVjournals($start, $end);
 	    $journalentries = array();	    
 	    foreach ($calitems as $calitem) {
 	        $journalentry = $calhelper->parseVjournalObject($calitem);

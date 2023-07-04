@@ -2,7 +2,7 @@
 /*******
  * @package xbcaldav Library
  * @filesource admin/helpers/xbcaldav/xbVjournalHelper.php
- * @version 0.0.1.4 26th April 2023
+ * @version 0.0.7.1 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * based on SimpleCalDavClient by Michael Palm <palm.michael@gmx.de>
@@ -278,7 +278,7 @@ class xbVjournalHelper {
     }
     
     /**
-     * @name getAllVjournals()
+     * @name getVjournals()
      * @desc returns all Vjournal items within the specifeid date range for specified date property
      * NB defaults to using created date rather than dtstart to ensure notes get included 
      * @param string $start
@@ -288,7 +288,7 @@ class xbVjournalHelper {
      * @throws CalDAVException
      * @return CalDAVObject[]
      */
-    function getAllVjournals($start = null, $end = null, $dateprop = ''){
+    function getVjournals($start = null, $end = null, $dateprop = "DTSTAMP"){
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');
         if(!isset($this->client->calendar_url)) throw new Exception('No calendar selected. Try findCalendars() and setCalendar().');
@@ -315,9 +315,9 @@ class xbVjournalHelper {
     }
         
     /**
-     * @name getJournalEntries()
+     * @name getJournals()
      * @desc gets only jounal entries ie Vjournal items with DTSTART set
-     * if start and finish both set then gets items with DTSTART in the range
+     * if start and end both set then gets items with DTSTART in the range
      * @param string $start
      * @param string $end
      * @param string $dateprop - option property to use to filter dates
@@ -325,7 +325,7 @@ class xbVjournalHelper {
      * @throws CalDAVException
      * @return CalDAVObject[]
      */
-    function getJournalEntries( $start = '19520915T193000Z', $end = null, $dateprop = '' )
+    function getJournals( $start = '19520915T193000Z', $end = null, $dateprop = 'DTSTAMP' )
     {
         // Connection and calendar set?
         if(!isset($this->client)) throw new Exception('No connection. Try connect().');

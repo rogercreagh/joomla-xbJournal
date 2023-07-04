@@ -2,7 +2,7 @@
 /*******
  * @package xbcaldav Library
  * @filesource admin/helpers/xbcaldav/xbCalDAVClient.php
- * @version 0.0.6.0 8th June 2023
+ * @version 0.0.7.1 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * based on CalDavClient by Michael Palm <palm.michael@gmx.de>
@@ -1001,18 +1001,19 @@ EOXML;
   /**
    * @name GetVjournals();
    * @desc gets all vJournal entries, optionally with date property between start and end datetimes
-   * if $dateprop not set and $start or $end is set then defaults to using DTSTART and will only get Journal items
+   * if $dateprop not set and $start or $end is set then defaults to using DTSTAMP (which is usually same as LAST-MODIFIED)
+   * to get only Journals set $start and use $dateprop="DTSTART"
    * to get both journal and notes in date range use $dateprop = DTSTAMP | CREATED | LAST-MODIFIED
-   * to get only items changed or added since calendar last_checked use $dateprop = last-modified and $start = $last_checked
+   * to get only items changed or added since calendar last_checked use $dateprop = LAST-MODIFIED and $start = $last_checked
    * @param string $start - yyyymmddThhmmssZ
-   * @param string $finish - yyyymmddThhmmssZ
+   * @param string $finish - yyyymmddThhmmssZ - NB if hhmmss is 000000 (ie date only) then items on the finish date will not get fetched
    * @param string $relative_url
    * @return array|array[]
    */
-  function GetVjournals(string $start = null, string $finish = null, $dateprop = 'created', string $relative_url = null ) {
+  function GetVjournals(string $start = null, string $finish = null, string $dateprop = 'dtstamp', string $relative_url = null ) {
       $this->SetDepth('1');
       $filterstr = "";
-      $range = '';
+      $range = "";
       if ( ($start !='') && isset($finish) ) {
           $range = "<C:time-range start=\"$start\" end=\"$finish\"/>";
       } elseif ( ($start!='') && ! isset($finish) ) {
@@ -1020,7 +1021,7 @@ EOXML;
       } elseif ( ($start!='') && isset($finish) ) {
           $range = "<C:time-range end=\"$finish\"/>";
       }
-      if ($range != ''){
+      if ($range != ""){
           $range = '<C:prop-filter name="'.strtoupper($dateprop).'">'.$range.'</C:prop-filter>';
       }
       $filterstr = <<<EOFILTER

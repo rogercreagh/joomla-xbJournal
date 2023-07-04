@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.6.3 16th June 2023
+ * @version 0.0.7.1 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -108,7 +108,7 @@ class XbjournalsModelCalendars extends JModelList {
      * @param int $calid - the joomla id of the calendar
      * @return array with counts of items, new, changed, same, deleted
      */
-    public function importJournalItems(int $calid, $startstr = null, $endstr = null) {
+    public function importJournalItems(int $calid, $startstr = null, $endstr = null, $dateprop = "DTSTAMP") {
         $cnts = array('local'=>0,'server'=>0,'new'=>0,'same'=>0,'updated'=>0,'missing'=>0,'archived'=>0);
         $res = false;
         $db = Factory::getDbo();
@@ -116,10 +116,14 @@ class XbjournalsModelCalendars extends JModelList {
         if ($localitems) {
             $cnts['local'] = count($localitems);
         }
-        //TODO check start and end dates are within Unix Timestamp range for date2VcalDate()
         $start = ($startstr != '') ? XbjournalsHelper::date2VcalDate($startstr) : null;
-        $end = ($endstr != '') ? XbjournalsHelper::date2VcalDate($endstr) : null;
-        $serveritems = XbjournalsHelper::getCalendarJournalEntries($calid, $start, $end);
+        if ($endstr != '') {
+            if (strlen($endstr) < 11) $endstr .= ' 23:59:59'; //make end at end of day to include current day
+            $end = XbjournalsHelper::date2VcalDate($endstr);
+        } else { 
+            $end = null; 
+        }
+        $serveritems = XbjournalsHelper::getCalendarVJournalItems($calid, $start, $end, $dateprop);
         if ($serveritems) {
             $cnts['server'] = count($serveritems);
         }
@@ -176,7 +180,7 @@ class XbjournalsModelCalendars extends JModelList {
             XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
         }
         Factory::getApplication()->enqueueMessage($cnts['local'].' local, '.$cnts['server'].' server, '
-            .$cnts['new'].' new, '.$cnts['same'].' same, '.$cnts['updated'].' updated, '.$cnts['missing'].'missing, '.$cnts['archived'].' archived, ');
+            .$cnts['new'].' new, '.$cnts['same'].' same, '.$cnts['updated'].' updated, '.$cnts['missing'].' missing, '.$cnts['archived'].' archived ');
         return $cnts;
     }
     

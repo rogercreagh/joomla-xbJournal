@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/calendars/view.html.php
- * @version 0.0.7.0 1st July 2023
+ * @version 0.0.7.2 4th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -52,19 +52,34 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //         if ($canDo->get('core.create') > 0) {
 //             ToolbarHelper::addNew('server.add','New Server');
 //         }
-//        ToolbarHelper::custom('calendars.getServerItems', 'file-plus', '', 'get items', true) ;
+//        ToolbarHelper::custom('calendars.fetchAllItems', 'file-plus', '', 'get items', true) ;
 //        ToolbarHelper::custom('calendars.getAllItems', 'file-plus', '', 'Get All Items', true) ;
 //        ToolbarHelper::custom('calendars.getChangedItems', 'new', '', 'Get New Items', true) ;
 //        ToolbarHelper::custom('calendars.syncItems', 'refresh', '', 'Sync Items', true) ;
 
         $bar = Toolbar::getInstance('toolbar');
         
-        $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
-            alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
+        $text = Text::_('XBJOURNALS_FETCH_ALL');
+        $btnHtml = "<button onclick=\"if (document.adminForm.boxchecked.value == 0) {
+            alert('Please first make a selection from the list.'));
         } else {
-            pleaseWait(); Joomla.submitbutton(\'calendars.fetchAllItems\');
-        }" class="btn btn-small"><span class="icon-file-plus"></span>XBJOURNALS_FETCH_ALL</button>';
-        $bar->appendButton('Custom', $btnHtml, 'getall');
+            pleaseWait('waiter'); Joomla.submitbutton('calendars.fetchAllItems');
+        }\" class=\"btn btn-small\"><span class=\"icon-file-plus\"></span>$text</button>";
+        $bar->appendButton('Custom', $btnHtml);
+        
+        $text = Text::_('XBJOURNALS_FETCH_DATES');
+        $dhtml = "<button type=\"button\" data-toggle=\"modal\" onclick=\"if (document.adminForm.boxchecked.value==0)
+        {alert('Please first make a selection from the list.');}else{jQuery( '#modal-fetchdates' ).modal('show'); return true;
+        }\" class=\"btn btn-small\"> <span class=\"icon-file-check\" aria-hidden=\"true\"></span>$text</button>";
+        $bar->appendButton('Custom', $dhtml);
+             
+        
+//         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
+//             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
+//         } else {
+//             pleaseWait(); Joomla.submitbutton(\'calendars.fetchAllItems\');
+//         }" class="btn btn-small"><span class="icon-file-plus"></span>XBJOURNALS_FETCH_ALL</button>';
+//         $bar->appendButton('Custom', $btnHtml, 'getall');
         
 //         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
 //             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
@@ -85,11 +100,14 @@ class XbjournalsViewCalendars extends JViewLegacy {
 //        }" class="btn btn-small"><span class="icon-refresh"></span>Sync Items</button>';
 //        $bar->appendButton('Custom', $btnHtml, 'sync');
         
-        $layout = new JLayoutFile('joomla.toolbar.popup');
+//        $layout = new JLayoutFile('joomla.toolbar.popup');
         
         // Render the popup button
-        $dhtml = $layout->render(array('name' => 'fetchdates', 'text' => Text::_('XBJOURNALS_FETCH_DATES'), 'class' => 'icon-file-check', 'doTask' => ''));
-        $bar->appendButton('Custom', $dhtml);
+//        $dhtml = $layout->render(array('name' => 'fetchdates', 'text' => Text::_('XBJOURNALS_FETCH_DATES'), 'class' => 'icon-file-check', 'doTask' => ''));
+//        $bar->appendButton('Custom', $dhtml);
+        
+//         $dhtml = "<button type=\"button\" data-toggle=\"modal\" onclick=\"if (document.adminForm.boxchecked.value==0){alert(Joomla.JText._('JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST'));}else{jQuery( '#modal-fetchdates' ).modal('show'); return true;}\" class=\"btn btn-small\"> <span class=\"icon-file-plus\" aria-hidden=\"true\"></span>Fetch Dates</button>";
+//         $bar->appendButton('Custom', $dhtml);
         
 //         $layout = new FileLayout('selectdates');
 //           $datesButtonHtml = $layout->render(array('title' => Text::_('XBJOURNALS_DATE_RANGE')));

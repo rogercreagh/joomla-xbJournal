@@ -28,8 +28,9 @@ It contains the following functions:
   - change()
   - delete()
   - getEvents()
-  - getJournalEntries() - added RCO
-  - getNotes() - added RCO
+  - getVjournals() - added RCO - gets journals and notes
+  - getJournals() - added RCO - gets only journals (DTSTART is set)
+  - getNotes() - added RCO - gets only Notes (no DTSTART)
   - getTODOs()
   - getCustomReport()
 
