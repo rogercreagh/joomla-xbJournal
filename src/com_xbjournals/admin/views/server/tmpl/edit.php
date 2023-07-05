@@ -2,13 +2,14 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/server/tmpl/edit.php
- * @version 0.0.0.2 3rd April 2023
+ * @version 0.0.7.4 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
  ******/
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
@@ -17,12 +18,24 @@ HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
 HTMLHelper::_('formbehavior.chosen', 'select');
 
+Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
+		document.getElementById(targ).style.display = "block";
+	}');
+
 ?>
 <style type="text/css" media="screen">
     #jform_url { width: 500px; }   
 </style>
 <form action="<?php echo JRoute::_('index.php?option=com_xbjournals&layout=edit&id=' . (int) $this->item->id); ?>"
     method="post" name="adminForm" id="adminForm">
+    	<div id="waiter" class="xbbox alert-info" style="display:none;">
+          <table style="width:100%">
+              <tr>
+                  <td style="width:200px;"><img src="/media/com_xbjournals/images/waiting.gif" style="height:100px" /> </td>
+                  <td style="vertical-align:middle;"><b><?php echo Text::_('XBJOURNALS_WAITING_REPLY'); ?></b> </td>
+              </tr>
+          </table>
+    	</div>
  	<div class="row-fluid">
 		<div class="span10">
          	<div class="row-fluid">

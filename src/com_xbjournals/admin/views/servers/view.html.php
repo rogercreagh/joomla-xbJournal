@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/servers/view.html.php
- * @version 0.0.0.3 3rd April 2023
+ * @version 0.0.7.4 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -52,7 +52,28 @@ class XbjournalsViewServers extends JViewLegacy {
         if ($canDo->get('core.create') > 0) {
             ToolbarHelper::addNew('server.add','New Server');
         }
-        ToolbarHelper::custom('servers.getcals', 'file-plus', '', 'XBJOURNALS_GETCALS', true) ;
+        $bar = Toolbar::getInstance('toolbar');
+        
+        $text = Text::_('XBJOURNALS_LIST_CALS');
+        $btnHtml = "<button onclick=\"if (document.adminForm.boxchecked.value == 0) {
+                alert('Please first make a selection from the list.');
+            } else {
+                pleaseWait('waiter'); Joomla.submitbutton('servers.listcals');
+            }\" class=\"btn btn-small\"><span class=\"icon-list-2\"></span>$text</button>";
+        $bar->appendButton('Custom', $btnHtml);
+        
+        $text = Text::_('XBJOURNALS_GET_CALS');
+        $btnHtml = "<button onclick=\"if (document.adminForm.boxchecked.value == 0) {
+                alert('Please first make a selection from the list.');
+            } else {
+                pleaseWait('waiter'); Joomla.submitbutton('servers.getcals');
+            }\" class=\"btn btn-small\"><span class=\"icon-folder-plus\"></span>$text</button>";
+        $bar->appendButton('Custom', $btnHtml);
+        
+        
+//        ToolbarHelper::custom('servers.getcals', 'file-plus', '', 'XBJOURNALS_GETCALS', true) ;
+        
+        
 //        if ($canDo->get('core.edit') || ($canDo->get('core.edit.own'))) {
 //            ToolbarHelper::editList('film.edit');
 //        }

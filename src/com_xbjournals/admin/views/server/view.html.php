@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/server/view.html.php
- * @version 0.0.7.0 30th June 2023
+ * @version 0.0.7.4 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Toolbar\Toolbar;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\CMS\Language\Text;
 
@@ -60,9 +61,21 @@ class XbjournalsViewServer extends JViewLegacy {
         ToolBarHelper::title($title, 'database');
         
         ToolbarHelper::apply('server.apply');
+
+        $bar = Toolbar::getInstance('toolbar');
+        
         if (!$isNew) {
-            ToolbarHelper::custom('server.listcals', 'list-2', '', 'List Calendars', false) ;
-            ToolbarHelper::custom('server.getcals', 'folder-plus-2', '', 'Get Calendars', false) ;
+            
+            $text = Text::_('XBJOURNALS_LIST_CALS');
+            $btnHtml = "<button onclick=\"pleaseWait('waiter'); Joomla.submitbutton('server.listcals');\" 
+                class=\"btn btn-small\"><span class=\"icon-list-2\"></span>$text</button>";
+            $bar->appendButton('Custom', $btnHtml);
+            
+            $text = Text::_('XBJOURNALS_GET_CALS');
+            $btnHtml = "<button onclick=\"pleaseWait('waiter'); Joomla.submitbutton('server.getcals');
+            \" class=\"btn btn-small\"><span class=\"icon-folder-plus\"></span>$text</button>";
+            $bar->appendButton('Custom', $btnHtml);
+                        
         }
         ToolbarHelper::save('server.save');
 //        ToolbarHelper::save2new('server.save2new');

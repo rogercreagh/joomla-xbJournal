@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/controllers/servers.php
- * @version 0.0.0.5 4th April 2023
+ * @version 0.0.7.4 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -26,5 +26,15 @@ class XbjournalsControllerServers extends JControllerAdmin {
 	    Factory::getApplication()->enqueueMessage($cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged');
 	    $this->setRedirect('index.php?option=com_xbjournals&view=servers');
 	}
+	
+	public function listcals() {
+	    $jip =  Factory::getApplication()->input;
+	    $cid =  $jip->get('cid');
+	    $sid = $cid[0];
+	    $clist = XbjournalsHelper::listServerCalendars($sid);
+	    Factory::getApplication()->enqueueMessage($clist);
+	    $this->setRedirect('index.php?option=com_xbjournals&task=server.edit&id='.$sid);
+	}
+	
 	
 }

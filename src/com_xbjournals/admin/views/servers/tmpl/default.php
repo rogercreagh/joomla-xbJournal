@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/servers/tmpl/default.php
- * @version 0.0.6.4 16th June 2023
+ * @version 0.0.7.4 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -39,6 +39,10 @@ if ($saveOrder) {
 
 $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id=';
 
+Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
+		document.getElementById(targ).style.display = "block";
+	}');
+
 ?>
 <form action="<?php echo Route::_('index.php?option=com_xbjournals&view=servers'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
@@ -46,6 +50,14 @@ $servereditlink='index.php?option=com_xbjournals&view=server&task=server.edit&id
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" >
+    	<div id="waiter" class="xbbox alert-info" style="display:none;">
+          <table style="width:100%">
+              <tr>
+                  <td style="width:200px;"><img src="/media/com_xbjournals/images/waiting.gif" style="height:100px" /> </td>
+                  <td style="vertical-align:middle;"><b><?php echo Text::_('XBJOURNALS_WAITING_REPLY'); ?></b> </td>
+              </tr>
+          </table>
+    	</div>
 		<h3><?php echo Text::_( 'XBJOURNALS_SERVERS_USER' ); ?></h4>
 		<p><?php echo Text::_('XBJOURNALS_SERVERS_USER_SUBTITLE'); ?></p>
 		<?php // Search tools bar

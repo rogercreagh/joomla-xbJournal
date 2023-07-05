@@ -38,6 +38,7 @@ if ($saveOrder) {
 }
 
 $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
+
 Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 		document.getElementById(targ).style.display = "block";
 	}');

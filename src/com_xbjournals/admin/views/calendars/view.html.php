@@ -50,12 +50,8 @@ class XbjournalsViewCalendars extends JViewLegacy {
         ToolbarHelper::title(Text::_( 'XBJOURNALS_ADMIN_CALENDARS_TITLE' ), 'screen' );
         
 //         if ($canDo->get('core.create') > 0) {
-//             ToolbarHelper::addNew('server.add','New Server');
+//             ToolbarHelper::addNew('calendr.add','New Calendar');
 //         }
-//        ToolbarHelper::custom('calendars.fetchAllItems', 'file-plus', '', 'get items', true) ;
-//        ToolbarHelper::custom('calendars.getAllItems', 'file-plus', '', 'Get All Items', true) ;
-//        ToolbarHelper::custom('calendars.getChangedItems', 'new', '', 'Get New Items', true) ;
-//        ToolbarHelper::custom('calendars.syncItems', 'refresh', '', 'Sync Items', true) ;
 
         $bar = Toolbar::getInstance('toolbar');
         
@@ -75,6 +71,10 @@ class XbjournalsViewCalendars extends JViewLegacy {
         }\" class=\"btn btn-small\"> <span class=\"icon-file-check\" aria-hidden=\"true\"></span>$text</button>";
         $bar->appendButton('Custom', $dhtml);
              
+        //        ToolbarHelper::custom('calendars.fetchAllItems', 'file-plus', '', 'get items', true) ;
+        //        ToolbarHelper::custom('calendars.getAllItems', 'file-plus', '', 'Get All Items', true) ;
+        //        ToolbarHelper::custom('calendars.getChangedItems', 'new', '', 'Get New Items', true) ;
+        //        ToolbarHelper::custom('calendars.syncItems', 'refresh', '', 'Sync Items', true) ;
         
 //         $btnHtml = '<button onclick="if (document.adminForm.boxchecked.value == 0) {
 //             alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\'));
