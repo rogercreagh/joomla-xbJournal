@@ -2,7 +2,7 @@
 <extension type="component" version="3.1" method="upgrade">
 	<name>xbjournals</name>
 	<creationDate>5th July 2023</creationDate>
-	<version>0.0.7.5</version>
+	<version>0.1.0.0</version>
 	<author>Roger C-O</author>
 	<authorEmail>roger@crosborne.uk</authorEmail>
 	<authorUrl>www.crosborne.uk</authorUrl>
