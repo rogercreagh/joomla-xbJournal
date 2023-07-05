@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.7.2 4th July 2023
+ * @version 0.0.7.5 5th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -127,7 +127,10 @@ class XbjournalsHelper extends ContentHelper
 	 * if in database but no longer on server then disable it
 	 * @param $serverid
 	 */
-	public static function getServerCalendars($serverid) {
+	public static function getServerCalendars($serverid, $ret = 'cnts') {
+	    
+	    $msg = '<p>Calendars found on Server #'.$serverid.'</p>';
+	    $clist = '<ul>';
 	    
 	    $conn = self::getServerConnectionDetails($serverid);
 	    
@@ -142,12 +145,13 @@ class XbjournalsHelper extends ContentHelper
 	    
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
-	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0);
+	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0, 'novj'=>0, 'arch'=>0);
 	    $scalids = array();
 	    foreach ($arrayOfCalendars as $cal) {
 	        $calurl = $cal->getURL();
 	        $calid = $cal->getCalendarID();
 	        $calname = $cal->getDisplayName();
+	        $clist .= '<li><b>'.$calname.'</b>';
 	        $alias = OutputFilter::stringURLSafe(strtolower($calname));
 	        $calctag = $cal->getCTag();
 	        $calorder = $cal->getOrder();
@@ -157,8 +161,10 @@ class XbjournalsHelper extends ContentHelper
 	        $desc = '';
 	        if (strpos($calcomps,'VJOURNAL') ===false) {
 	            $pub = 0;
-	            $desc = '<p class="xbit xbhlt">'.Text::_('VJOURNAL not enabled').'</p>';	            
+	            $clist .= ' - <span class="xbit xbhlt">'.Text::_('VJOURNAL not enabled').'</span>';	
+	            $cnts['novj'] ++;
 	        }
+	        $clist .= '</li>';
 	        
 	        $query->clear();
 	        $query->select('id, cal_ctag')->from('#__xbjournals_calendars');
@@ -181,7 +187,7 @@ class XbjournalsHelper extends ContentHelper
 	                ->set($db->qn('cal_components').' = '.$db->q($calcomps))
 	                ->set($db->qn('title').' = '.$db->q($alias))
 	                ->set($db->qn('alias').' = '.$db->q($localpath))
-	                ->set($db->qn('descrption').' = '.$db->q($desc))
+	                ->set($db->qn('description').' = '.$db->q($desc))
 	                ->set($db->qn('state').' = '.$db->q($pub))
 	                ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')));
 	                $query->where($db->qn('id').' = '.$db->q($res['id']));
@@ -199,7 +205,7 @@ class XbjournalsHelper extends ContentHelper
 	            $query->clear();
 	            $query->insert($db->quoteName('#__xbjournals_calendars'));
 	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
-	                .'cal_rgb_color,cal_order,cal_components,title,alias,descrption,access,state,last_checked');
+	                .'cal_rgb_color,cal_order,cal_components,title,alias,description,access,state,last_checked');
 	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
 	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
 	                .$db->q($alias).','.$db->q($desc).','.$db->q('1').','.$db->q($pub).','.$db->q(date('Y-m-d H:i:s')));
@@ -229,10 +235,17 @@ class XbjournalsHelper extends ContentHelper
     	            $db->execute();
     	        } catch (Exception $e) {
     	            $this->doError('Error updating calendar state in database',$e);
-    	        }    	        
+    	        }  
+    	        $cnts['arch'] ++;
     	    }
 	        
 	    }
+	    if ($ret == 'list') {
+	        $msg .= $cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged, '.$cnts['arch'].' archived, '.$cnts['novj'].' no VJOURNAL';
+	        $msg .= $clist;
+	        return $msg;
+	    }
+	    //TODO update server dates and note
 	    return $cnts;
 	}
 	
@@ -257,14 +270,14 @@ class XbjournalsHelper extends ContentHelper
 	    foreach ($arrayOfCalendars as $cal) {
 //	        $calurl = $cal->getURL();
 //	        $calid = $cal->getCalendarID();
-	        $clist .= '<li>'.$cal->getDisplayName();
+	        $clist .= '<li><b>'.$cal->getDisplayName().'</b>';
 //	        $alias = OutputFilter::stringURLSafe(strtolower($calname));
 //	        $calctag = $cal->getCTag();
 //	        $calorder = $cal->getOrder();
 //	        $calrgb = $cal->getRBGcolor();
 	        $calcomps = $cal->getComponents();
 	        if (strpos($calcomps,'VJOURNAL') ===false ) {
-	            $clist .= ' <i>VJOURNAL not enabled</i>';
+	            $clist .= ' <span class="xbit xbhlt">VJOURNAL not enabled</span>';
 	        }
 	        $clist.='</li>';	        
 	    } //end foreach calendar
