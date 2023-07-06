@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/server/view.html.php
- * @version 0.0.7.5 5th July 2023
+ * @version 0.1.0.1 6th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -60,13 +60,13 @@ class XbjournalsViewServer extends JViewLegacy {
         }
         ToolBarHelper::title($title, 'database');
         
-        ToolbarHelper::apply('server.apply');
+//        ToolbarHelper::apply('server.apply');
 
         $bar = Toolbar::getInstance('toolbar');
         
-        $text = Text::_('JSAVE');
+        $text = Text::_('JAPPLY');
         $btnHtml = "<button onclick=\"pleaseWait('waiter'); Joomla.submitbutton('server.apply');\"
-                class=\"btn btn-small button-apply button-success\"><span class=\"icon-apply icon-white\"></span>$text</button>";
+                class=\"btn btn-small button-apply btn-success\"><span class=\"icon-apply icon-white\"></span>$text</button>";
         $bar->appendButton('Custom', $btnHtml);
         
         if (!$isNew) {

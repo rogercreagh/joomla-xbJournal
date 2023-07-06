@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource script.xbjournals.php
- * @version 0.0.6.4 17th June 2023
+ * @version 0.1.0.1 6th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -307,7 +307,7 @@ class com_xbjournalsInstallerScript
  	        try {
  	            $db->execute();
  	            $localserver = $db->insertid();
- 	            $meaasge .= 'server (id='.$localserver.') created ok';
+ 	            $message .= 'server (id='.$localserver.') created ok';
  	        } catch (Exception $e) {
  	            Factory::getApplication()->enqueueMessage('Failed to create local storage<br />'.$query->dump().'<br />'.$e->getMessage(),'Warning');
  	            return $message .'Error saving local server';;

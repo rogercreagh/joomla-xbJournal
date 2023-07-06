@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.0.7.2 4th July 2023
+ * @version 0.1.0.1 6th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -38,6 +38,7 @@ if ($saveOrder) {
 }
 
 $calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
+$catviewlink='index.php?option=com_xbjournals&view=jcategory&id=';
 
 Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 		document.getElementById(targ).style.display = "block";
@@ -58,26 +59,21 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
           </table>
     	</div>
 		<h3><?php echo Text::_( 'XBJOURNALS_CALENDARS' ); ?></h3>
-	<div class="pull-right span2">
-		<p style="text-align:right;">
-			<?php $fnd = $this->pagination->total;
-			echo $fnd .' '. Text::_(($fnd==1)?'XBJOURNALS_CALENDAR':'XBJOURNALS_CALENDARS').' '.Text::_('XBJOURNALS_FOUND');
-            ?>
-		</p>
-	</div>
-	<div class="clearfix"></div>
-	
-	<?php
-        // Search tools bar
-//        echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
-    ?>
-	<div class="clearfix"></div>
-	
-	<div class="pagination">
-		<?php  echo $this->pagination->getPagesLinks(); ?>
-		<br />
-	    <?php //echo 'sorted by '.$orderNames[$listOrder].' '.$listDirn ; ?>
-	</div>
+
+		<?php // Search tools bar
+            echo LayoutHelper::render('joomla.searchtools.default', array('view' => $this));
+        ?>	
+        <div class="pull-right pagination xbm0">
+    		<?php  echo $this->pagination->getPagesLinks(); ?>
+    	</div>
+    	<div class="pull-left">
+    		<?php  echo $this->pagination->getResultsCounter(); ?> 
+            <?php if($this->pagination->pagesTotal > 1) echo ' on '.$this->pagination->getPagesCounter(); ?>
+    		<p>              
+                <?php echo 'Sorted by '.$listOrder.' '.$listDirn ; ?>
+    		</p>
+    	</div>
+        <div class="clearfix"></div>      
 
 	<?php if (empty($this->items)) : ?>
 		<div class="alert alert-no-items">
@@ -102,20 +98,23 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 					</th>					
 					<th>
 						<?php echo Text::_('XBJOURNALS_SERVER');?>
+						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_SERVER', 'server_title', $listDirn, $listOrder );?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >
 						<?php echo (Text::_('XBJOURNALS_DESCRIPTION'));?>
 					</th>
 					<th>
-						<?php echo (Text::_('XBJOURNALS_ENTRIES')); ?>
+						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_ENTRIES', 'ecnt', $listDirn, $listOrder );?>
 					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">
 						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_CHECKED', 'last_checked', $listDirn, $listOrder );?>
 					</th>
+					<th>
+						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_JOOMLA_CATEGORY','category_title',$listDirn,$listOrder ).' &amp; ';						
+						echo Text::_( 'XBJOURNALS_TAGS' ); ?>
+					</th>
 					<th class="nowrap hidden-tablet hidden-phone" style="width:100px;">					
 						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
-					<th>
-					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -205,6 +204,15 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 				</td>
 				<td class="hidden-phone">
 					<?php echo HtmlHelper::date($item->last_checked, 'd M Y H:m');?>					
+				</td>
+				<td>
+					<?php if($item->catid) : ?>
+						<p><a class="label label-cat" href="<?php echo $catviewlink.$item->catid; ?>" 
+    							title="<?php echo $item->category_title; ?>">
+    								<?php echo $item->category_title; ?>
+    							</a>
+						</p>
+					<?php endif; ?>
 				</td>
 				<td class="hidden-phone">
 					<?php echo $item->id; ?>					

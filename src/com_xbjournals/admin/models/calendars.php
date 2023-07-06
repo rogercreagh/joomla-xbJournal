@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.0.7.1 4th July 2023
+ * @version 0.1.0.1 6th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -19,8 +19,15 @@ defined('_JEXEC') or die;
 
 class XbjournalsModelCalendars extends JModelList {
     
-    public function __construct() {
-        
+    public function __construct($config = array()) {
+        if (empty($config['filter_fields'])) {
+            $config['filter_fields'] = array(
+                'id', 'a.id', 'title', 'a.title',
+                's.title','server_title','ecnt', 'category_id',
+                'ordering','a.ordering', 'category_title', 'cat.title',
+                'last_checked', 'a.last_checked', 'category_title', 'cat.title',
+                'published','a.state','modified','a.modified');
+        }
         parent::__construct();
     }
     
@@ -42,10 +49,46 @@ class XbjournalsModelCalendars extends JModelList {
             
         $query->leftJoin('#__xbjournals_servers AS s ON s.id = a.server_id');
         $query->select('s.title AS server_title');
-        //filter on published state
-        //filter on category
-        //filter on vjournal allowed
-            
+        
+        $query->join('LEFT', '#__categories AS cat ON cat.id = a.catid');
+        $query->select('cat.title AS category_title');
+        
+        // Filter by published state
+        $published = $this->getState('filter.published');
+        if (is_numeric($published)) {
+            $query->where('a.state = ' . (int) $published);
+        }
+        // Filter by category.
+        $categoryId = $app->getUserStateFromRequest('catid', 'catid','');
+        $app->setUserState('catid', '');
+        if ($categoryId=='') {
+            $categoryId = $this->getState('filter.category_id');
+        }
+        if (is_numeric($categoryId)) {
+            $query->where($db->quoteName('a.catid') . ' = ' . (int) $categoryId);
+        } elseif (is_array($categoryId)) {
+            $categoryId = implode(',', $categoryId);
+            $query->where($db->quoteName('a.catid') . ' IN ('.$categoryId.')');
+        }
+        
+        // Filter by search in title/id/synop
+        $search = $this->getState('filter.search');
+        
+        if (!empty($search)) {
+            if (stripos($search, 'i:') === 0) {
+                $query->where($db->quoteName('a.id') . ' = ' . (int) substr($search, 2));
+            } elseif (stripos($search,'d:')===0) {
+                $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim(substr($search,2)), true) . '%'));
+                $query->where('(a.description LIKE ' . $search.')');
+            } elseif (stripos($search,'a:')===0) {
+                $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim(substr($search,2)), true) . '%'));
+                $query->where('(a.alias LIKE ' . $search.')');
+            } elseif (stripos($search,':')!= 1) {
+                $search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
+                $query->where('(a.title LIKE ' . $search  . ')');
+            }
+        }
+        
         $orderCol       = $this->state->get('list.ordering', 'title');
         $orderDirn      = $this->state->get('list.direction', 'ASC');
         

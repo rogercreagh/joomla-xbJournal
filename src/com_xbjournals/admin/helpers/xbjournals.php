@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.0.7.5 5th July 2023
+ * @version 0.1.0.1 6th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -131,6 +131,7 @@ class XbjournalsHelper extends ContentHelper
 	    
 	    $msg = '<p>Calendars found on Server #'.$serverid.'</p>';
 	    $clist = '<ul>';
+	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0, 'novj'=>0, 'arch'=>0, 'tot'=>0);
 	    
 	    $conn = self::getServerConnectionDetails($serverid);
 	    
@@ -141,11 +142,9 @@ class XbjournalsHelper extends ContentHelper
 	    $client->connect($conn['url'],$conn['username'],$conn['password']);
 	    
 	    $arrayOfCalendars = $client->findCalendars(); // Returns an array of all accessible calendars on the server.
-	    //TODO filter to get only calendars with VJOURNAL enabled according to user status
-	    
+	    $cnts['tot'] = count($arrayOfCalendars);
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
-	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0, 'novj'=>0, 'arch'=>0);
 	    $scalids = array();
 	    foreach ($arrayOfCalendars as $cal) {
 	        $calurl = $cal->getURL();
@@ -157,78 +156,79 @@ class XbjournalsHelper extends ContentHelper
 	        $calorder = $cal->getOrder();
 	        $calrgb = $cal->getRBGcolor();
 	        $calcomps = $cal->getComponents();
-	        $pub = 1;
-	        $desc = '';
+	        $vjok = true;
+	        $note = '';
 	        if (strpos($calcomps,'VJOURNAL') ===false) {
-	            $pub = 0;
+	            $vjok = false;
 	            $clist .= ' - <span class="xbit xbhlt">'.Text::_('VJOURNAL not enabled').'</span>';	
 	            $cnts['novj'] ++;
 	        }
 	        $clist .= '</li>';
-	        
-	        $query->clear();
-	        $query->select('id, cal_ctag')->from('#__xbjournals_calendars');
-	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calendar_id = '.$db->q($calid));
-	        $db->setQuery($query);
-	        $res = $db->loadAssoc();
-	        if ($res['id']>0) {
-	            $scalids[] = $res['id'];
-	            //check if it has changed, if so update
-	            if ($res['cal_ctag'] != $calctag) {
-	                //TODO update here
-	                $query->clear;
-	                $query->update($db->qn('#__xbjournals_calendars'))
-	                ->set($db->qn('cal_displayname').' = '.$db->q($calname))
-	                ->set($db->qn('cal_url').' = '.$db->q($calurl))
-	                ->set($db->qn('cal_ctag').' = '.$db->q($calctag))
-	                ->set($db->qn('cal_calendar_id').' = '.$db->q($calid))
-	                ->set($db->qn('cal_rgb_color').' = '.$db->q($calrgb))
-	                ->set($db->qn('cal_order').' = '.$db->q($calorder))
-	                ->set($db->qn('cal_components').' = '.$db->q($calcomps))
-	                ->set($db->qn('title').' = '.$db->q($alias))
-	                ->set($db->qn('alias').' = '.$db->q($localpath))
-	                ->set($db->qn('description').' = '.$db->q($desc))
-	                ->set($db->qn('state').' = '.$db->q($pub))
-	                ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')));
-	                $query->where($db->qn('id').' = '.$db->q($res['id']));
-	                $db->setQuery($query);
-	                try {
-	                    $db->execute();
-	                } catch (Exception $e) {
-	                    $this->doError('Error updating calendar in database',$e);
-	                }	                	                
-	                $cnts['update']++;
-	            } else {
-	                $cnts['same'] ++;
-	            }
-	        } else { //we need to add it
-	            $query->clear();
-	            $query->insert($db->quoteName('#__xbjournals_calendars'));
-	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
-	                .'cal_rgb_color,cal_order,cal_components,title,alias,description,access,state,last_checked');
-	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
-	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
-	                .$db->q($alias).','.$db->q($desc).','.$db->q('1').','.$db->q($pub).','.$db->q(date('Y-m-d H:i:s')));
-	            //try
-	            $db->setQuery($query);
-	            $db->execute();
-	            $scalids[] = $db->insertid();	            
-	            $cnts['new'] ++;
-	        }
+	        if ($vjok) {
+    	        $query->clear();
+    	        $query->select('id, cal_ctag')->from('#__xbjournals_calendars');
+    	        $query->where('cal_url = '.$db->q($calurl).' AND cal_calendar_id = '.$db->q($calid));
+    	        $db->setQuery($query);
+    	        $res = $db->loadAssoc();
+    	        if ($res['id']>0) {
+    	            $scalids[] = $res['id'];
+    	            //check if it has changed, if so update
+    	            if ($res['cal_ctag'] != $calctag) {
+    	                //set modified to now
+    	                $query->clear;
+    	                $query->update($db->qn('#__xbjournals_calendars'))
+    	                ->set($db->qn('cal_displayname').' = '.$db->q($calname))
+    	                ->set($db->qn('cal_url').' = '.$db->q($calurl))
+    	                ->set($db->qn('cal_ctag').' = '.$db->q($calctag))
+    	                ->set($db->qn('cal_calendar_id').' = '.$db->q($calid))
+    	                ->set($db->qn('cal_rgb_color').' = '.$db->q($calrgb))
+    	                ->set($db->qn('cal_order').' = '.$db->q($calorder))
+    	                ->set($db->qn('cal_components').' = '.$db->q($calcomps))
+    	                ->set($db->qn('title').' = '.$db->q($calname))
+    	                ->set($db->qn('alias').' = '.$db->q($alias))
+    //	                ->set($db->qn('description').' = '.$db->q($desc))
+    	                ->set($db->qn('state').' = '.$db->q($pub))
+    	                ->set($db->qn('modified').' = '.$db->q(date('Y-m-d H:i:s')));
+    	                $query->where($db->qn('id').' = '.$db->q($res['id']));
+    	                $db->setQuery($query);
+    	                try {
+    	                    $db->execute();
+    	                } catch (Exception $e) {
+    	                    $this->doError('Error updating calendar in database',$e);
+    	                }	                	                
+    	                $cnts['update']++;
+    	            } else {
+    	                $cnts['same'] ++;
+    	            }
+    	        } else { //we need to add it, set created date to now
+    	            $query->clear();
+    	            $query->insert($db->quoteName('#__xbjournals_calendars'));
+    	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
+    	                .'cal_rgb_color,cal_order,cal_components,title,alias,access,state,created');
+    	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
+    	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
+    	                .$db->q($alias).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')));
+    	            //try
+    	            $db->setQuery($query);
+    	            $db->execute();
+    	            $scalids[] = $db->insertid();	            
+    	            $cnts['new'] ++;
+    	        }   	        
+	        } //endif vjok	        
 	    } //end foreach calendar
 	    // check if calendars have disappeared from server and unpublish them
 	    $query->clear();
 	    $query->select('id')->from($db->quoteName('#__xbjournals_calendars'));
 	    $db->setQuery($query);
 	    $lcalids = $db->loadColumn();
-	    if ((is_array($scalids)) && (is_array($lcalids))) {
+	    if ((!empty($scalids)) && (is_array($lcalids))) {
     	    $lostids = array_diff($lcalids, $scalids);
     	    foreach ($lostids as $cal) {
     	        $query->clear();
     	        $query->update($db->qn('#__xbjournals_calendars'))
-    	        ->set($db->qn('state').' = '.$db->q('2'))
-    	        ->set($db->qn('description').' = '.$db->q(Text::_('Calendar no longer on server')))
-    	        ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')));
+    	        ->set($db->qn('state').' = '.$db->q('0')) //set state to unpublished
+    	        ->set($db->qn('note').' = '.$db->q(Text::_('Calendar no longer on server')))
+    	        ->set($db->qn('modified').' = '.$db->q(date('Y-m-d H:i:s')));
     	        $query->where($db->qn('id').' = '.$db->q($cal));
     	        $db->setQuery($query);
     	        try {
@@ -240,12 +240,23 @@ class XbjournalsHelper extends ContentHelper
     	    }
 	        
 	    }
+	    //update server dates (modified) and note ()
+	    $query->clear();	    
+	    $query->update($db->qn('#__xbjournals_servers'))
+       	    ->set($db->qn('note').' = '.$db->q($cnts['tot'].' calendars, '.$cnts['novj'].' Vjournal not enabled'))
+	        ->set($db->qn('modified').' = '.$db->q(date('Y-m-d H:i:s')));
+	    $query->where($db->qn('id').' = '.$db->q($serverid));
+	    $db->setQuery($query);
+	    try {
+	        $db->execute();
+	    } catch (Exception $e) {
+	        $this->doError('Error updating server state in database',$e);
+	    }  
 	    if ($ret == 'list') {
 	        $msg .= $cnts['new'].' new calendars added, '.$cnts['update'].' updated, '.$cnts['same'].' unchanged, '.$cnts['arch'].' archived, '.$cnts['novj'].' no VJOURNAL';
 	        $msg .= $clist;
 	        return $msg;
 	    }
-	    //TODO update server dates and note
 	    return $cnts;
 	}
 	
