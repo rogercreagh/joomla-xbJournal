@@ -22,17 +22,54 @@ class XbjournalsModelCalendars extends JModelList {
     public function __construct($config = array()) {
         if (empty($config['filter_fields'])) {
             $config['filter_fields'] = array(
-                'id', 'a.id', 'title', 'a.title',
-                's.title','server_title','ecnt', 'category_id',
-                'ordering','a.ordering', 'category_title', 'cat.title',
-                'last_checked', 'a.last_checked', 'category_title', 'cat.title',
-                'published','a.state','modified','a.modified');
+                'id', 'a.id', 
+                'title', 'a.title',
+                's.title','server_title',
+                'ecnt', 
+                'category_id',
+                'ordering','a.ordering', 
+                'category_title', 'cat.title',
+                'last_checked', 'a.last_checked', 
+                'catid', 'a.catid',
+                'published','a.state',
+                'modified','a.modified');
         }
         parent::__construct();
     }
     
+    protected function populateState($ordering = 'title', $direction = 'desc') {
+        
+        $app = Factory::getApplication();
+        $filt = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
+        $this->setState('filter.search', $filt);
+        $filt = $this->getUserStateFromRequest($this->context . '.filter.published', 'filter_published', '');
+        $this->setState('filter.published', $filt);
+        $filt = $this->getUserStateFromRequest($this->context . '.filter.category_id', 'filter_category_id');
+        $this->setState('filter.categoryId', $filt);
+//         $filt = $this->getUserStateFromRequest($this->context . '.filter.tagfilt', 'filter_tagfilt', '');
+//         $this->setState('filter.tagfilt', $filt);
+//         $filt = $this->getUserStateFromRequest($this->context . '.filter.taglogic', 'filter_taglogic');
+//         $this->setState('filter.taglogic', $filt);
+        //         $filt = $this->getUserStateFromRequest($this->context . '.filter.', 'filter_');
+        //         $this->setState('filter.', $filt);
+        
+        $formSubmited = $app->input->post->get('form_submited');
+        
+        if ($formSubmited)
+        {
+            $categoryId = $app->input->post->get('category_id');
+            $this->setState('filter.category_id', $categoryId);
+            
+//             $tagfilt = $app->input->post->get('tagfilt');
+//             $this->setState('filter.tagfilt', $tagfilt);
+        }
+        
+        parent::populateState($ordering, $direction);
+    }
+    
     protected function getListQuery() {
         $db = Factory::getDbo();
+        $app = Factory::getApplication();
         $query = $db->getQuery(true);
         
         $query->select('a.id AS id, a.title AS title, a.alias AS alias, a.server_id AS server_id,'

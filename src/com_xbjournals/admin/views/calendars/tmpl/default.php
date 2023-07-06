@@ -97,7 +97,6 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_TITLE','title',$listDirn,$listOrder); ?>
 					</th>					
 					<th>
-						<?php echo Text::_('XBJOURNALS_SERVER');?>
 						<?php echo HTMLHelper::_('searchtools.sort', 'XBJOURNALS_SERVER', 'server_title', $listDirn, $listOrder );?>
 					</th>
 					<th class="hidden-tablet hidden-phone" >

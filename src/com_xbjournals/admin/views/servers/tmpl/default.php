@@ -225,11 +225,6 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 	
 	<?php endif; ?>
 
-        <?php 
-//        echo '<pre>'.print_r($this->journalitems,true).'</pre>';
-        
-//        echo '<pre>'.print_r($this->notes,true).'</pre>';
-        ?>
 	</div>
 	<?php echo $this->pagination->getListFooter(); ?>
 	<input type="hidden" name="task" value="" />
