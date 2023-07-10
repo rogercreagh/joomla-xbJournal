@@ -31,7 +31,7 @@ if (!$listOrder) {
 }
 
 $saveOrder      = $listOrder == 'ordering';
-$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.server');
+$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.calendar');
 if ($saveOrder) {
     $saveOrderingUrl = 'index.php?option=com_xbjournals&task=calendars.saveOrderAjax&tmpl=component';
     HTMLHelper::_('sortablelist.sortable', 'xbjournalsCalendarsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
