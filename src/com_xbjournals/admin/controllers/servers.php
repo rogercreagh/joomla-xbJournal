@@ -22,7 +22,7 @@ class XbjournalsControllerServers extends JControllerAdmin {
 	    $jip =  Factory::getApplication()->input;
 	    $cid =  $jip->get('cid');
 	    $serverid = $cid[0];
-	    $clist = XbjournalsHelper::getServerCalendars($serverid.'list');
+	    $clist = XbjournalsHelper::getServerCalendars($serverid,'list');
 	    Factory::getApplication()->enqueueMessage($clist);
 	    $this->setRedirect('index.php?option=com_xbjournals&view=servers');
 	}

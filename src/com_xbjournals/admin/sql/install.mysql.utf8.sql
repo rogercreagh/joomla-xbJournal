@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_calendars` (
   `catid` int(10) NOT NULL  DEFAULT '0' COMMENT 'default to uncategorised',
   `readonly` tinyint(3) NOT NULL DEFAULT'0',
   `access` int(10) NOT NULL  DEFAULT '0',
-  `state` tinyint(3) NOT NULL DEFAULT '0' COMMENT 'enforce state unpublished (0) if does not support VJOURNAL',
+  `state` tinyint(3) NOT NULL DEFAULT '0',
   `created` datetime DEFAULT NULL,
   `created_by` int(10) NOT NULL DEFAULT '0',
   `created_by_alias` varchar(255) NOT NULL DEFAULT '',

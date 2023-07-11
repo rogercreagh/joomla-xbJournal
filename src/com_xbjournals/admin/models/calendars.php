@@ -26,11 +26,10 @@ class XbjournalsModelCalendars extends JModelList {
                 'title', 'a.title',
                 's.title','server_title',
                 'ecnt', 
-                'category_id',
                 'ordering','a.ordering', 
                 'category_title', 'cat.title',
+                'catid', 'a.catid','category_id',
                 'last_checked', 'a.last_checked', 
-                'catid', 'a.catid',
                 'published','a.state',
                 'modified','a.modified');
         }
@@ -63,7 +62,6 @@ class XbjournalsModelCalendars extends JModelList {
 //             $tagfilt = $app->input->post->get('tagfilt');
 //             $this->setState('filter.tagfilt', $tagfilt);
         }
-        
         parent::populateState($ordering, $direction);
     }
     

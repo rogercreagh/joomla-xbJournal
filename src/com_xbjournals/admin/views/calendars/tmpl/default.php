@@ -122,8 +122,8 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
                 $canEdit    = $user->authorise('core.edit', 'com_xbjournals.calendar.'.$item->id);
                 $canCheckin = $user->authorise('core.manage', 'com_checkin') 
                                         || $item->checked_out==$userId || $item->checked_out==0;
-				$canEditOwn = $user->authorise('core.edit.own', 'com_xbmaps.map.'.$item->id) && $item->created_by == $userId;
-                $canChange  = $user->authorise('core.edit.state', 'com_xbmaps.map.'.$item->id) && $canCheckin;
+				$canEditOwn = $user->authorise('core.edit.own', 'com_xbjournals.calendar.'.$item->id) && $item->created_by == $userId;
+                $canChange  = $user->authorise('core.edit.state', 'com_xbjournals.calendar.'.$item->id) && $canCheckin;
 			?>
 			<tr class="row<?php echo $i % 2; ?>" sortable-group-id="<?php echo $item->catid; ?>">	
 				<td class="order nowrap center hidden-phone">
@@ -161,7 +161,7 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 					<p class="xb12 xbbold xbmb8">
 					<?php if ($item->checked_out) {
 					    $couname = Factory::getUser($item->checked_out)->username;
-					    echo HTMLHelper::_('jgrid.checkedout', $i, Text::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'map.', $canCheckin);
+					    echo HTMLHelper::_('jgrid.checkedout', $i, Text::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'calendar.', $canCheckin);
 					} ?>
 					<?php if ($canEdit || $canEditOwn) : ?>
 						<a href="<?php echo Route::_($calviewlink.$item->id);?>"

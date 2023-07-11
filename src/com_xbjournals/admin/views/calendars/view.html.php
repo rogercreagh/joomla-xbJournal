@@ -23,6 +23,8 @@ class XbjournalsViewCalendars extends JViewLegacy {
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
+        $this->listOrder = $this->escape($this->state->get('list.ordering'));
+        $this->listDirn = $this->escape($this->state->get('list.direction'));
         $this->filterForm = $this->get('FilterForm');
         $this->activeFilters = $this->get('ActiveFilters');
         

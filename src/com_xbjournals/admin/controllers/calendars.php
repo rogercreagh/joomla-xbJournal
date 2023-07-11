@@ -13,7 +13,7 @@ use Joomla\CMS\Factory;
 
 class XbjournalsControllerCalendars extends JControllerAdmin {
 	
-	public function getModel($name = 'Calendar', $prefix = 'XbjournalsModel', $config = array('ignore_request' => true)) {
+    public function getModel($name = 'Calendar', $prefix = 'XbjournalsModel', $config = array('ignore_request' => true)) {
 				$model = parent::getModel($name, $prefix, $config );
 				return $model;
 	}
