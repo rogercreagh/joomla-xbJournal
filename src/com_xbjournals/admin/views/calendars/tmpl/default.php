@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/calendars/tmpl/default.php
- * @version 0.1.0.1 6th July 2023
+ * @version 0.1.1.0 11th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -37,7 +37,7 @@ if ($saveOrder) {
     HTMLHelper::_('sortablelist.sortable', 'xbjournalsCalendarsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 
-$calviewlink='index.php?option=com_xbjournals&view=calendar&layout=default&id=';
+$caleditlink='index.php?option=com_xbjournals&view=calendar&task=calendar.edit&id=';
 $catviewlink='index.php?option=com_xbjournals&view=jcategory&id=';
 
 Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
@@ -164,7 +164,7 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 					    echo HTMLHelper::_('jgrid.checkedout', $i, Text::_('XBJOURNALS_OPENED_BY').': '.$couname, $item->checked_out_time, 'calendar.', $canCheckin);
 					} ?>
 					<?php if ($canEdit || $canEditOwn) : ?>
-						<a href="<?php echo Route::_($calviewlink.$item->id);?>"
+						<a href="<?php echo Route::_($caleditlink.$item->id);?>"
 							title="<?php echo Text::_('edit calendar'); ?>" >
 							<b><?php echo $this->escape($item->title); ?></b></a> 
 					<?php else : ?>

@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendar.php
- * @version 0.0.0.9 12th April 2023
+ * @version 0.1.1.0 11th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -48,7 +48,7 @@ class XbjournalsModelCalendar extends AdminModel {
         return $item;
     }
     
-    public function getTable($type = 'Server', $prefix = 'XbjournalsTable', $config = array()) {
+    public function getTable($type = 'Calendar', $prefix = 'XbjournalsTable', $config = array()) {
         
         return JTable::getInstance($type, $prefix, $config);
     }
@@ -85,7 +85,16 @@ class XbjournalsModelCalendar extends AdminModel {
         $table->alias = ApplicationHelper::stringURLSafe($table->alias);
         
         if (empty($table->alias)) {
-            $table->alias = ApplicationHelper::stringURLSafe($table->title);
+            $table->alias = ApplicationHelper::stringURLSafe($table->title);            
+            if (XbjournalsHelper::checkDBvalueExists($this->alias,'#__xbjournals_calendars','alias')) {
+                $num=1;
+                $test = $this->alias.'-'.$num;
+                while (XbjournalsHelper::checkDBvalueExists($test,'#__xbjournals_calendars','alias')) {
+                    $num ++;
+                    $test = $this->alias.'-'.$num;
+                }
+                $this->alias = $test;
+            }
         }
         // Set the values
         if (empty($table->created)) {
@@ -141,15 +150,15 @@ class XbjournalsModelCalendar extends AdminModel {
             foreach ($pks as $i=>$item) {
                 $table->load($item);
                 if (!$table->delete($item)) {
-                    $mapword = ($cnt == 1)?  Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVERS');
-                    Factory::getApplication()->enqueueMessage($cnt.$mapword.Text::_('XBJOURNALS_DELETED'));
+                    $mapword = ($cnt == 1)?  Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
+                    Factory::getApplication()->enqueueMessage($cnt.' '.$mapword.Text::_('XBJOURNALS_DELETED'));
                     $this->setError($table->getError());
                     return false;
                 }
                 $table->reset();
                 $cnt++;
             }
-            $mapword = ($cnt == 1)? Text::_('XBJOURNALS_SERVER') : Text::_('XBJOURNALS_SERVER');
+            $mapword = ($cnt == 1)? Text::_('XBJOURNALS_CALENDAR') : Text::_('XBJOURNALS_CALENDARS');
             Factory::getApplication()->enqueueMessage($cnt.$mapword.' '.Text::_('XBJOURNALS_DELETED'));
             return true;
         }
