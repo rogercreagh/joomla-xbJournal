@@ -1,8 +1,8 @@
 <?php
 /*******
- * @package xbPeople
+ * @package xbJournals
  * @filesource admin/models/fields/xbcats.php
- * @version 0.10.0.3 27th November 2022
+ * @version 0.1.1.1 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2022
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -74,7 +74,7 @@ class JFormFieldXbcats extends JFormFieldList
             //if level set get maxlevel
             $maxlevel = $levels;
             if ($parent_id>1) {
-                $maxlevel += XbcultureHelper::getCat($parent_id)->level;
+                $maxlevel += XbjournalsHelper::getCat($parent_id)->level;
             }
         }
         

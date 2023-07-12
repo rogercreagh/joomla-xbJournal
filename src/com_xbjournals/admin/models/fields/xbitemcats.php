@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/models/fields/xbitemcats.php
- * @version 0.0.3.39th May 2023
+ * @version 0.1.1.1 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2022
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -19,7 +19,7 @@ FormHelper::loadFieldClass('list');
 /**
  * @name XbItemCats field class
  * @desc Returns an options list for all categories actually in use in a specified itemtable
- * NB Assumes that table has  column named catid or is specified as "#__tablename.catidcolum"
+ * NB Assumes that table has  column named catid or is specified in theritemtable element as "#__tablename.catidcolumn"
  * @author rogerco
  *
  */
@@ -30,7 +30,7 @@ class JFormFieldXbitemcats extends JFormFieldList {
 	public function getOptions() {
 		
 		$options = array();
-		$catext = $this->element['extension'] ? (string) $this->element['extension'] : 'com_xbpeople';
+		$catext = $this->element['extension'] ? (string) $this->element['extension'] : 'com_xbjournals';
 		$published = $this->element['published'] ? (string) $this->element['published'] : '';
 //		$language  = (string) $this->element['language'];
 		if (!empty($this->element['itemtable'])) {

@@ -26,12 +26,12 @@ $userId = $user->get('id');
 $listOrder     = $this->escape($this->state->get('list.ordering'));
 $listDirn      = $this->escape(strtolower($this->state->get('list.direction')));
 if (!$listOrder) {
-    $listOrder='title';
-    $listDirn = 'ascending';
+    $listOrder = 'server_title';
+    $listDirn = 'asc';
 }
 
-$saveOrder      = $listOrder == 'ordering';
-$canOrder       = $user->authorise('core.edit.state', 'com_xbjournals.calendar');
+$saveOrder = ($listOrder == 'ordering');
+$canOrder = $user->authorise('core.edit.state', 'com_xbjournals.calendar');
 if ($saveOrder) {
     $saveOrderingUrl = 'index.php?option=com_xbjournals&task=calendars.saveOrderAjax&tmpl=component';
     HTMLHelper::_('sortablelist.sortable', 'xbjournalsCalendarsList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);

@@ -1,8 +1,8 @@
 <?php
 /*******
- * @package xbPeople
+ * @package xbJournals
  * @filesource admin/models/fields/xbtags.php
- * @version 0.10.0.0 21st November 2022
+ * @version 0.1.1.1 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2022
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -33,7 +33,8 @@ FormHelper::loadFieldClass('list');
 class JFormFieldXbtags extends Joomla\CMS\Form\Field\TagField 
 {
 	/**
-	 * An extension to the built in TagField to allow limiting selection to children of a specified parent and only a specified number of levels
+	 * An extension to the built-in TagField to allow limiting selection to children of a specified parent and only a specified number of levels
+	 * forces nested mode
 	 */
 	public $type = 'Xbtags';
 
@@ -68,7 +69,7 @@ class JFormFieldXbtags extends Joomla\CMS\Form\Field\TagField
 		    $maxlevel = $levels;
 		    if ($parent_id>1) {
 		        //get parent level
-		        $ptag = XbcultureHelper::getTag($parent_id);
+		        $ptag = XbjournalsHelper::getTag($parent_id);
 		        $maxlevel += $ptag->level;
 		    }
 		}

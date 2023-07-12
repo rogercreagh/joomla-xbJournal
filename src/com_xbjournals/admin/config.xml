@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals config.xml v0.0.7.0 30th June 2023 -->
+<!-- xbJournals config.xml v0.1.1.1 12th July 2023 -->
 <config>
 <!-- GENERAL TAB -->				
 	<fieldset name="general"
@@ -71,14 +71,6 @@
 				<option value="0">XBJOURNALS_DO_NOT_MAP</option>
 				<option value="1">XBJOURNALS_CATS_TAGS</option>
 			</field>
-			<field name="def_jcat" type="category"
-				extension="com_xbjournals"
-				label="XBJOURNALS_DEFAULT_CATEGORY_LABEL"
-				description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
-				default=""
-			>
-				<option value="">unspecified</option>
-			</field>
 			<field name="parenttag" type="tag"
 				label="Parent tag"
 				description="Set optional parent tag under which to create imported Vjournal categories as Joomla tags"
@@ -88,6 +80,14 @@
 				default=""
 			>
 				<option value="">XBJOURNALS_NO_PARENT</option>
+			</field>
+			<field name="def_jcat" type="category"
+				extension="com_xbjournals"
+				label="XBJOURNALS_DEFAULT_CATEGORY_LABEL"
+				description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
+				default=""
+			>
+				<option value="">unspecified</option>
 			</field>
 		</fieldset>
 <!-- BEER TAB -->

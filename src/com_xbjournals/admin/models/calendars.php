@@ -24,11 +24,11 @@ class XbjournalsModelCalendars extends JModelList {
             $config['filter_fields'] = array(
                 'id', 'a.id', 
                 'title', 'a.title',
-                's.title','server_title',
-                'ecnt', 
-                'ordering','a.ordering', 
+                'server_title', 's.title',
+                'ecnt', 'category_id',
                 'category_title', 'cat.title',
-                'catid', 'a.catid','category_id',
+                'ordering','a.ordering', 
+                'catid', 'a.catid',
                 'last_checked', 'a.last_checked', 
                 'published','a.state',
                 'modified','a.modified');
@@ -36,7 +36,7 @@ class XbjournalsModelCalendars extends JModelList {
         parent::__construct();
     }
     
-    protected function populateState($ordering = 'title', $direction = 'desc') {
+    protected function populateState($ordering = 'server_title', $direction = 'asc') {
         
         $app = Factory::getApplication();
         $filt = $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search');
@@ -124,7 +124,7 @@ class XbjournalsModelCalendars extends JModelList {
             }
         }
         
-        $orderCol       = $this->state->get('list.ordering', 'title');
+        $orderCol       = $this->state->get('list.ordering', 'server_title');
         $orderDirn      = $this->state->get('list.direction', 'ASC');
         
         $query->order($db->escape($orderCol.' '.$orderDirn));

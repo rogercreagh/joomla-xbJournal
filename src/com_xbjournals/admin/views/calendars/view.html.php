@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/calendars/view.html.php
- * @version 0.1.0.1 6th July 2023
+ * @version 0.1.1.1 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -23,8 +23,8 @@ class XbjournalsViewCalendars extends JViewLegacy {
         $this->items = $this->get('Items');
         $this->pagination = $this->get('Pagination');
         $this->state = $this->get('State');
-        $this->listOrder = $this->escape($this->state->get('list.ordering'));
-        $this->listDirn = $this->escape($this->state->get('list.direction'));
+        $this->listOrder = $this->state->get('list.ordering');
+        $this->listDirn = $this->state->get('list.direction');
         $this->filterForm = $this->get('FilterForm');
         $this->activeFilters = $this->get('ActiveFilters');
         

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/filter_calendars.xml v0.1.0.1 6th July 2023 -->
+<!-- xbJournals admin/models/forms/filter_calendars.xml v0.1.1.1 12th July 2023 -->
 <form>
 	<fields name="filter" addfieldpath="administrator/components/com_xbjournals/models/fields">
 		<field
@@ -30,9 +30,11 @@
 			onchange="this.form.submit();"
 			>
 		</field>
+		<!-- to add: server_id -->
 	</fields>
 	<fields name="list">
-  		<field name="fullordering" type="hidden" default="" />
+  		<field name="fullordering" type="hidden"  />
+  		<!-- default="" -->
   		
 		<field name="limit"
 			type="limitbox"
