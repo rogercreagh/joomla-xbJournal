@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.1.0.1 6th July 2023
+ * @version 0.1.1.2 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -133,6 +133,10 @@ class XbjournalsHelper extends ContentHelper
 	    $clist = '<ul>';
 	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0, 'novj'=>0, 'arch'=>0, 'tot'=>0);
 	    
+	    //get params def_jcat
+	    $params = ComponentHelper::getParams('com_xbjournals');
+	    $catid = $params->get('def_calcat');
+	    
 	    $conn = self::getServerConnectionDetails($serverid);
 	    
 	    require_once JPATH_ADMINISTRATOR . '/components/com_xbjournals/helpers/xbcaldav/xbVjournalHelper.php';
@@ -204,10 +208,10 @@ class XbjournalsHelper extends ContentHelper
     	            $query->clear();
     	            $query->insert($db->quoteName('#__xbjournals_calendars'));
     	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
-    	                .'cal_rgb_color,cal_order,cal_components,title,alias,access,state,created');
+    	                .'cal_rgb_color,cal_order,cal_components,title,alias,catid,access,state,created');
     	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
     	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
-    	                .$db->q($alias).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')));
+    	                .$db->q($alias).','.$db->q($catid).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')));
     	            //try
     	            $db->setQuery($query);
     	            $db->execute();
@@ -218,7 +222,7 @@ class XbjournalsHelper extends ContentHelper
 	    } //end foreach calendar
 	    // check if calendars have disappeared from server and unpublish them
 	    $query->clear();
-	    $query->select('id')->from($db->quoteName('#__xbjournals_calendars'));
+	    $query->select('id')->from($db->quoteName('#__xbjournals_calendars'))->where($db->qn('server_id').' = '.$db->q($serverid));
 	    $db->setQuery($query);
 	    $lcalids = $db->loadColumn();
 	    if ((!empty($scalids)) && (is_array($lcalids))) {

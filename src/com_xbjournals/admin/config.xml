@@ -35,6 +35,30 @@
 			description="XBJOURNALS_CONFIG_BUY_A_BEER_DESC"
 			class="info"
 		/>	
+ 		<field name="def_calcat" type="category"
+			extension="com_xbjournals"
+			label="XBJOURNALS_DEFAULT_CAL_CAT_LABEL"
+			description="XBJOURNALS_DEFAULT_CAL_CAT_DESC"
+			default="0"
+		>
+			<option value="0">unspecified</option>
+		</field>
+ 		<field name="def_entcat" type="category"
+			extension="com_xbjournals"
+			label="XBJOURNALS_DEFAULT_ENTRY_CAT_LABEL"
+			description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
+			default="0"
+		>
+			<option value="0">unspecified</option>
+		</field>
+ 		<field name="def_notecat" type="category"
+			extension="com_xbjournals"
+			label="XBJOURNALS_DEFAULT_NOTE_CAT_LABEL"
+			description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
+			default="0"
+		>
+			<option value="0">unspecified</option>
+		</field>
         
 	</fieldset>
 <!-- MAPPING TAB -->
@@ -80,14 +104,6 @@
 				default=""
 			>
 				<option value="">XBJOURNALS_NO_PARENT</option>
-			</field>
-			<field name="def_jcat" type="category"
-				extension="com_xbjournals"
-				label="XBJOURNALS_DEFAULT_CATEGORY_LABEL"
-				description="XBJOURNALS_DEFAULT_CATEGORY_DESC"
-				default=""
-			>
-				<option value="">unspecified</option>
 			</field>
 		</fieldset>
 <!-- BEER TAB -->

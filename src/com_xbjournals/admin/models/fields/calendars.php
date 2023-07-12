@@ -1,8 +1,8 @@
 <?php
 /*******
  * @package xbJournals
- * @filesource admin/models/fields/journals.php
- * @version 0.0.3.3 9th May 2023
+ * @filesource admin/models/fields/calendars.php
+ * @version 0.1.1.2 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2021
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -14,25 +14,22 @@ use Joomla\CMS\Form\FormHelper;
 
 FormHelper::loadFieldClass('list');
 
-class JFormFieldJournals extends JFormFieldList {
+class JFormFieldCalendars extends JFormFieldList {
     
-    protected $type = 'Journals';
+    protected $type = 'Calendars';
     
     public function getOptions() {
-        //this will get a list of all calendars that have entriesoftype Journal
-    	$params = ComponentHelper::getParams('com_xbjournals');
+        //this will get a list of all calendars 
+ //   	$params = ComponentHelper::getParams('com_xbjournals');
     	//poss param to show state " (", state, ")"
     	$options = array();
         
         $db = Factory::getDbo();
         $query  = $db->getQuery(true);
  
-        $query->select('a.calendar_id As value')
-	        ->select('CONCAT(c.title," Journal") AS text',)
-	        ->from('#__xbjournals_vjournal_entries AS a')
-	        ->join('LEFT','#__xbjournals_calendars AS c ON c.id = a.calendar_id')
-	        ->where('a.entry_type = '.$db->quote('Journal'))
-			->group('c.id')
+        $query->select('a.id As value')
+	        ->select('title AS text',)
+	        ->from('#__xbjournals_calendars AS a')
         	->order('text');
         // Get the options.
         $db->setQuery($query);

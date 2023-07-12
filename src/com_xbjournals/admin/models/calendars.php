@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.1.0.1 6th July 2023
+ * @version 0.1.1.2 12th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -92,6 +92,11 @@ class XbjournalsModelCalendars extends JModelList {
         $published = $this->getState('filter.published');
         if (is_numeric($published)) {
             $query->where('a.state = ' . (int) $published);
+        }
+        // Filter by server
+        $server = $this->getState('filter.server');
+        if (is_numeric($server)) {
+            $query->where('a.state = ' . (int) $server);
         }
         // Filter by category.
         $categoryId = $app->getUserStateFromRequest('catid', 'catid','');
