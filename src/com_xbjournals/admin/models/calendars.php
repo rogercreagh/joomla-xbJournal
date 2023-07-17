@@ -33,7 +33,7 @@ class XbjournalsModelCalendars extends JModelList {
                 'published','a.state',
                 'modified','a.modified');
         }
-        parent::__construct();
+        parent::__construct($config);
     }
     
     protected function populateState($ordering = 'server_title', $direction = 'asc') {
@@ -88,6 +88,9 @@ class XbjournalsModelCalendars extends JModelList {
         $query->join('LEFT', '#__categories AS cat ON cat.id = a.catid');
         $query->select('cat.title AS category_title');
         
+        //ignore local calendars
+        $query->where('a.cal_url <> '.$db->q(''));
+        
         // Filter by published state
         $published = $this->getState('filter.published');
         if (is_numeric($published)) {
@@ -96,7 +99,7 @@ class XbjournalsModelCalendars extends JModelList {
         // Filter by server
         $server = $this->getState('filter.server');
         if (is_numeric($server)) {
-            $query->where('a.state = ' . (int) $server);
+            $query->where('a.server_id = ' . (int) $server);
         }
         // Filter by category.
         $categoryId = $app->getUserStateFromRequest('catid', 'catid','');

@@ -3,16 +3,14 @@
 <form>
 	<fields name="filter" addfieldpath="administrator/components/com_xbjournals/models/fields">
 		<field
-			name="search"
-			type="text"
+			name="search" type="text"
 			label="COM_CONTENT_FILTER_SEARCH_DESC"
 			description="XBJOURNALS_SEARCH_ITEMS_DESC"
 			hint="JSEARCH_FILTER"
 			class="js-stools-search-string"
 		/>
 		<field
-			name="published"
-			type="status"
+			name="published" type="status"
 			label="COM_CONTENT_FILTER_PUBLISHED"
 			description="COM_CONTENT_FILTER_PUBLISHED_DESC"
 			onchange="this.form.submit();"
@@ -20,8 +18,7 @@
 			<option value="">JOPTION_SELECT_PUBLISHED</option>
 		</field>
 		<field
-			name="server"
-			type="servers"
+			name="server" type="servers"
 			label="XBJOURNALS_SERVER"
 			description="XBJOURNALS_SERVER_FILTER_DESC"
 			onchange="this.form.submit();"
@@ -37,16 +34,15 @@
 			multiple="true"
 			class="multipleCats"
 			onchange="this.form.submit();"
+			hint="XBJOURNALS_SELECT_CATS"
 			>
 		</field>
-		<!-- to add: server_id -->
 	</fields>
 	<fields name="list">
   		<field name="fullordering" type="hidden"  />
   		<!-- default="" -->
   		
-		<field name="limit"
-			type="limitbox"
+		<field name="limit" type="limitbox"
 			class="inputbox input-mini"
 			default="5"
 			label="COM_CONTENT_LIST_LIMIT"

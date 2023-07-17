@@ -18,6 +18,8 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Layout\LayoutHelper;
 
 HTMLHelper::_('behavior.multiselect');
+HTMLHelper::_('formbehavior.chosen', '.multipleTags', null, array('placeholder_text_multiple' => Text::_('XBJOURNALS_SELECT_TAGS')));
+HTMLHelper::_('formbehavior.chosen', '.multipleCats', null, array('placeholder_text_multiple' => Text::_('XBJOURNALS_SELECT_CATS')));
 HTMLHelper::_('formbehavior.chosen', 'select');
 
 $user = Factory::getUser();
@@ -202,7 +204,7 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 					<?php endif; ?>
 				</td>
 				<td class="hidden-phone">
-					<?php echo HtmlHelper::date($item->last_checked, 'd M Y H:m');?>					
+					<?php if (!is_null($item->last_checked)) echo HtmlHelper::date($item->last_checked, 'd M Y H:i');?>					
 				</td>
 				<td>
 					<?php if($item->catid) : ?>

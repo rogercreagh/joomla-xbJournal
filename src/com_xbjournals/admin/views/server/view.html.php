@@ -82,7 +82,15 @@ class XbjournalsViewServer extends JViewLegacy {
             $bar->appendButton('Custom', $btnHtml);
                         
         }
-        ToolbarHelper::save('server.save');
+
+//        ToolbarHelper::save('server.save');
+        $text = Text::_('JSAVE');
+        $btnHtml = "<button onclick=\"pleaseWait('waiter'); Joomla.submitbutton('server.save');\"
+                class=\"btn btn-small \"><span class=\"icon-save\"></span>$text</button>";
+        $bar->appendButton('Custom', $btnHtml);
+        
+        
+        
 //        ToolbarHelper::save2new('server.save2new');
 //        ToolbarHelper::save2copy('server.save2copy');
         if ($isNew) {

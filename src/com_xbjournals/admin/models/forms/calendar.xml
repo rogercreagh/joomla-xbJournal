@@ -90,8 +90,8 @@
 			multiple="true" custom="deny"  published="1"
 		/>
 
-		<field name="server_id" type="text"
-			label="Server ID" description=""
+		<field name="server_id" type="servers"
+			label="Server" description=""
 			readonly="true"
 			default=""
 		/>
