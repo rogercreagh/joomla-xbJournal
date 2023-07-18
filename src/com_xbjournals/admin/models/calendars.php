@@ -421,7 +421,7 @@ class XbjournalsModelCalendars extends JModelList {
         //deal with properties that might have had multiple entries
         if ($categories) 
             //todo convert to tags after saving as need item id
-            $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q($categories));
+            $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q(json_encode($categories)));
         if (!empty($attendees)) 
             //?todo check for local users
             $insertarr[] = array('col'=>$db->qn('attendees'),'val'=>$db->q(json_encode($attendees)));

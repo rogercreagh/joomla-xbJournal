@@ -12,7 +12,7 @@
 - **DONE** v0.0.6 Categories views (including filters on admin views)
 - **DONE** v0.0.7 date selector for getting items
 - **DONE** v0.1.0 all above completed and bug fixed
-- v0.1.1 Calendar Edit/View
+- **DONE** v0.1.1 Calendar Edit/View
 - v0.1.2 Journal Edit 
 - v0.1.3 Note Edit
 - v0.1.4 Attachment Edit

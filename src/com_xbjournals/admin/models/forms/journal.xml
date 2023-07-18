@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/calendar.xml v0.1.1.0 11th July 2023 -->
+<!-- xbJournals admin/models/forms/journal.xml v0.1.2.0 12th July 2023 -->
 <form>
 
 	<fieldset>
@@ -90,66 +90,121 @@
 			multiple="true" custom="deny"  published="1"
 		/>
 
-		<field name="server_id" type="servers"
+		<field name="calendar_id" type="calendars"
 			label="Server" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_displayname" type="text"
-			label="cal_displayname" description=""
+
+		<field name="entry_type" type="text"
+			label="entry_type" description=""
+			readonly="true"
+			default=""
+		/>
+
+		<field name="etag" type="text"
+			label="etag" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_url" type="text"
-			label="cal_url" description=""
+		<field name="href" type="text"
+			label="href" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_ctag" type="text"
-			label="cal_ctag" description=""
+		<field name="uid" type="text"
+			label="uid" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_calendar_id" type="text"
-			label="cal_calendar_id" description=""
+		<field name="dtstamp" type="text"
+			label="dtstamp" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_rgb_color" type="text"
-			label="cal_rgb_color" description=""
+		<field name="dtstart" type="text"
+			label="dtstart" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_order" type="text"
-			label="cal_order" description=""
+		<field name="sequence" type="text"
+			label="sequence" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="cal_components" type="text"
-			label="cal_components" description=""
+		<field name="summary" type="textarea"
+			label="summary" description=""
 			readonly="true"
 			default=""
 		/>
 		
-		<field name="last_checked" type="text"
-			label="last_checked" description=""
+		<field name="url" type="text"
+			label="url" description=""
 			readonly="true"
 			default=""
 		/>
-		
-		<field name="readonly" type="text"
-			label="readonly" description=""
+		<field name="geo" type="text"
+			label="geo" description=""
 			readonly="true"
 			default=""
 		/>
-		
+		<field name="location" type="text"
+			label="location" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="class" type="text"
+			label="class" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="status" type="text"
+			label="status" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="x-status" type="text"
+			label="x-status" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="categories" type="textarea"
+			label="categories" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="parentuid" type="text"
+			label="parentuid" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="comments" type="textarea"
+			label="comments" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="attendees" type="textarea"
+			label="attendees" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="itemparams" type="textarea"
+			label="itemparams" description=""
+			readonly="true"
+			default=""
+		/>
+		<field name="otherprops" type="textarea"
+			label="otherprops" description=""
+			readonly="true"
+			default=""
+		/>
 	</fieldset>
 	<fields name="metadata" label="JGLOBAL_FIELDSET_METADATA_OPTIONS">
 		<fieldset name="jmetadata" label="JGLOBAL_FIELDSET_METADATA_OPTIONS">
@@ -196,8 +251,8 @@
 			<field 
 				name="xreference" 
 				type="text"
-				label="XBCULTURE_XREFERENCE_LABEL"
-				description="XBCULTURE_XREFERENCE_DESC"
+				label="XBJOURNALS_XREFERENCE_LABEL"
+				description="XBJOURNALS_XREFERENCE_DESC"
 				size="20" 
 			/>
 
