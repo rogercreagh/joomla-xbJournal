@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.1.1.2 12th July 2023
+ * @version 0.1.2.2 20th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -129,7 +129,7 @@ class XbjournalsHelper extends ContentHelper
 	 */
 	public static function getServerCalendars($serverid, $ret = 'cnts') {
 	    
-	    $msg = '<p>Calendars found on Server #'.$serverid.'</p>';
+	    $msg = '<p>Calendars found on Server #'.XbjournalsHelper::getValueFromId('#__xbjournals_servers',$serverid).'</p>';
 	    $clist = '<ul>';
 	    $cnts = array('new'=>0, 'update'=>0, 'same'=>0, 'novj'=>0, 'arch'=>0, 'tot'=>0);
 	    
@@ -192,6 +192,7 @@ class XbjournalsHelper extends ContentHelper
     	                ->set($db->qn('alias').' = '.$db->q($alias))
     //	                ->set($db->qn('description').' = '.$db->q($desc))
     	                ->set($db->qn('state').' = '.$db->q($pub))
+    	                ->set($db->qn('last_checked').' = '.$db->q(date('Y-m-d H:i:s')))
     	                ->set($db->qn('modified').' = '.$db->q(date('Y-m-d H:i:s')));
     	                $query->where($db->qn('id').' = '.$db->q($res['id']));
     	                $db->setQuery($query);
@@ -208,10 +209,10 @@ class XbjournalsHelper extends ContentHelper
     	            $query->clear();
     	            $query->insert($db->quoteName('#__xbjournals_calendars'));
     	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
-    	                .'cal_rgb_color,cal_order,cal_components,title,alias,catid,access,state,created');
+    	                .'cal_rgb_color,cal_order,cal_components,title,alias,catid,access,state,last_checked,created');
     	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
     	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
-    	                .$db->q($alias).','.$db->q($catid).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')));
+    	                .$db->q($alias).','.$db->q($catid).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')).','.$db->q(date('Y-m-d H:i:s')));
     	            //try
     	            $db->setQuery($query);
     	            $db->execute();
@@ -922,6 +923,23 @@ class XbjournalsHelper extends ContentHelper
 	    $query->select('*')->from($db->quoteName($table))->where($db->quoteName($col)." = ".$db->quote($value));
 	    $db->setQuery($query);
 	    $res = $db->loadObject();
+	    return $res;
+	}
+	
+	/**
+	 * @name getValueFromId()
+	 * @desc given a table and an id returns the value for a column (defaultint to 'title')
+	 * @param string $table
+	 * @param int $id
+	 * @param string $col
+	 * @return mixed|void|NULL
+	 */
+	public static function getValueFromId(string $table, int $id, $col ='title'){
+	    $db = Factory::getDBO();
+	    $query = $db->getQuery(true);
+	    $query->select($db->qn($col))->from($db->qn($table))->where($db->qn('id')." = ".$db->q($id));
+	    $db->setQuery($query);
+	    $res = $db->loadResult();
 	    return $res;
 	}
 	

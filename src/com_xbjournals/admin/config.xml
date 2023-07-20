@@ -30,11 +30,6 @@
 				<option value="0" >JNO</option>
 				<option value="1">JYES</option>
 		</field>			
-   		<field name="beernote" type="note"
-			label="XBJOURNALS_CONFIG_BUY_A_BEER_LABEL"
-			description="XBJOURNALS_CONFIG_BUY_A_BEER_DESC"
-			class="info"
-		/>	
  		<field name="def_calcat" type="category"
 			extension="com_xbjournals"
 			label="XBJOURNALS_DEFAULT_CAL_CAT_LABEL"
@@ -59,6 +54,11 @@
 		>
 			<option value="0">unspecified</option>
 		</field>
+   		<field name="beernote" type="note"
+			label="XBJOURNALS_CONFIG_BUY_A_BEER_LABEL"
+			description="XBJOURNALS_CONFIG_BUY_A_BEER_DESC"
+			class="info"
+		/>	
         
 	</fieldset>
 <!-- MAPPING TAB -->

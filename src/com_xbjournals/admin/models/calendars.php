@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.1.1.2 12th July 2023
+ * @version 0.1.2.2 20th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -175,15 +175,16 @@ class XbjournalsModelCalendars extends JModelList {
         return $localitems;
     }
     
-    public function importNewItems(int $calid) {
-        $db = Factory::getDbo();
-        $query = $db->getQuery(true);
-        $query->select('last_checked')->from($db->qn('#__xbjournals_calendars'))
-            ->where($db->qn('id').' = '.$db->q($calid));
-        $db->setQuery($query);
-        $last = $db->loadResult();
-        return $this->importJournalItems($calid, $last);
-    }
+
+//     public function importNewItems(int $calid) {
+//         $db = Factory::getDbo();
+//         $query = $db->getQuery(true);
+//         $query->select('last_checked')->from($db->qn('#__xbjournals_calendars'))
+//             ->where($db->qn('id').' = '.$db->q($calid));
+//         $db->setQuery($query);
+//         $last = $db->loadResult();
+//         return $this->importJournalItems($calid, $last);
+//     }
      
     /**
      * @name importJournalItems()
@@ -235,11 +236,24 @@ class XbjournalsModelCalendars extends JModelList {
                         if ($etag == $localitems[$key]['etag']) {
                             //no change
                             $cnts['same']++;
+                            //update entry last_checked
+                            $query = $db->getQuery(true);
+                            $query->update($db->qn('#__xbjournals_vjournal_entries'))->set('last_checked = '.$db->q(date("Y-m-d H:i:s")))
+                            ->where($db->qn('id').' = '.$db->q($localitems[$key]['id']));
+                            $db->setQuery($query);
+                            try {
+                                $res = $db->execute();
+                            } catch (Exception $e) {
+                                XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
+                            }
+                            
                         } else {
                             // test dtstamp to check an old version hasn't been restored on db
                             $localstamp = strtotime($localitems[$key]['dtstamp']);
                             $serverstamp = strtotime($serveritem['dtstamp']['value']);
                             if ($serverstamp>$localstamp) {
+                                //delete old item and add updated item as new
+                                //TODO for safety hold copy on old item until item has been updated(added)
                                 $query = $db->getQuery(true);
                                 $query->delete($db->qn('#__xbjournals_vjournal_entries'))->where($db->qn('id').' = '. $db->q($key));
                                 $db->setQuery($query);
@@ -285,6 +299,8 @@ class XbjournalsModelCalendars extends JModelList {
         $descdone = false;
         $catid = 0;
         $uid = '';
+        $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
+        $catparent = ($entrytype == 'Journal') ? $params->get('def_entcat',0) : $params->get('def_notecat',0);
         foreach ($item as $prop) {
             switch ($prop['property']) {
                 case 'uid':
@@ -302,17 +318,21 @@ class XbjournalsModelCalendars extends JModelList {
                     }
                     break;
                 case 'description':
-                    //check if we already have a description
+                    //check if we already have a description (multiples are allowed, we'll only use first
+                    //TODO check language parameter
                     if ($descdone) {
                         $otherprops[] = $prop;
                     } else {
-                        $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($prop['value']));
+                        $insertarr[] = array('col'=>$db->qn('description'),'val'=>$db->q($prop['value']));
+//                        $insertarr[] = array('col'=>$db->qn('html_desc'),'val'=>$db->q($prop['value']));
+//TODO convert text to html for html_desc - poss use parsedown (php) or showdown (js) 
                         if (!empty($prop['params'])) {
                             $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
                         }
                         $descdone = true;
                     }
                     break;
+                //TODO check incoming  X-DESC or whatever
                 case 'summary':
                     //generate title and alias (checking unique and adding cycle no)
                     $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($prop['value']));
@@ -333,7 +353,7 @@ class XbjournalsModelCalendars extends JModelList {
                     }
                     break;
                 case 'categories':
-                    $categories .= $prop.','; //ignoring params
+                    $categories .= $prop['value'].','; //ignoring params
                     break;
                 case 'comment':
                     $comments[] = $prop;
@@ -385,7 +405,7 @@ class XbjournalsModelCalendars extends JModelList {
                 case 'status':
                     if ($params->get('map_vjstatus_cat',0)==1) {
                         //todo get journal root cat param
-                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal status');
+                        $catid = XbjournalsHelper::createCategory($prop['value'],'',$catparent,'com_xbjournals','created from vJournal status');
                     }
                     $insertarr[] = array('col'=>$db->qn('status'), 'val'=>$db->q($prop['value']));
                     if (!empty($prop['params'])) {
@@ -395,7 +415,7 @@ class XbjournalsModelCalendars extends JModelList {
                 case 'x-status':
                     if ($params->get('map_vjstatus_cat',0)==2) {
                         //todo get journal root cat param
-                        $catid = XbjournalsHelper::createCategory($prop['value'],'',1,'com_xbjournals','created from vJournal x-status');                        
+                        $catid = XbjournalsHelper::createCategory($prop['value'],'',$catparent,'com_xbjournals','created from vJournal x-status');                        
                     }
                     $insertarr[] = array('col'=>$db->qn('x-status'), 'val'=>$db->q($prop['value']));
                     if (!empty($prop['params'])) {
@@ -408,20 +428,20 @@ class XbjournalsModelCalendars extends JModelList {
                     break;
             } //endswitch $item['property']           
         } // endforeach $item
+        //add last_checked
+        $insertarr[]=array('col'=>$db->qn('last_checked'),'val'=>$db->q(date("Y-m-d H:i:s")));
         
-        $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
         if ($catid == 0) {
-            $catid = $params->get('def_cat',0);
-            if  ($catid ==0) $catid = XbjournalsHelper::createCategory('Uncategorised');
-            $cat = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
+            $catid = XbjournalsHelper::createCategory('Uncategorised');
         }
         $insertarr[] = array('col'=>$db->qn('catid'), 'val'=>$db->q($catid));
         
         //deal with properties that might have had multiple entries
+        $categories = trim($categories,", ");
         if ($categories) 
             //todo convert to tags after saving as need item id
-            $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q(json_encode($categories)));
+            $insertarr[] = array('col'=>$db->qn('categories'),'val'=>$db->q($categories));
         if (!empty($attendees)) 
             //?todo check for local users
             $insertarr[] = array('col'=>$db->qn('attendees'),'val'=>$db->q(json_encode($attendees)));

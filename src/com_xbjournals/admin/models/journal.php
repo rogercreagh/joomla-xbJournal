@@ -105,6 +105,9 @@ class XbjournalsModelJournal extends AdminModel {
         if (empty($table->created_by)) {
             $table->created_by = Factory::getUser()->id;
         }
+        if (empty($table->parentuid)) {
+            $table->parentuid = NULL;
+        }
         if (empty($table->id)) {
             
             // Set ordering to the last item if not set

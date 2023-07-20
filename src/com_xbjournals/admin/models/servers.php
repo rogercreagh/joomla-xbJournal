@@ -53,7 +53,8 @@ class XbjournalsModelServers extends JModelList {
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
             $query->select('(SELECT COUNT(*) FROM #__xbjournals_calendars AS c WHERE c.server_id=a.id) AS ccnt' );
             $query->from('#__xbjournals_servers AS a');
-            
+            //exclude local servers
+            $query->where($db->qn('url').' IS NOT NULL AND '.$db->qn('url'). ' <> '.$db->q(''));
             // Filter by published state
             $published = $this->getState('filter.published');
             if (is_numeric($published)) {

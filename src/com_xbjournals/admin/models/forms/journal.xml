@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/journal.xml v0.1.2.0 12th July 2023 -->
+<!-- xbJournals admin/models/forms/journal.xml v0.1.2.1 19th July 2023 -->
 <form>
 
 	<fieldset>
@@ -22,10 +22,16 @@
 			class="inputbox" size="45" 
 		/>
 		
-		<field name="description" type="editor"
+		<field name="html_desc" type="editor"
 			class="inputbox" 
-			label="description" description="" 
+			label="HTML Description" description="HTML version of description for local use. May write-back to server as X-DESC property" 
 			filter="JComponentHelper::filterText"  buttons="true" hide="article,pagebreak,readmore"  
+		/>
+		
+		<field name="description" type="textarea"
+			class="inputbox" rows="15" cols="60"
+			label="VCal description" description="Plain text (or Markdown) version of description as stored on server" 
+			filter="JComponentHelper::filterText"   
 		/>
 		
 		<field name="catid" type="category" 
@@ -91,7 +97,7 @@
 		/>
 
 		<field name="calendar_id" type="calendars"
-			label="Server" description=""
+			label="Calendaar" description=""
 			readonly="true"
 			default=""
 		/>
@@ -176,7 +182,7 @@
 			default=""
 		/>
 		<field name="categories" type="textarea"
-			label="categories" description=""
+			label="categories (tags)" description=""
 			readonly="true"
 			default=""
 		/>

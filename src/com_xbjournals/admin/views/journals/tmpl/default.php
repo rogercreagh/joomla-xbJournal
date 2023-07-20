@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/journals/tmpl/default.php
- * @version 0.0.4.4 12th May 2023
+ * @version 0.1.2.2 20th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -120,7 +120,7 @@ $tagviewlink='';
 						echo Text::_( 'XBJOURNALS_TAGS' ); ?>
 					</th>
 					<th>
-						<?php echo HTMLHelper::_('searchtools.sort','XBJOURNALS_SYNC_DATE','dtstamp',$listDirn,$listOrder); ?>
+						<?php echo HTMLHelper::_('searchtools.sort','Checked','last_checked',$listDirn,$listOrder); ?>
 					</th>
 					<th class="nowrap">
 						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
@@ -171,7 +171,7 @@ $tagviewlink='';
 						</div>
 					</td>
 					<td>
-						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title.' - '.Text::_('XBJOURNALS_JOURNAL'); ?></a>
+						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title; ?></a>
 						</p> 
 					</td>
 					<td>
@@ -193,12 +193,12 @@ $tagviewlink='';
 					</td>
 					<td>
 						<?php if($item->dtstart) {
-						  echo 's: '.HtmlHelper::date($item->dtstart,'D jS M Y');                      
+						  echo 'srt: '.HtmlHelper::date($item->dtstart,'jS M Y');                      
                         } ?>
                         <br />
-                        <?php echo 'c: '.HtmlHelper::date($item->created,'D jS M Y').'<br />'; ?>
-                        <?php echo 'm '.HtmlHelper::date($item->modified,'D jS M Y').'<br />'; ?>
-                        <?php echo 't '.HtmlHelper::date($item->dtstamp,'D jS M Y'); ?>
+                        <?php echo 'cr: '.HtmlHelper::date($item->created,'jS M Y').''; ?><br />
+                        <?php echo 'mod '.HtmlHelper::date($item->modified,'jS M Y').''; ?><br />
+                        <?php echo 'stm '.HtmlHelper::date($item->dtstamp,'jS M Y'); ?>
 						
 					</td>
 					<td>
@@ -241,8 +241,8 @@ $tagviewlink='';
     					<?php endif; ?>					    											
 					</td>
 					<td>
-						<?php if($item->dtstamp) {
-						  echo HtmlHelper::date($item->dtstamp , 'd M Y H:i');                      
+						<?php if($item->last_checked) {
+						  echo HtmlHelper::date($item->last_checked , 'd M Y H:i');                      
                         } ?>
 					</td>
 					<td class="center hidden-phone">

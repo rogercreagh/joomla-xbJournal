@@ -22,8 +22,9 @@
 - v0.1.6 Item preview views for lists
 - v0.1.7 batch processing for lists
   - batch to include assign cat,tags,export/import ics, copy/move calendar, change type
+- v0.1.9 Markdown editor
 - v0.2.0 all above completed
-- v0.2.1 local storage view includi
+- v0.2.1 local storage view including copy-to
 - v0.3.1 Sync changed and new items back to server
 - v0.3.2 Sync locally deleted item to server
 - v0.3.3 Handle items deleted from server

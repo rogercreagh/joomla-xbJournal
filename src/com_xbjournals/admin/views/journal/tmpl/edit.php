@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/journal/tmpl/edit.php
- * @version 0.1.2.0 18th July 2023
+ * @version 0.1.2.2 20th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -13,6 +13,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Uri\Uri;
 
 HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
@@ -22,7 +23,25 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 // 		document.getElementById(targ).style.display = "block";
 // 	}');
 
+$doc = Factory::getDocument();
+$doc->addScript(Uri::root() . '/media/com_xbjournals/js/showdown.js');
+
 ?>
+<script >
+	function texttohtml() {
+    	var descText = document.getElementById('jform_description').value;
+    	var converter = new showdown.Converter();
+        var deschtml = converter.makeHtml(descText);
+      	window.parent.Joomla.editors.instances['jform_html_desc'].setValue(deschtml);
+	}
+	
+	function htmltotext() {
+		var html = window.parent.Joomla.editors.instances['jform_html_desc'].getValue();
+    	var converter = new showdown.Converter();
+        var desctext = converter.makeMarkdown(html);
+        document.getElementById('jform_description').value = desctext;
+	}
+</script>
 <style type="text/css" media="screen">
     #jform_url { width: 500px; }   
 </style>
@@ -50,13 +69,14 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 	</div>
 	<div class="row-fluid">
 		<div class="span4">
-			<?php echo $this->form->renderField('calendar_id'); ?>
+			<?php echo Text::_('Calendar').': '.XbjournalsHelper::getValueFromId('#__xbjournals_calendars',$this->item->calendar_id); ?>
+			<?php //echo $this->form->renderField('calendar_id'); ?>
 		</div>
 		<div class="span4">
 			<?php echo Text::_('type').': '.$this->item->entry_type; ?>
 		</div>
 		<div class="span4">
-			<?php echo Text::_('last sync').': '.$this->item->modified; ?>
+			<?php echo Text::_('last checked').': '.HtmlHelper::date($this->item->last_checked , 'd M Y H:i'); ?>
 		</div>
 	</div>
 
@@ -64,15 +84,54 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 		<div class="span12">
 			<?php echo HTMLHelper::_('bootstrap.startTabSet', 'myTab', array('active' => 'details')); ?>
 			<?php echo HTMLHelper::_('bootstrap.addTab', 'myTab', 'details', Text::_('XBJOURNALS_DETAILS')); ?>
+	        <h4><?php echo Text::_('XBJOURNALS_CALENDAR_LOCAL_INFO'); ?></h4>
 			<div class="row-fluid">
-	    		<div class="span9">
-	          		<h4><?php echo Text::_('XBJOURNALS_CALENDAR_LOCAL_INFO'); ?></h4>
-	          		<?php echo $this->form->renderField('description'); ?>   					
+	    		<div class="span4 form-vertical">
+    	    		<div class="pull-right"><button type="button" class="btn btn-small" onclick="texttohtml();">Text to HTML <b>-&gt;</b></button></div><br />
+	          		<?php echo $this->form->renderField('description'); ?>
+	   			</div>
+	    		<div class="span5 form-vertical">
+    	    			<button type="button" class="btn btn-small" onclick="htmltotext()"><b>&lt;-</b> HTMLto Text</button><br />
+	          		<?php echo $this->form->renderField('html_desc'); ?>   					
 	   			</div>
 				<div class="span3">
 					<?php echo LayoutHelper::render('joomla.edit.global', $this); ?>
 				</div>
 	   		</div>
+	 		<?php echo HTMLHelper::_('bootstrap.endTab'); ?>
+			<?php echo HTMLHelper::_('bootstrap.addTab', 'myTab', 'dates', JText::_('XBJOURNALS_DATES')); ?>
+				<table cellpadding="8px">
+					<tr>
+						<td><?php echo Text::_('dtstart'); ?></td>
+						<td><?php if (substr($this->item->dtstart, -1, 8) =='00:00:00') {
+						    echo HtmlHelper::date($this->item->dtstart , 'd M Y'); 
+						} else {
+						    echo HtmlHelper::date($this->item->dtstart , 'd M Y H:i');
+						} ?></td>
+						<td><i>DTSTART is the calendar entry date of the item</i></td>
+					</tr>
+					<tr>
+						<td><?php echo Text::_('dtstamp'); ?></td>
+						<td><?php echo HtmlHelper::date($this->item->dtstamp , 'd M Y H:i:s'); ?></td>
+						<td><i>DTSTAMP is set by the server when the item is modified</i></td>
+					</tr>
+					<tr>
+						<td><?php echo Text::_('created'); ?></td>
+						<td><?php echo HtmlHelper::date($this->item->created , 'd M Y H:i:s'); ?></td>
+						<td><i>Created is the Joomla field set when the item is first entered</i></td>
+					</tr>
+					<tr>
+						<td><?php echo Text::_('modified'); ?></td>
+						<td><?php echo HtmlHelper::date($this->item->modified , 'd M Y H:i:s'); ?></td>
+						<td><i>Modified is the Joomla field when the item is changed and saved locally, or when it is updated from the server</i></td>
+					</tr>
+					<tr>
+						<td><?php echo Text::_('last_checked'); ?></td>
+						<td><?php echo HtmlHelper::date($this->item->last_checked , 'd M Y H:i:s'); ?></td>
+						<td><i>Last Checked is updated when the item is was last checked on the server even if it was unchanged</i></td>
+					</tr>
+				</table>
+			
 	 		<?php echo HTMLHelper::_('bootstrap.endTab'); ?>
 			<?php echo HTMLHelper::_('bootstrap.addTab', 'myTab', 'server', JText::_('XBJOURNALS_SERVER_INFO')); ?>
 	          	<h4><?php echo Text::_('XBJOURNALS_CALENDAR_SERVER_INFO'); ?></h4>
@@ -86,17 +145,16 @@ HTMLHelper::_('formbehavior.chosen', 'select');
     					<?php echo $this->form->renderField('sequence'); ?>
     				</div>
     				<div class="span4">
-    					<?php echo $this->form->renderField('dtstamp'); ?>
-    					<?php echo $this->form->renderField('dtstart'); ?>
     					<?php echo $this->form->renderField('class'); ?>
     					<?php echo $this->form->renderField('categories'); ?>
+    					<?php echo $this->form->renderField('status'); ?>
+    					<?php echo $this->form->renderField('x-status'); ?>
     				</div>
     				<div class="span4">
     					<?php echo $this->form->renderField('url'); ?>
     					<?php echo $this->form->renderField('geo'); ?>
     					<?php echo $this->form->renderField('location'); ?>
-    					<?php echo $this->form->renderField('status'); ?>
-    					<?php echo $this->form->renderField('x-status'); ?>
+    					<?php echo $this->form->renderField('dtstart'); ?>    					
     				</div>
 				</div>
 				<div class="row-fluid form-horizontal">

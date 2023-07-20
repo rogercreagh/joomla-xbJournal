@@ -171,7 +171,7 @@ $tagviewlink='';
 						</div>
 					</td>
 					<td>
-						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title.' - '.Text::_('XBJOURNALS_NOTEBOOK'); ?></a>
+						<p><a href="<?php echo $caleditlink.$item->calendar_id;?>"><?php echo $item->cal_title; ?></a>
 						</p> 
 					</td>
 					<td>

@@ -12,7 +12,7 @@
  * only when included in xbMaps Joomla extension
  ******/
 
-namespace Xbmaps\Xbparsedown;
+namespace Xbjournals\Xbparsedown;
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
