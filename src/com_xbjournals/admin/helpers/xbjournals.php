@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.1.2.2 20th July 2023
+ * @version 0.1.2.4 22nd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -211,8 +211,9 @@ class XbjournalsHelper extends ContentHelper
     	            $query->columns('server_id,cal_displayname,cal_url,cal_ctag,cal_calendar_id,'
     	                .'cal_rgb_color,cal_order,cal_components,title,alias,catid,access,state,last_checked,created');
     	            $query->values($db->q($serverid).','.$db->q($calname).','.$db->q($calurl).','.$db->q($calctag).','.$db->q($calid)
-    	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname).','
-    	                .$db->q($alias).','.$db->q($catid).','.$db->q('1').','.$db->q('1').','.$db->q(date('Y-m-d H:i:s')).','.$db->q(date('Y-m-d H:i:s')));
+    	                .','.$db->q($calrgb).','.$db->q($calorder).','.$db->q($calcomps).','.$db->q($calname)
+    	                .','.$db->q($alias).','.$db->q($catid).','.$db->q('1').','.$db->q('1')
+    	                .','.$db->q(date('Y-m-d H:i:s')).','.$db->q(date('Y-m-d H:i:s')));
     	            //try
     	            $db->setQuery($query);
     	            $db->execute();
@@ -570,7 +571,7 @@ class XbjournalsHelper extends ContentHelper
 	    return true;
 	}
 	
-    public static function truncateToText(string $source, int $maxlen=250, string $split = 'word') { //null=exact|false=word|true=sentence 
+    public static function truncateToText(string $source, int $maxlen=250, string $split = 'word', $ellipsis = true) { //null=exact|false=word|true=sentence 
         if ($maxlen < 5) return $source; //silly the elipsis '...' is 3 chars
         $action = strpos(' firstsent lastsent word abridge exact',$split); 
         // firstsent = 1 lastsent = 11, word = 20, abridge = 25, exact = 33
@@ -579,7 +580,7 @@ class XbjournalsHelper extends ContentHelper
 	    if (!$action) return $source; //invalid $split value
 	    $source = trim(html_entity_decode(strip_tags($source)));
 	    if ((strlen($source)<$maxlen) && ($action > 19)) return $source; //not enough chars anyway
-	    $maxlen = $maxlen - 4; // allow space for ellipsis
+	    if ($ellipsis) $maxlen = $maxlen - 4; // allow space for ellipsis
 	    // for abridge we'll save the last word to add back preceeded by ellipsis after truncating
 	    if ($action == 25) {
 	        $lastspace = strrpos($source, ' ');
@@ -594,8 +595,11 @@ class XbjournalsHelper extends ContentHelper
 	    }	    
 	    $source = substr($source, 0, $maxlen);
 	    //for exact trim at maxlength
-	    if ($action == 33) return $source.'...';
-	    //for word or abridge simply find the last space and add the ellipsisplus lastword for abridge
+	    if ($action == 33) {
+	        if ($ellipsis) return $source.'...';
+	        return $source;
+	    }
+	    //for word or abridge simply find the last space and add the ellipsis plus lastword for abridge
 	    $lastwordend = strrpos($source, ' ');
 	    if ($action > 19) {
     	    if ($lastwordend) {
@@ -614,8 +618,10 @@ class XbjournalsHelper extends ContentHelper
 	        $dot = strrpos($dotsonly,'. ');
 	    }
 	    if ($dot !== false) {
-	        return substr($source, 0, $dot+1).'...';
-	        
+	        if ($ellipsis) {
+	            return substr($source, 0, $dot+1).'...';
+	        }
+	        return substr($source, 0, $dot+1);
 	    }
 	    return $source;
 	}

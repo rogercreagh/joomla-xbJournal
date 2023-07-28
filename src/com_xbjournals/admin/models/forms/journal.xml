@@ -211,6 +211,29 @@
 			readonly="true"
 			default=""
 		/>
+		
+		<field name="attachments" type= "subform"
+			label= "Attachments"
+			description="Entry Attachments"
+			min= "0"
+			max= "10"
+			multiple= "true"
+			buttons= "add,remove,move"
+			layout="joomla.form.field.subform.repeatable-table"
+			groupByFieldset="false" 
+		>
+			<form>
+				<field name="label" type="attachments" label="XBFILMS_FIELD_ADDPERSON_LABEL" >
+					<option value="">JSELECT</option>	
+				</field>
+				<field name="type" type="text" label="Type" size="12" maxlength="12"
+				/>
+				<field name="filename" type="text" label="Filename" size="20" maxlength="100"
+				/>
+			</form>
+		</field>			
+			
+		
 	</fieldset>
 	<fields name="metadata" label="JGLOBAL_FIELDSET_METADATA_OPTIONS">
 		<fieldset name="jmetadata" label="JGLOBAL_FIELDSET_METADATA_OPTIONS">

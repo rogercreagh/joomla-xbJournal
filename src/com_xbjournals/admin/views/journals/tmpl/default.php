@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/journals/tmpl/default.php
- * @version 0.1.2.2 20th July 2023
+ * @version 0.1.2.4 23rd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -120,7 +120,7 @@ $tagviewlink='';
 						echo Text::_( 'XBJOURNALS_TAGS' ); ?>
 					</th>
 					<th>
-						<?php echo HTMLHelper::_('searchtools.sort','Checked','last_checked',$listDirn,$listOrder); ?>
+						<?php echo HTMLHelper::_('searchtools.sort','Updated','updated',$listDirn,$listOrder); ?>
 					</th>
 					<th class="nowrap">
 						<?php echo HTMLHelper::_('searchtools.sort', 'JGRID_HEADING_ID', 'id', $listDirn, $listOrder );?>
@@ -241,8 +241,8 @@ $tagviewlink='';
     					<?php endif; ?>					    											
 					</td>
 					<td>
-						<?php if($item->last_checked) {
-						  echo HtmlHelper::date($item->last_checked , 'd M Y H:i');                      
+						<?php if($item->updated) {
+						  echo HtmlHelper::date($item->updated , 'd M Y H:i');                      
                         } ?>
 					</td>
 					<td class="center hidden-phone">

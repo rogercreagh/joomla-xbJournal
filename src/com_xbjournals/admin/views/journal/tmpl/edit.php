@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/journal/tmpl/edit.php
- * @version 0.1.2.2 20th July 2023
+ * @version 0.1.2.4 23rd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -31,16 +31,34 @@ $doc->addScript(Uri::root() . '/media/com_xbjournals/js/showdown.js');
 	function texttohtml() {
     	var descText = document.getElementById('jform_description').value;
     	var converter = new showdown.Converter();
-        var deschtml = converter.makeHtml(descText);
-      	window.parent.Joomla.editors.instances['jform_html_desc'].setValue(deschtml);
+        var descHtml = converter.makeHtml(descText);
+      	window.parent.Joomla.editors.instances['jform_html_desc'].setValue(descHtml);
+	}
+	
+	function htmltomd() {
+		var html = window.parent.Joomla.editors.instances['jform_html_desc'].getValue();
+    	var converter = new showdown.Converter();
+        var descMd = converter.makeMarkdown(html);
+        document.getElementById('jform_description').value = descMd;
 	}
 	
 	function htmltotext() {
-		var html = window.parent.Joomla.editors.instances['jform_html_desc'].getValue();
-    	var converter = new showdown.Converter();
-        var desctext = converter.makeMarkdown(html);
-        document.getElementById('jform_description').value = desctext;
+		var descHtml = window.parent.Joomla.editors.instances['jform_html_desc'].getValue();
+		var descText = stripHtml(descHtml);
+        document.getElementById('jform_description').value = descText;
 	}
+	
+	function clearmd() {
+    	var descMd = document.getElementById('jform_description').value;
+		var descText = stripHtml(descMd);
+        document.getElementById('jform_description').value = descText;
+	}
+	
+    function stripHtml(html) {
+	   let doc = new DOMParser().parseFromString(html, 'text/html');
+	   return doc.body.textContent || "";
+    }
+
 </script>
 <style type="text/css" media="screen">
     #jform_url { width: 500px; }   
@@ -76,7 +94,7 @@ $doc->addScript(Uri::root() . '/media/com_xbjournals/js/showdown.js');
 			<?php echo Text::_('type').': '.$this->item->entry_type; ?>
 		</div>
 		<div class="span4">
-			<?php echo Text::_('last checked').': '.HtmlHelper::date($this->item->last_checked , 'd M Y H:i'); ?>
+			<?php echo Text::_('updated').': '.HtmlHelper::date($this->item->updated , 'd M Y H:i'); ?>
 		</div>
 	</div>
 
@@ -87,17 +105,23 @@ $doc->addScript(Uri::root() . '/media/com_xbjournals/js/showdown.js');
 	        <h4><?php echo Text::_('XBJOURNALS_CALENDAR_LOCAL_INFO'); ?></h4>
 			<div class="row-fluid">
 	    		<div class="span4 form-vertical">
-    	    		<div class="pull-right"><button type="button" class="btn btn-small" onclick="texttohtml();">Text to HTML <b>-&gt;</b></button></div><br />
+    	    		<div class="pull-right">
+    	    			<button type="button" class="btn btn-small" onclick="clearmd();">Clear Markdown</button>&nbsp;
+    	    			<button type="button" class="btn btn-small" onclick="texttohtml();">Text to HTML <b>-&gt;</b></button>
+    	    		</div><br />
 	          		<?php echo $this->form->renderField('description'); ?>
 	   			</div>
 	    		<div class="span5 form-vertical">
-    	    			<button type="button" class="btn btn-small" onclick="htmltotext()"><b>&lt;-</b> HTMLto Text</button><br />
+    	    			<button type="button" class="btn btn-small" onclick="htmltotext()"><b>&lt;-</b> HTMLto Text</button>&nbsp;
+    	    			<button type="button" class="btn btn-small" onclick="htmltomd()"><b>&lt;-</b> HTMLto MD</button><br />
 	          		<?php echo $this->form->renderField('html_desc'); ?>   					
 	   			</div>
 				<div class="span3">
 					<?php echo LayoutHelper::render('joomla.edit.global', $this); ?>
 				</div>
+				
 	   		</div>
+				    					<?php echo $this->form->renderField('attachments'); ?>
 	 		<?php echo HTMLHelper::_('bootstrap.endTab'); ?>
 			<?php echo HTMLHelper::_('bootstrap.addTab', 'myTab', 'dates', JText::_('XBJOURNALS_DATES')); ?>
 				<table cellpadding="8px">
@@ -126,8 +150,8 @@ $doc->addScript(Uri::root() . '/media/com_xbjournals/js/showdown.js');
 						<td><i>Modified is the Joomla field when the item is changed and saved locally, or when it is updated from the server</i></td>
 					</tr>
 					<tr>
-						<td><?php echo Text::_('last_checked'); ?></td>
-						<td><?php echo HtmlHelper::date($this->item->last_checked , 'd M Y H:i:s'); ?></td>
+						<td><?php echo Text::_('updated'); ?></td>
+						<td><?php echo HtmlHelper::date($this->item->updated , 'd M Y H:i:s'); ?></td>
 						<td><i>Last Checked is updated when the item is was last checked on the server even if it was unchanged</i></td>
 					</tr>
 				</table>

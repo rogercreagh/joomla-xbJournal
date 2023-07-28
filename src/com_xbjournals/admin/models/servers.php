@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/servers.php
- * @version 0.0.6.4 16th April 2023
+ * @version 0.1.2.3 21st April 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -48,7 +48,7 @@ class XbjournalsModelServers extends JModelList {
             .'a.url AS url, a.username AS username, a.password AS password,'
             .'a.description AS description, a.state AS published, a.access AS access,'
 			.'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
-			.'a.modified AS modified, a.modified_by AS modified_by,'
+			.'a.modified AS modified, a.modified_by AS modified_by, a.updated AS updated,'
             .'a.checked_out AS checked_out, a.checked_out_time AS checked_out_time,'
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
             $query->select('(SELECT COUNT(*) FROM #__xbjournals_calendars AS c WHERE c.server_id=a.id) AS ccnt' );

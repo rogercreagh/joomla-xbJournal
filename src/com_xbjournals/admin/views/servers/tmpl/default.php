@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/servers/tmpl/default.php
- * @version 0.0.7.4 5th July 2023
+ * @version 0.1.2.3 21st July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -212,7 +212,8 @@ Factory::getDocument()->addScriptDeclaration('function pleaseWait(targ) {
 					<?php endif; ?>
 				</td>
 				<td class="hidden-phone">
-					<?php echo HtmlHelper::date($item->modified, 'd M Y');?>					
+					upd:<?php echo HtmlHelper::date($item->updated, 'M Y H:i');?>				
+					mod:<?php echo HtmlHelper::date($item->modified, 'M Y H:i');?>				
 				</td>
 				<td class="hidden-phone">
 					<?php echo $item->id; ?>					

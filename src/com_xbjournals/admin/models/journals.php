@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journals.php
- * @version 0.1.2.2 20th July 2023
+ * @version 0.1.2.4 23rd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -79,7 +79,7 @@ class XbjournalsModelJournals extends JModelList {
             .'a.uid AS uid, a.parentuid AS parentuid, a.dtstart AS dtstart, a.categories AS cal_cats, a.dtstamp AS dtstamp,'
             .'a.description AS description, a.state AS published, a.access AS access, a.catid AS catid,'
 			.'a.created AS created, a.created_by AS created_by, a.created_by_alias AS created_by_alias,'
-			.'a.state AS published, a.modified AS modified, a.modified_by AS modified_by, a.last_checked AS last_checked,'
+			.'a.state AS published, a.modified AS modified, a.modified_by AS modified_by, a.updated AS updated,'
             .'a.checked_out AS checked_out, a.checked_out_time AS checked_out_time,'
             .'a.metadata AS metadata, a.ordering AS ordering, a.params AS params, a.note AS note');
         $query->select('(SELECT COUNT(*) FROM #__xbjournals_vjournal_attachments AS at WHERE at.entry_id = a.id) AS atcnt' );

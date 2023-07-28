@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.1.2.2 20th July 2023
+ * @version 0.1.2.4 23rd July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -236,15 +236,15 @@ class XbjournalsModelCalendars extends JModelList {
                         if ($etag == $localitems[$key]['etag']) {
                             //no change
                             $cnts['same']++;
-                            //update entry last_checked
+                            //update entry updated
                             $query = $db->getQuery(true);
-                            $query->update($db->qn('#__xbjournals_vjournal_entries'))->set('last_checked = '.$db->q(date("Y-m-d H:i:s")))
+                            $query->update($db->qn('#__xbjournals_vjournal_entries'))->set('updated = '.$db->q(date("Y-m-d H:i:s")))
                             ->where($db->qn('id').' = '.$db->q($localitems[$key]['id']));
                             $db->setQuery($query);
                             try {
                                 $res = $db->execute();
                             } catch (Exception $e) {
-                                XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
+                                XbjournalsHelper::doError('Problem updating Entry '.$calid.' updated datetime', $e);
                             }
                             
                         } else {
@@ -270,15 +270,15 @@ class XbjournalsModelCalendars extends JModelList {
                } //endif local items>0
             } //endforeach server item
         } //endif server items>0
-        $query = $db->getQuery(true);
-        $query->update($db->qn('#__xbjournals_calendars'))->set('last_checked = '.$db->q(date("Y-m-d H:i:s")))
-            ->where($db->qn('id').' = '.$db->q($calid));
-        $db->setQuery($query);
-        try {
-            $res = $db->execute();    
-        } catch (Exception $e) {
-            XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
-        }
+//        $query = $db->getQuery(true);
+//        $query->update($db->qn('#__xbjournals_calendars'))->set('last_checked = '.$db->q(date("Y-m-d H:i:s")))
+//            ->where($db->qn('id').' = '.$db->q($calid));
+//        $db->setQuery($query);
+//        try {
+//            $res = $db->execute();    
+//        } catch (Exception $e) {
+//            XbjournalsHelper::doError('Problem updating Calendar '.$calid.' last_checked datetime', $e);
+//        }
         Factory::getApplication()->enqueueMessage($cnts['local'].' local, '.$cnts['server'].' server, '
             .$cnts['new'].' new, '.$cnts['same'].' same, '.$cnts['updated'].' updated, '.$cnts['missing'].' missing, '.$cnts['archived'].' archived ');
         return $cnts;
@@ -296,7 +296,8 @@ class XbjournalsModelCalendars extends JModelList {
         $otherprops = array();
         $categories = '';
         $title = '';
-        $descdone = false;
+        $desc = '';
+        $summary = '';
         $catid = 0;
         $uid = '';
         $entrytype = (array_key_exists('dtstart', $item)) ? 'Journal' : 'Note';
@@ -320,34 +321,20 @@ class XbjournalsModelCalendars extends JModelList {
                 case 'description':
                     //check if we already have a description (multiples are allowed, we'll only use first
                     //TODO check language parameter
-                    if ($descdone) {
+                    if ($desc != '') {
                         $otherprops[] = $prop;
                     } else {
+                        $desc = $prop['value'];
                         $insertarr[] = array('col'=>$db->qn('description'),'val'=>$db->q($prop['value']));
-//                        $insertarr[] = array('col'=>$db->qn('html_desc'),'val'=>$db->q($prop['value']));
-//TODO convert text to html for html_desc - poss use parsedown (php) or showdown (js) 
                         if (!empty($prop['params'])) {
                             $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
                         }
-                        $descdone = true;
                     }
                     break;
                 //TODO check incoming  X-DESC or whatever
                 case 'summary':
-                    //generate title and alias (checking unique and adding cycle no)
+                    $summary = $prop['value'];
                     $insertarr[] = array('col'=>$db->qn($prop['property']),'val'=>$db->q($prop['value']));
-                    $cycle = 0;
-                    $title = $prop['value'];
-                    $alias = OutputFilter::stringURLSafe($title);
-                    $test = $alias;
-                    //make alias unique
-                    while (XbjournalsHelper::checkValueExists($test,'#__xbjournals_vjournal_entries','alias')) {
-                        $cycle ++;
-                        $test = $alias.'-'.sprintf("%02d", $cycle);
-                    }
-                    $alias = $test;
-                    $insertarr[] = array('col'=>$db->qn('title'),'val'=>$db->q($title));
-                    $insertarr[] = array('col'=>$db->qn('alias'),'val'=>$db->q($alias));
                     if (!empty($prop['params'])) {
                         $itemparams[] = array('property'=>$prop['property'],'params'=>$prop['params']);
                     }
@@ -428,8 +415,27 @@ class XbjournalsModelCalendars extends JModelList {
                     break;
             } //endswitch $item['property']           
         } // endforeach $item
-        //add last_checked
-        $insertarr[]=array('col'=>$db->qn('last_checked'),'val'=>$db->q(date("Y-m-d H:i:s")));
+        //add title and alias
+        //generate title and alias (checking unique and adding cycle no)
+        $title = $summary;
+        if ($title == '') {
+            $title = ($desc='') ? 'missing summary & desc' : XbjournalsHelper::truncateToText($desc, 100, 'firstsent', false);
+        }
+        
+        $cycle = 0;
+        $alias = OutputFilter::stringURLSafe($title);
+        $test = $alias;
+        //make alias unique
+        while (XbjournalsHelper::checkValueExists($test,'#__xbjournals_vjournal_entries','alias')) {
+            $cycle ++;
+            $test = $alias.'-'.sprintf("%02d", $cycle);
+        }
+        $alias = $test;
+        $insertarr[] = array('col'=>$db->qn('title'),'val'=>$db->q($title));
+        $insertarr[] = array('col'=>$db->qn('alias'),'val'=>$db->q($alias));
+        
+        //add updated
+        $insertarr[]=array('col'=>$db->qn('updated'),'val'=>$db->q(date("Y-m-d H:i:s")));
         
         $insertarr[]=array('col'=>$db->qn('entry_type'),'val'=>$db->q($entrytype));
         if ($catid == 0) {
@@ -609,17 +615,24 @@ class XbjournalsModelCalendars extends JModelList {
                 } else {
                     //TODO provide component parameter to allow this
                     //if we have a uri and we have a filename and the destination doesn't exist and the source has a mime type
-                    if ((filter_var($attach['value'], FILTER_VALIDATE_URL)) // is valid url
-                        && (fclose(fopen($attach['value'],"r")))            //is a filewe can open
-                    ) {                        
-                        $res = copy($attach['value'], JPATH_ROOT.$attpath.$lname);
-                        if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
-                    }
-                    if ($res) {
-                        Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$lname); 
-                        $localpath = $attpath.$lname;
+                    $res = false;
+                    if (filter_var($attach['value'], FILTER_VALIDATE_URL)) { // is valid url
+                        $testfile = fopen($attach['value'],"r");
+                        if ($testfile) { //is a file we can open
+                            fclose($testfile);
+                            $res = copy($attach['value'], JPATH_ROOT.$attpath.$lname);
+                            if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
+                            if ($res) {
+                                Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$lname); 
+                                $localpath = $attpath.$lname;
+                            } else {
+                                Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
+                            }
+                        } else {
+                            Factory::getApplication()->enqueueMessage('Could not open remote file for copying '.$attach['value'],'Warning');
+                        }
                     } else {
-                        Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
+                        Factory::getApplication()->enqueueMessage('Invalid url for remote file '.$attach['value'],'Warning');
                     }
                 }
                 if ($localpath != '') {

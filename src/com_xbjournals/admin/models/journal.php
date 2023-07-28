@@ -73,6 +73,7 @@ class XbjournalsModelJournal extends AdminModel {
         
         if (empty($data)) {
             $data = $this->getItem();
+            $data->attachments=$this->getAttachments();
         }
         
         return $data;
@@ -200,6 +201,29 @@ class XbjournalsModelJournal extends AdminModel {
         }
         
         return false;
+    }
+   
+    public function getAttachments() {
+        $db = $this->getDbo();
+        $query = $db->getQuery(true);
+        $query->select('a.id AS id, a.label AS label, a.filename AS filename, a.uri AS uri, a.localpath AS localpath');
+        $query->from('#__xbjournals_vjournal_attachments AS a');
+        $query->where('a.entry_id = '.(int) $this->getItem()->id);
+        $query->order('a.label ASC');
+        $db->setQuery($query);
+        $res = $db->loadAssocList();
+        foreach ($res as $item) {
+            if (($item->localpath != '') && ($item->uri =='')) {
+                    $item->type = 'Embedded';
+            }
+            if (($item->localpath != '') && ($item->uri != '')) {
+                $item->type = 'Local Copy';
+            }
+            if (($item->localpath == '') && ($item->uri != '')) {
+                $item->type = 'Remote only';
+            }
+        }
+        return $res;
     }
     
 }
