@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journal.php
- * @version 0.1.2.0 18th July 2023
+ * @version 0.1.2.5 28th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -211,16 +211,19 @@ class XbjournalsModelJournal extends AdminModel {
         $query->where('a.entry_id = '.(int) $this->getItem()->id);
         $query->order('a.label ASC');
         $db->setQuery($query);
-        $res = $db->loadAssocList();
+        $res = $db->loadObjectList();
         foreach ($res as $item) {
             if (($item->localpath != '') && ($item->uri =='')) {
-                    $item->type = 'Embedded';
+                    $item->type = 'Embedded saved locally';
             }
             if (($item->localpath != '') && ($item->uri != '')) {
-                $item->type = 'Local Copy';
+                $item->type = 'Remote with Local Copy';
             }
             if (($item->localpath == '') && ($item->uri != '')) {
                 $item->type = 'Remote only';
+            }
+            if (($item->localpath == '') && ($item->uri == '')) {
+                $item->type = 'Embedded, not saved locally';
             }
         }
         return $res;

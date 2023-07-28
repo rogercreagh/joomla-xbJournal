@@ -223,7 +223,7 @@
 			groupByFieldset="false" 
 		>
 			<form>
-				<field name="label" type="attachments" label="XBFILMS_FIELD_ADDPERSON_LABEL" >
+				<field name="label" type="attachments" label="Label" >
 					<option value="">JSELECT</option>	
 				</field>
 				<field name="type" type="text" label="Type" size="12" maxlength="12"

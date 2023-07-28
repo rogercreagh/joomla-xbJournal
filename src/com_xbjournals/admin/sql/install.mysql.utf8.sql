@@ -1,4 +1,4 @@
-# sql installation file for component xbJournals v0.0.4.2 11th May 2023
+# sql installation file for component xbJournals v0.1.2.5 28th July 2023
 
 INSERT INTO `#__content_types` (`type_title`, `type_alias`, `content_history_options`, `table`, `field_mappings`, `router`,`rules`) 
 VALUES
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_attachments` (
   `entry_id` int(10) NOT NULL DEFAULT '0' COMMENT 'link to entry',
   `atthash` varchar(100) NOT NULL DEFAULT '0',
   `inline_data` BLOB,
-  `uri` text,
+  `uri` text NOT NULL DEFAULT '',
   `encoding` varchar(20),
   `fmttype` varchar(190),
   `value` varchar(20) NOT NULL DEFAULT '',
@@ -194,7 +194,7 @@ CREATE TABLE IF NOT EXISTS `#__xbjournals_vjournal_attachments` (
   `label` varchar(1022),
   `otherparams` text COMMENT 'json encoded array',
   `info` varchar(1022),
-  `localpath` varchar(254),
+  `localpath` varchar(254) NOT NULL DEFAULT '',
    PRIMARY KEY (`id`)
 )  ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;
 

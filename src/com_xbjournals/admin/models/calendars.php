@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/calendars.php
- * @version 0.1.2.4 23rd July 2023
+ * @version 0.1.2.5 28th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -516,7 +516,7 @@ class XbjournalsModelCalendars extends JModelList {
                 switch ($pname) {
                     case 'filename':
                         $fname = $pvalue;
-//                        $hashstr .= $pvalue;
+                        $hashstr .= $pvalue;
                         break;
                     case 'x-label':
                         $xlabel = $pvalue;
@@ -649,7 +649,7 @@ class XbjournalsModelCalendars extends JModelList {
                         $this->doError('Error updating localpath in database',$e);
                     }
                 }
-            }
+            } //endif $atthash doesn't exist
         } //endforeach attach
         return $attids;
     }
