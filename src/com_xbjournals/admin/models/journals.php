@@ -98,7 +98,13 @@ class XbjournalsModelJournals extends JModelList {
         if (is_numeric($published)) {
             $query->where('a.state = ' . (int) $published);
         }
-        $journal = $this->getState('filter.journal');
+      
+        // Filter by Journal
+        $journal = $app->getUserStateFromRequest('vjid', 'cvjid','');
+        $app->setUserState('vjid', '');
+        if ($journal == '') {
+            $journal = $this->getState('filter.journal');            
+        }
         if (is_numeric($journal)) {
             $query->where('a.calendar_id = ' . (int) $journal);
         }
