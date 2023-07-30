@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journal.php
- * @version 0.1.2.5 28th July 2023
+ * @version 0.1.2.6 30th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -30,6 +30,7 @@ class XbjournalsModelJournal extends AdminModel {
             // Convert the metadata field to an array.
             $registry = new Registry($item->metadata);
             $item->metadata = $registry->toArray();
+            $item->atts = XbjournalsHelper::getVjournalAttachments($item->id);
             
             //convert other jsons to array
             
@@ -215,15 +216,19 @@ class XbjournalsModelJournal extends AdminModel {
         foreach ($res as $item) {
             if (($item->localpath != '') && ($item->uri =='')) {
                     $item->type = 'Embedded saved locally';
+                    $item->disppath = pathinfo($item->localpath, PATHINFO_DIRNAME);
             }
             if (($item->localpath != '') && ($item->uri != '')) {
                 $item->type = 'Remote with Local Copy';
+                $item->disppath = $item->uri;
             }
             if (($item->localpath == '') && ($item->uri != '')) {
                 $item->type = 'Remote only';
+                $item->disppath = $item->uri;
             }
             if (($item->localpath == '') && ($item->uri == '')) {
                 $item->type = 'Embedded, not saved locally';
+                $item->disppath = '';
             }
         }
         return $res;

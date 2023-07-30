@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals config.xml v0.1.1.1 12th July 2023 -->
+<!-- xbJournals config.xml v0.1.2.5 28th July 2023 -->
 <config>
 <!-- GENERAL TAB -->				
 	<fieldset name="general"
@@ -16,11 +16,13 @@
 				<option value="1">JYES</option>
 		</field>			
 		<field name="attach_path" type="folderlist" 
-			default="images/xbjournals" directory="images" 
+			directory="images" 
 	        label="XBJOURNALS_ATTACHPATH_LABEL" 
 	        description="XBJOURNALS_ATTACHPATH_DESC"
-	        recursive="true" hide_none="true" 
-        />
+	        recursive="true" hide_none="true" hide_default="true"
+	        >
+  			<option value="/xbjournals-attachments">/xbjournals-attachments</option>
+        </field>
   		<field name="copy_remote" type="radio"
 			label="Save remote attachments"
 			description="XBJOURNALS_COPYREMOTE_DESC"

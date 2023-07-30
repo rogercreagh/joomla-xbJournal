@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/views/journal/view.html.php
- * @version 0.1.2.0 18th July 2023
+ * @version 0.1.2.6 30th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -25,7 +25,7 @@ class XbjournalsViewJournal extends JViewLegacy {
         $this->canDo = XbjournalsHelper::getActions('com_xbjournals', 'journal', $this->item->id);
         
         $params      = $this->get('State')->get('params');
-        
+        $this->attpath = $params->get('attach_path','');
         if (count($errors = $this->get('Errors'))) {
             Factory::getApplication()->enqueueMessage(implode('<br />', $errors),'error');
             return false;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- xbJournals admin/models/forms/journal.xml v0.1.2.1 19th July 2023 -->
+<!-- xbJournals admin/models/forms/journal.xml v0.1.2.6 30th July 2023 -->
 <form>
 
 	<fieldset>
@@ -24,13 +24,13 @@
 		
 		<field name="html_desc" type="editor"
 			class="inputbox" 
-			label="HTML Description" description="HTML version of description for local use. May write-back to server as X-DESC property" 
+			label="HTML Description" description="HTML version of description for local use. Write-back to server as X-DESC property which may or may not be used by other clients" 
 			filter="JComponentHelper::filterText"  buttons="true" hide="article,pagebreak,readmore"  
 		/>
 		
 		<field name="description" type="textarea"
 			class="inputbox" rows="15" cols="60"
-			label="VCal description" description="Plain text (or Markdown) version of description as stored on server" 
+			label="VCal Text Description" description="Plain text (with optional Markdown codes) version of description as stored on server. NB not all clients will correctly format markdown." 
 			filter="JComponentHelper::filterText"   
 		/>
 		
@@ -218,17 +218,18 @@
 			min= "0"
 			max= "10"
 			multiple= "true"
-			buttons= "add,remove,move"
+			buttons= ""
 			layout="joomla.form.field.subform.repeatable-table"
 			groupByFieldset="false" 
 		>
 			<form>
-				<field name="label" type="attachments" label="Label" >
-					<option value="">JSELECT</option>	
-				</field>
-				<field name="type" type="text" label="Type" size="12" maxlength="12"
+				<field name="label" type="attachments" label="Label" description="defaults to filename"
 				/>
-				<field name="filename" type="text" label="Filename" size="20" maxlength="100"
+				<field name="disppath" type="text" label="Location" description="URI if remote" size="30" maxlength="100" readonly="true" 
+				/>
+				<field name="type" type="text" label="Type" size="12" maxlength="12" readonly="true"
+				/>
+				<field name="filename" type="text" label="Filename" size="20" maxlength="100" readonly="true"
 				/>
 			</form>
 		</field>			

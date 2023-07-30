@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Compnent
  * @filesource admin/views/notes/tmpl/default.php
- * @version 0.0.4.4 12th May 2023
+ * @version 0.1.2.6 30th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -214,7 +214,11 @@ $tagviewlink='';
 							<details><summary>
 									<span class="xbm0 xbnbit"><?php echo Text::_('XBJOURNALS_ATTACHMENTs'); ?>:</span> 
 								</summary>
-    							<?php echo $item->atts; ?>
+								<ul style="list-style-type:none;">
+    							<?php foreach ($item->atts as $att) : ?>
+    							    <li><a onclick='openImageModal("<?php echo $att->path; ?>")'><?php echo $att->name; ?></a></li>
+    							<?php endforeach; ?>
+								</ul>
 							</details>
 						<?php endif; ?>
 					</td>
@@ -261,3 +265,49 @@ $tagviewlink='';
 <div class="clearfix"></div>
 <p><?php echo XbjournalsHelper::credit('xbJournals');?></p>
 
+<!-- The Image Modal -->
+<div id="imgModal" class="xbmodal">
+
+  <!-- Modal content -->
+  <div class="xbmodal-content">
+  	<div class="xbmodimg">
+    <img src="https://crosborne.uk/images/screengrabs/xbbooks/xbbooks-book.png" id="imgtag"/>
+    </div>
+    <div class="xbclosediv"><span class="xbclosebtn">&times;</span></div>
+  </div>
+
+</div>
+
+<script>
+// Get the modal
+var xbmodal = document.getElementById("imgModal");
+
+// Get the button that opens the modal
+var btn = document.getElementById("myBtn");
+
+// Get the <span> element that closes the modal
+var xbclose = document.getElementsByClassName("xbclosebtn")[0];
+
+// When the user clicks the button, open the modal 
+//btn.onclick = function() {
+//  xbmodal.style.display = "block";
+//}
+
+// When the user clicks on <span> (x), close the modal
+xbclose.onclick = function() {
+  xbmodal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == xbmodal) {
+    xbmodal.style.display = "none";
+  }
+}
+
+function openImageModal(imgsrc) {
+	imgtag = document.getElementById("imgtag");
+	imgtag.src = imgsrc;
+	xbmodal.style.display = "block";
+}
+</script>

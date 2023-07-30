@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals
  * @filesource admin/helpers/xbjournals.php
- * @version 0.1.2.4 22nd July 2023
+ * @version 0.1.2.6 30th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -436,32 +436,36 @@ class XbjournalsHelper extends ContentHelper
 	    $list = '';
 	    $db = Factory::getDbo();
 	    $query = $db->getQuery(true);
-	    $query->select('uri, filename, label, localpath')
+	    $query->select('id, uri, filename, label, localpath')
 	       ->from($db->qn('#__xbjournals_vjournal_attachments'))
 	       ->where('entry_id = '. $itemid);
 	    $db->setQuery($query);
-	    $atts = $db->loadObjectList();
+	    $atts = $db->loadObjectList('id');
+	    
 	    if ($atts) {
-	        $list = '<ul>';
+//	        $list = '<ul>';
 	        foreach ($atts as $at) {
 	            $path = '';
-	            $list .= '<li>';
+//	            $list .= '<li>';
 	            if ($at->localpath) {
 	                $path = $at->localpath;
 	            } elseif ($at->uri) {
 	                $path = $at->uri;
 	            }
-	            $name =  ($at->label) ? $at->label : $at->filename;
-	            if ($path) {
-	                $list .= '<a href="'.$path.'" target="_blank">'.$name.'</a>';
-	            } else {
-	                $list .= $name;
-	            }
-	            $list .= ' </li>';
-	        }
-	        $list .= '</ul>';
+	            $at->path = $path;
+	            $at->name =  ($at->label) ? $at->label : $at->filename;
+// 	            if ($path) {
+// 	                $list .= '<button onclick="openImageModal(/"'.addslashes($path).'/");">'.$name.'</a>';
+// 	            } else {
+// 	                $list .= $name;
+// 	            }
+// 	            $list .= ' </li>';
+ 	        }
+// 	        $list .= '</ul>';
 	    }
-	    return $list;	        
+//	    return $list;	    
+	    
+	    return $atts;
 	}
 	
 	/** 

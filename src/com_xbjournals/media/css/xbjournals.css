@@ -1,7 +1,7 @@
 /*******
  * @package xbJournals Component
  * @filesource media/css/xbjournals.css
- * @version 0.0.5.3 17th May 2023
+ * @version 0.1.2.6 30th July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
@@ -214,7 +214,7 @@ green and blue are used for categories and tags
 some common combinations are also defined (eg xbnit - normal weight,italic, 5px left pad)
 */
 
-/* centre div */
+/* centre div or table cell */
 .xbcentre { margin-left:auto; margin-right:auto;}
 
 /* text alignment */
@@ -293,4 +293,61 @@ some common combinations are also defined (eg xbnit - normal weight,italic, 5px 
 
 /* may also need the bootstrap chosen styles from xbculture.css */
 
+/* xb Modal for images popup */
+/* The Modal (background) */
+.xbmodal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 2; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
 
+/* Modal Content (image) */
+.xbmodal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 5px;
+  border: 2px solid #000;
+  width: min-content;
+  display: grid;
+}
+
+/* the image div */
+.xbmodimg img {
+	max-width:500px;
+}
+
+/* The Close Button */
+.xbmodimg, .xbclosediv {
+	grid-area: 1/ 1;
+    }
+
+.xbclosediv {
+  color: #888;
+  text-align: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.xbclosebtn {
+   background-color: rgba(0,0,0,0.2);  
+}
+
+.xbclosediv:hover,
+.xbclosebtn:focus {
+  color: #444;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* table cell for image preview */
+.xbtdimg {
+	padding:10px;
+	text-align:center;
+}

@@ -491,7 +491,12 @@ class XbjournalsModelCalendars extends JModelList {
      */
     function insertAttachments(int $itemid, string $uid, array $attachments) {
         $db = Factory::getDbo();
-        $attpath = '/images/xbjournals/'; //TODO get component param for this
+        $params = ComponentHelper::getParams('com_xbjournals');
+        $attpath = $params->get('attach_path','/xbjournals-attachments');
+        if ($attpath != '/xbjournals-attachments') {
+            $attpath = '/images/'.$attpath; 
+        }
+        $attpath .= '/';
         $attids = array();
         $query = $db->getQuery(true);
         $query->select('atthash')->from($db->qn('#__xbjournals_vjournal_attachments'));
@@ -613,28 +618,29 @@ class XbjournalsModelCalendars extends JModelList {
                         Factory::getApplication()->enqueueMessage('Error; attachment not saved '.$attpath.$fname,'Warning');
                     }
                 } else {
-                    //TODO provide component parameter to allow this
-                    //if we have a uri and we have a filename and the destination doesn't exist and the source has a mime type
-                    $res = false;
-                    if (filter_var($attach['value'], FILTER_VALIDATE_URL)) { // is valid url
-                        $testfile = fopen($attach['value'],"r");
-                        if ($testfile) { //is a file we can open
-                            fclose($testfile);
-                            $res = copy($attach['value'], JPATH_ROOT.$attpath.$lname);
-                            if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
-                            if ($res) {
-                                Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$lname); 
-                                $localpath = $attpath.$lname;
+                    if ($params->get('copy_remote', 0)) {
+                        //if we have a uri and we have a filename and the destination doesn't exist and the source has a mime type
+                        $res = false;
+                        if (filter_var($attach['value'], FILTER_VALIDATE_URL)) { // is valid url
+                            $testfile = fopen($attach['value'],"r");
+                            if ($testfile) { //is a file we can open
+                                fclose($testfile);
+                                $res = copy($attach['value'], JPATH_ROOT.$attpath.$lname);
+                                if ($fmttype == '') $fmttype = mime_content_type(JPATH_ROOT.$attpath.$lname);
+                                if ($res) {
+                                    Factory::getApplication()->enqueueMessage('Copied '.$attach['value'].' to '.$attpath.$lname); 
+                                    $localpath = $attpath.$lname;
+                                } else {
+                                    Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
+                                }
                             } else {
-                                Factory::getApplication()->enqueueMessage('Problem copying remote file to local storage '.$attpath.$fname,'Warning');
+                                Factory::getApplication()->enqueueMessage('Could not open remote file for copying '.$attach['value'],'Warning');
                             }
                         } else {
-                            Factory::getApplication()->enqueueMessage('Could not open remote file for copying '.$attach['value'],'Warning');
-                        }
-                    } else {
-                        Factory::getApplication()->enqueueMessage('Invalid url for remote file '.$attach['value'],'Warning');
-                    }
-                }
+                            Factory::getApplication()->enqueueMessage('Invalid url for remote file '.$attach['value'],'Warning');
+                        }                       
+                    } //endif copy_remote 
+                } //endif hasblob else
                 if ($localpath != '') {
                     $query = $db->getQuery(true);
                     $query->update('#__xbjournals_vjournal_attachments')
