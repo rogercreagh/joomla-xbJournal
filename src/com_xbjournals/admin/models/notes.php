@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/notes.php
- * @version 0.0.4.4 12th May 2023
+ * @version 0.1.3.1 31st July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -98,9 +98,15 @@ class XbjournalsModelNotes extends JModelList {
         if (is_numeric($published)) {
             $query->where('a.state = ' . (int) $published);
         }
-        $journal = $this->getState('filter.journal');
-        if (is_numeric($journal)) {
-            $query->where('a.calendar_id = ' . (int) $journal);
+        
+        // Filter by Journal
+        $vjournal = $app->getUserStateFromRequest('vjid', 'vjid','');
+        $app->setUserState('vjid', '');
+        if ($vjournal == '') {
+            $vjournal = $this->getState('filter.journal');
+        }
+        if (is_numeric($vjournal)) {
+            $query->where('a.calendar_id = ' . (int) $vjournal);
         }
         
         // Filter by category.
