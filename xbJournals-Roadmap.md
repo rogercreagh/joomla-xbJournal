@@ -17,6 +17,7 @@
 - **DONE** v0.1.3 Note Edit/View
 - v0.1.4 Attachment Edit/View
 - v0.1.5 Tags views
+  - import/edit tags for items
   - tags used view (counts)
   - single tag view
 - v0.1.6 Item preview views for lists
