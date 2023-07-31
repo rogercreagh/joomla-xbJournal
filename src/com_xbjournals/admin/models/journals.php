@@ -2,7 +2,7 @@
 /*******
  * @package xbJournals Component
  * @filesource admin/models/journals.php
- * @version 0.1.2.4 23rd July 2023
+ * @version 0.1.3.0 31st July 2023
  * @author Roger C-O
  * @copyright Copyright (c) Roger Creagh-Osborne, 2023
  * @license GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html 
@@ -100,7 +100,7 @@ class XbjournalsModelJournals extends JModelList {
         }
       
         // Filter by Journal
-        $journal = $app->getUserStateFromRequest('vjid', 'cvjid','');
+        $journal = $app->getUserStateFromRequest('vjid', 'vjid','');
         $app->setUserState('vjid', '');
         if ($journal == '') {
             $journal = $this->getState('filter.journal');            

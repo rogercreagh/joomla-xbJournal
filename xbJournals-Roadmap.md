@@ -14,7 +14,7 @@
 - **DONE** v0.1.0 all above completed and bug fixed
 - **DONE** v0.1.1 Calendar Edit/View
 - **DONE** v0.1.2 Journal Edit/View **database changes**
-- v0.1.3 Note Edit/View
+- **DONE** v0.1.3 Note Edit/View
 - v0.1.4 Attachment Edit/View
 - v0.1.5 Tags views
   - tags used view (counts)
