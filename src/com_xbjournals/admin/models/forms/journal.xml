@@ -36,7 +36,7 @@
 		
 		<field name="catid" type="category" 
 			label="JCATEGORY" description="category" 
-			extension="com_xbjournalss" 
+			extension="com_xbjournals" 
 			class="chzn-custom-value"
 			required="true"
 		>
